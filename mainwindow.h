@@ -39,10 +39,13 @@ private slots:
     void editModelDataStruct(const QString& name);
     void on_actionReloadmodel_triggered();
 
+    //Timer Interval to check output message
+    void onCheckOutputMessage();
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);
     void modelDataStructListChanged(const QStringList&);
+    void outputMessage(const QStringList&);
 private:
     Ui::MainWindow *ui;
     std::vector<std::pair<std::string, std::string> > nslist;

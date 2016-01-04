@@ -8,7 +8,7 @@
 
 #include <string.h>
 #include <QMultiMap>
-
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QsciLexerXML *xml = new QsciLexerXML(this);
     ui->textEdit->setLexer(xml);
+    ui->textEdit->setFolding(QsciScintilla::BoxedTreeFoldStyle);
 
     showMaximized();
 
@@ -37,6 +38,11 @@ MainWindow::MainWindow(QWidget *parent) :
     title = windowTitle();
 
     ep = new EmbedPython;
+
+    QTimer *timer = new QTimer(this);
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(onCheckOutputMessage()) );
+    timer->start(1000);
 }
 
 MainWindow::~MainWindow()
@@ -106,7 +112,7 @@ void MainWindow::on_pushButton_2_clicked()
 
         if(item) {
             ep->callModel("CheckExcelFileModel", "s", item->text().toUtf8().data());
-            qDebug()<<item->text()<<" valid:" <<ep->returnType();
+            //qDebug()<<item->text()<<" valid:" <<ep->returnType();
             if(strcmp(ep->returnType(), "NoneType") == 0) {
                 item->setIcon(ip.icon(QFileIconProvider::Trashcan));
                 font = item->font();
@@ -222,7 +228,7 @@ void MainWindow::on_pushButton_3_clicked()
                     .append(",");
         }
         ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
-        qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
+        //qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
 
     }
     ep->callModel("SaveDataStruct", NULL);
@@ -250,4 +256,19 @@ void MainWindow::editModelDataStruct(const QString &name)
 void MainWindow::on_actionReloadmodel_triggered()
 {
     ep->reload();
+}
+
+void MainWindow::onCheckOutputMessage()
+{
+    std::string s = ep->errorMessage();
+    QString emsg = QString::fromStdString(s);
+
+    if (!emsg.isEmpty()) {
+        QStringList sl = emsg.split("\n");
+        if (sl.size() > 0) {
+            emit outputMessage(sl);
+            ui->errListWidget->addItems(sl);
+        }
+    }
+
 }

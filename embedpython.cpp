@@ -45,11 +45,16 @@ bool EmbedPython::init()
         PyObject* fromlist = PyList_New(1);
         PyList_SET_ITEM(fromlist, 0, PyString_FromString("*"));
         /** Import main module */
-        mainmodel = PyImport_ImportModuleEx("__main__", globals, locals, fromlist);
-
+        char mname[512];
+        memset(mname, 0, 512);
+        memcpy(mname, "__main__", sizeof("__main__"));
+        mainmodel = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
+        checkError();
         /** Import modeltool module */
-        modeltool = PyImport_ImportModuleEx(MODELTOOL, globals, locals, fromlist);
-
+        memset(mname, 0, 512);
+        memcpy(mname, MODELTOOL, sizeof(MODELTOOL));
+        modeltool = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
+        checkError();
         Py_XDECREF(fromlist);
     } else {
         qDebug()<<"Init failed";
@@ -65,6 +70,8 @@ void EmbedPython::finit()
 
     if(initialized) {
         Py_XDECREF(retobj);
+        Py_XDECREF(globals);
+        Py_XDECREF(locals);
         Py_XDECREF(modeltool);
         Py_XDECREF(mainmodel);
         modeltool = NULL;
@@ -84,12 +91,17 @@ void EmbedPython::reload()
         /** Import modeltool module */
         if(modeltool) {
             newmodel = PyImport_ReloadModule(modeltool);
+            checkError();
             Py_XDECREF(modeltool);
             modeltool = newmodel;
         } else {
             newmodel = PyImport_ImportModule(MODELTOOL);
+            checkError();
             modeltool = newmodel;
         }
+
+        callModel("Init", NULL);
+        checkError();
     }
 }
 
@@ -110,42 +122,21 @@ int EmbedPython::callModel(const char *method, const char *format, ...)
     //qDebug()<<"method type is :"<<md->ob_type->tp_name;
 
     if(format) {
-    va_start(vl, format);
-    args = Py_VaBuildValue(format, vl);
-    va_end(vl);
+        va_start(vl, format);
+        args = Py_VaBuildValue(format, vl);
+        checkError();
+        va_end(vl);
 
-    retobj = PyObject_CallMethodObjArgs(modeltool, md, args, NULL);
+        retobj = PyObject_CallMethodObjArgs(modeltool, md, args, NULL);
     } else {
         retobj = PyObject_CallMethodObjArgs(modeltool, md, NULL);
     }
 
-    // Print error stack
-    if(PyErr_Occurred()) {
-        PyObject *ptp = NULL, *pv = NULL, *ptb = NULL;
-        PyErr_Fetch(&ptp, &pv, &ptb);
-        if(ptp && PyType_Check(ptp)) {
-            qDebug()<<"error Type:"<<QString(((PyTypeObject*)(ptp))->tp_name);
-        }
-        if(pv && PyString_Check(pv) ) {
-            qDebug()<<"error value:"<<QString(PyString_AsString(pv));
-        }
-        if(ptb) {
+    checkError();
 
-            PyTracebackObject *traceback = ((PyTracebackObject*)ptb);
-            for (;traceback ; traceback = traceback->tb_next) {
-                PyCodeObject *codeobj = traceback->tb_frame->f_code;
-                qDebug()<<QString("%1: %2(# %3)")
-                                  .arg(PyString_AsString(codeobj->co_name))
-                                  .arg(PyString_AsString(codeobj->co_filename))
-                                  .arg(traceback->tb_lineno);
-            }
-        }
-        //PyErr_Print();
-    }
-
-    if(retobj) {
-        qDebug()<<"return type:"<<retobj->ob_type->tp_name;
-    }
+//    if(retobj) {
+//        qDebug()<<"return type:"<<retobj->ob_type->tp_name;
+//    }
     Py_XDECREF(args);
     Py_XDECREF(md);
 
@@ -163,4 +154,55 @@ const char *EmbedPython::returnType() const
 PyObject *EmbedPython::returnObject() const
 {
     return retobj;
+}
+
+std::string EmbedPython::errorMessage()
+{
+    std::string e = emsg;
+    emsg.clear();
+    return e;
+}
+
+void EmbedPython::checkError()
+{
+    // Print error stack
+    if(PyErr_Occurred()) {
+        //PyErr_Print();
+        PyObject *ptp = NULL, *pv = NULL, *ptb = NULL;
+        PyErr_Fetch(&ptp, &pv, &ptb);
+        if(ptp && PyType_Check(ptp)) {
+            emsg += "Error Type:";
+            emsg += ((PyTypeObject*)(ptp))->tp_name;
+            emsg +="\n";
+        }
+        if(pv && PyString_Check(pv) ) {
+            emsg += "Error Value:";
+            emsg += PyString_AsString(pv);
+            emsg +="\n";
+            //qDebug()<<"Error Value: emsg.c_str():"<<pv->ob_type->tp_name;
+        } else if(pv) {
+            emsg += "Error Value:";
+            emsg += PyString_AsString( ((PyBaseExceptionObject*)(pv))->message );
+            emsg += "\n";
+        }
+
+        if(ptb) {
+
+            PyTracebackObject *traceback = ((PyTracebackObject*)ptb);
+            char fmtmsg [512];
+            for (;traceback ; traceback = traceback->tb_next) {
+                PyCodeObject *codeobj = traceback->tb_frame->f_code;
+                memset(fmtmsg, 0, 512);
+                sprintf(fmtmsg,
+                        "  %s: %s(# %d)\n",
+                        PyString_AsString(codeobj->co_name),
+                        PyString_AsString(codeobj->co_filename),
+                        traceback->tb_lineno
+                        );
+                emsg +=fmtmsg;
+            }
+        }
+
+    }
+
 }
