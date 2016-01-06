@@ -3,8 +3,8 @@
 
 #define MODELTOOL "autotools.component_parser_excel"
 EmbedPython::EmbedPython()
-    :modeltool(NULL), mainmodel(NULL),retobj(NULL),
-      globals(NULL),locals(NULL),
+    :modeltool(NULL), retobj(NULL),
+      //globals(NULL),locals(NULL),
       initialized(false)
 {
     init();
@@ -27,37 +27,52 @@ bool EmbedPython::init()
     QDir dir(qApp->applicationDirPath());
     dir.cdUp();
     dir.cd("Debug");
-    QString p = dir.absolutePath()+QString("/python27");
+    //
+    QString p = QString("python27");
     py_progname = p.toLocal8Bit();
 
-    p = dir.absolutePath() + QString("/embed");
+    dir.cd("embed");
+
+    p = dir.absolutePath();// + dir.separator() + QString("embed");
     py_pythonhome = p.toLocal8Bit();
+    //QMessageBox::warning(NULL, "", p);
+
 
     Py_SetProgramName(py_progname.data());
+//    qDebug()<<"program path:"<<Py_GetProgramFullPath();
+//    qDebug()<<"program name:"<<Py_GetProgramName();
+//    qDebug()<<"python path:"<<Py_GetPath() ;
     Py_SetPythonHome(py_pythonhome.data());
 
+//    qDebug()<<"program home:"<<Py_GetPythonHome();
+//    qDebug()<<"program path:"<<Py_GetProgramFullPath();
+//    qDebug()<<"program name:"<<Py_GetProgramName();
+//    qDebug()<<"python path:"<<Py_GetPath() ;
+    QMessageBox::warning(NULL, "", Py_GetPath());
     /** Initialize Python */
     Py_InitializeEx(0);
+    //Py_Initialize();
     if(Py_IsInitialized() != 0) {
         initialized = true;
-        globals = PyList_New(0);
-        locals = PyList_New(0);
-        PyObject* fromlist = PyList_New(1);
-        PyList_SET_ITEM(fromlist, 0, PyString_FromString("*"));
+        //globals = PyList_New(0);
+        //locals = PyList_New(0);
+//        PyObject* fromlist = PyList_New(1);
+//        PyList_SET_ITEM(fromlist, 0, PyString_FromString("*"));
         /** Import main module */
-        char mname[512];
-        memset(mname, 0, 512);
-        memcpy(mname, "__main__", sizeof("__main__"));
-        mainmodel = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
-        checkError();
+//        char mname[512];
+//        memset(mname, 0, 512);
+//        memcpy(mname, "__main__", sizeof("__main__"));
+//        mainmodel = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
+//        checkError();
         /** Import modeltool module */
-        memset(mname, 0, 512);
-        memcpy(mname, MODELTOOL, sizeof(MODELTOOL));
-        modeltool = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
+//        memset(mname, 0, 512);
+//        memcpy(mname, MODELTOOL, sizeof(MODELTOOL));
+        //modeltool = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
+        modeltool = PyImport_ImportModule(MODELTOOL);
         checkError();
-        Py_XDECREF(fromlist);
-    } else {
-        qDebug()<<"Init failed";
+//        Py_XDECREF(fromlist);
+//    } else {
+//        qDebug()<<"Init failed";
     }
 
     return initialized;
@@ -70,12 +85,12 @@ void EmbedPython::finit()
 
     if(initialized) {
         Py_XDECREF(retobj);
-        Py_XDECREF(globals);
-        Py_XDECREF(locals);
+        //Py_XDECREF(globals);
+        //Py_XDECREF(locals);
         Py_XDECREF(modeltool);
-        Py_XDECREF(mainmodel);
+        //Py_XDECREF(mainmodel);
         modeltool = NULL;
-        mainmodel = NULL;
+        //mainmodel = NULL;
         retobj = NULL;
         Py_Finalize();
     }
@@ -176,12 +191,12 @@ void EmbedPython::checkError()
             emsg +="\n";
         }
         if(pv && PyString_Check(pv) ) {
-            emsg += "Error Value:";
+            emsg += "  Error Value:";
             emsg += PyString_AsString(pv);
             emsg +="\n";
             //qDebug()<<"Error Value: emsg.c_str():"<<pv->ob_type->tp_name;
         } else if(pv) {
-            emsg += "Error Value:";
+            emsg += "  Error Value:";
             emsg += PyString_AsString( ((PyBaseExceptionObject*)(pv))->message );
             emsg += "\n";
         }

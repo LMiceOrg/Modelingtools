@@ -24,10 +24,10 @@ private:
     QByteArray  py_progname;
     QByteArray py_pythonhome;
     PyObject *modeltool;
-    PyObject *mainmodel;
+    //PyObject *mainmodel;
     PyObject *retobj;
-    PyObject *globals;
-    PyObject *locals;
+    //PyObject *globals;
+    //PyObject *locals;
     bool initialized;
     QMutex mutex;
     std::string emsg;
