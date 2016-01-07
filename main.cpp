@@ -6,6 +6,7 @@
 
 int main(int argc, char *argv[])
 {
+    qDebug()<<sizeof(wchar_t);
     //qDebug()<<Py_GetPath();
     QApplication a(argc, argv);
     //qDebug()<<"begin sys set"<<argc<<argv[0];
