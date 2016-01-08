@@ -29,17 +29,23 @@ bool EmbedPython::init()
     QString p = QString("python27");
     py_progname = p.toLocal8Bit();
 
+#if __APPLE__
+    dir.cdUp();
+    dir.cd("Resources");
+#endif
+
     p = dir.absolutePath();// + dir.separator() + QString("embed");
+
     py_pythonhome = p.toLocal8Bit();
     //QMessageBox::warning(NULL, "", p);
 
-
+#if !__APPLE__
     Py_SetProgramName(py_progname.data());
 //    qDebug()<<"program path:"<<Py_GetProgramFullPath();
 //    qDebug()<<"program name:"<<Py_GetProgramName();
 //    qDebug()<<"python path:"<<Py_GetPath() ;
     Py_SetPythonHome(py_pythonhome.data());
-
+#endif
 //    qDebug()<<"program home:"<<Py_GetPythonHome();
 //    qDebug()<<"program path:"<<Py_GetProgramFullPath();
 //    qDebug()<<"program name:"<<Py_GetProgramName();
@@ -64,8 +70,12 @@ bool EmbedPython::init()
 //        memset(mname, 0, 512);
 //        memcpy(mname, MODELTOOL, sizeof(MODELTOOL));
         //modeltool = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
-        QString cmd = QString("import sys; import os;  sys.path.append(os.path.abspath('%1'));")
+        QString cmd = QString("import sys; import os;  sys.path.append(os.path.abspath('%1'))")
+#if __APPLE__
+                .arg(dir.absolutePath());
+#else
                 .arg(qApp->applicationDirPath());
+#endif
         PyRun_SimpleString(cmd.toLocal8Bit().data());
         modeltool = PyImport_ImportModule(MODELTOOL);
         checkError();

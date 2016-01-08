@@ -23,7 +23,7 @@ class DataTypeFileGenerator:
         self.name = name
         #初始化数据类型定义
         self.dt = projectmodel.DataType()
-        self.dt.ImportXML(simapp_dtfile)
+        #self.dt.ImportXML(simapp_dtfile)
         #初始化xml Element列表
         self.xdict={}
     #Customizing attribute access 'obj.name'
