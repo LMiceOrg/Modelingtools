@@ -36,9 +36,13 @@ pysrc.path=$$OUT_PWD/release/Lib/python2.7/site-packages/autotools
 pysrc.files=autotools/*
 INSTALLS += pysrc
 
-win32-msvc {
+win32-msvc2012 {
+message("msvc")
+DEFINES += Py_BUILD_CORE
 INCLUDEPATH += C:/Python27/include
-LIBS += -LC:/Python27/libs  -lpython27
+LIBS += -L"C:/Python27/libs"  -lpython27
+pysrc.path = $$OUT_PWD/release/autotools
+message($$pysrc.path)
 }
 
 win32-g++ {
