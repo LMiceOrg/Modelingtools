@@ -25,13 +25,9 @@ bool EmbedPython::init()
 
     /** Setting Python folder */
     QDir dir(qApp->applicationDirPath());
-    dir.cdUp();
-    dir.cd("Debug");
     //
     QString p = QString("python27");
     py_progname = p.toLocal8Bit();
-
-    dir.cd("embed");
 
     p = dir.absolutePath();// + dir.separator() + QString("embed");
     py_pythonhome = p.toLocal8Bit();
@@ -48,7 +44,7 @@ bool EmbedPython::init()
 //    qDebug()<<"program path:"<<Py_GetProgramFullPath();
 //    qDebug()<<"program name:"<<Py_GetProgramName();
 //    qDebug()<<"python path:"<<Py_GetPath() ;
-    QMessageBox::warning(NULL, "", Py_GetPath());
+//    QMessageBox::warning(NULL, "", Py_GetPath());
     /** Initialize Python */
     Py_InitializeEx(0);
     //Py_Initialize();
@@ -68,6 +64,9 @@ bool EmbedPython::init()
 //        memset(mname, 0, 512);
 //        memcpy(mname, MODELTOOL, sizeof(MODELTOOL));
         //modeltool = PyImport_ImportModuleEx(mname, globals, locals, fromlist);
+        QString cmd = QString("import sys; import os;  sys.path.append(os.path.abspath('%1'));")
+                .arg(qApp->applicationDirPath());
+        PyRun_SimpleString(cmd.toLocal8Bit().data());
         modeltool = PyImport_ImportModule(MODELTOOL);
         checkError();
 //        Py_XDECREF(fromlist);

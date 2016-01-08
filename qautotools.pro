@@ -43,12 +43,21 @@ LIBS += -lpython2.7.dll
 
 LIBS += -lqscintilla2
 #LIBS += -lpython2.7
-OTHER_FILES += $$OUT_PWD/Debug/embed/Lib/python2.7/site-packages/autotools/component_parser_excel.py \
-$$OUT_PWD/Debug/embed/Lib/python2.7/site-packages/autotools/projectmodel.py \
-$$OUT_PWD/Debug/embed/Lib/python2.7/site-packages/autotools/datatypefile_generator.py \
-$$OUT_PWD/Debug/embed/Lib/python2.7/site-packages/autotools/__init__.py
+
+#install python script
+pysrc.path=$$OUT_PWD/release/Lib/python2.7/site-packages/autotools
+pysrc.files=autotools/*
+INSTALLS += pysrc
+
+OTHER_FILES += autotools/*.py \
+autotools/modelparser/*.py \
+autotools/datamodel/*.py \
+autotools/builder/*.py
+
 PRECOMPILED_HEADER += stdafx.h
 
 precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 DEFINES += USING_PCH
 }
+
+message($$OUT_PWD)
