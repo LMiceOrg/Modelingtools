@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import datamodelgenerator
-asdas
+
 gen = datamodelgenerator.XLDataModelGenerator()
 
 def Init():

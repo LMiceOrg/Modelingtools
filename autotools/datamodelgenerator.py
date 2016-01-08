@@ -81,7 +81,7 @@ class XLDataModelGenerator(object):
 
         return ctx
 
-    def FindFileBySurfix(self, flist, folder, surfix):
+    def FindFileBySurfix(self, flist, folder, surfix, pattern):
         files = os.listdir(folder)
         for fi in files:
             #decode filename from gbk to unicode codeset
@@ -90,14 +90,18 @@ class XLDataModelGenerator(object):
             name = folder + os.path.sep + fi
             if os.path.isdir(name):
                 #recursion call
-                self.FindFileBySurfix(flist, name, surfix)
+                self.FindFileBySurfix(flist, name, surfix, pattern)
             elif os.path.isfile(name):
+                #match pattern
+                if len(re.findall(pattern, fi)) == 0:
+                    continue
+                #match surfix
                 for sfix in surfix:
                     if name[-len(sfix):] == sfix :
                         flist.append(name)
                         break
     #Get Excel files in folder                    
-    def GetFileList(self, folder, surfixs=".xls,.xlsx"):
+    def GetFileList(self, folder, surfixs=".xls,.xlsx", pattern='^[^~].*[.]xls\w*'):
         """ 遍历文件夹查找所有满足后缀的文件 """
         surfix = surfixs.split(",")
         if type(folder) == str:
@@ -105,7 +109,7 @@ class XLDataModelGenerator(object):
         p = os.path.abspath(folder)
         flist = []
         if os.path.isdir(p):
-            self.FindFileBySurfix(flist, p, surfix)
+            self.FindFileBySurfix(flist, p, surfix, pattern)
         else:
             raise "folder param(%s) is not a real folder" % str(folder)
         utf8list=[]

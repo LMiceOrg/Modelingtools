@@ -61,9 +61,10 @@ pysrc.path = $$OUT_PWD/modelingtools.app/Contents/Resources/autotools
 #qscintilla2
 qsci.path = $$OUT_PWD/modelingtools.app/Contents/MacOS
 qsci.files += $$[QT_INSTALL_LIBS]/libqscintilla2.12.dylib
-message($$qsci.files)
-message($$qsci.path)
+
 INSTALLS += qsci
+
+QMAKE_CXXFLAGS += -march=native -std=c++11 -Wall -Wextra -Wpedantic
 }
 
 LIBS += -lqscintilla2
@@ -82,4 +83,4 @@ precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 DEFINES += USING_PCH
 }
 
-message($$[TARGET])
+
