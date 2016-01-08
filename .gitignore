@@ -1,0 +1,11 @@
+
+# Qt project.user file
+*.user
+
+#Python compiling file
+*.pyc
+*.pyo
+
+#backup file
+*.bak
+
