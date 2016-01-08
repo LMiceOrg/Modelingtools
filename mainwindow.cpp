@@ -37,6 +37,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     title = windowTitle();
 
+#if __APPLE__
+    //Debug purpose
+    ui->lineEdit->setText("/Users/hehao/work/doc/modelingtools/model");
+#endif
+
     ep = new EmbedPython;
 
     QTimer *timer = new QTimer(this);
@@ -58,9 +63,14 @@ void MainWindow::on_pushButton_clicked()
     QString folder = QFileDialog::getExistingDirectory(
                 this,
                 tr("Open Model Directory"),
-                qApp->applicationDirPath(),
+                ui->lineEdit->text(),
                 QFileDialog::ShowDirsOnly
                 | QFileDialog::DontResolveSymlinks);
+
+    if(folder.isEmpty()) {
+        return;
+    }
+
     ui->lineEdit->setText(folder);
     QDir dir(folder);
     if( !dir.exists() ||

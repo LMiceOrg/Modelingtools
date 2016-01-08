@@ -460,7 +460,7 @@ def CheckExcelFileModel(apath):
 def GenerateDataStruct(args):
     #(namespace, filelist) --> default Utf-8 encoding
     ns, flist = args
-    flist = flist.decode('utf-8').encode(dcs).split(',')
+    flist = flist.decode('utf-8').split(',')
     #Find global etree root node ->nsvalue[2]
     nsvalue=[]
     for k in nslist:
@@ -476,6 +476,7 @@ def GenerateDataStruct(args):
             continue
         #print "xls ctx generated!", xls
         #Ctx: {index->(name, value)}
+        #print type(xls), xls
         ctx = GetExcelContent(xls)
         xlfile = os.path.split(xls)[1]
 
