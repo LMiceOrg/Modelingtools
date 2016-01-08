@@ -12,8 +12,12 @@ OutputWindow::OutputWindow(QWidget *parent) :
     connect(ui->treeDataStruct, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(modelDataStructDblClicked(QModelIndex)) );
 
+    connect(ui->treeModelDsc, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(modelModelDscDblClicked(QModelIndex)) );
+
     ui->tabWidget->setTabText(0, tr("Project"));
     ui->tabWidget->setTabText(1, tr("Data Structure"));
+    ui->tabWidget->setTabText(2, tr("Model Description"));
 
     QTreeWidget* tree;
     tree = ui->treeWidget;
@@ -49,6 +53,16 @@ void OutputWindow::modelNameChanged(const QString &title)
     tree->clear();
     tree->setColumnCount(1);
     tree->setHeaderLabel(tr("Data structure files") );
+    tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
+    item = tree->topLevelItem(0);
+    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+
+//    ls.clear();
+//    ls.append(qApp->applicationDirPath());
+    tree = ui->treeModelDsc;
+    tree->clear();
+    tree->setColumnCount(1);
+    tree->setHeaderLabel(tr("Model description files") );
     tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
     item = tree->topLevelItem(0);
     item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
@@ -107,7 +121,24 @@ void OutputWindow::modelDataStructFiles(const QStringList &sl)
 
 }
 
+void OutputWindow::modelModelDscFiles(const QStringList &sl)
+{
+    QTreeWidget * tree = ui->treeModelDsc;
+    QTreeWidgetItem* root = tree->topLevelItem(0);
+    for(int i=0; i<sl.size(); ++i) {
+        QFileInfo info(sl.at(i));
+        QString xmlfile = info.fileName();
+        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
+    }
+    tree->expandAll();
+}
+
 void OutputWindow::modelDataStructDblClicked(const QModelIndex &index)
+{
+    emit currentDataStructChanged( index.data().toString() );
+}
+
+void OutputWindow::modelModelDscDblClicked(const QModelIndex &index)
 {
     emit currentDataStructChanged( index.data().toString() );
 }

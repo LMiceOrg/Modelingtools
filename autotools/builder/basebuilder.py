@@ -18,13 +18,46 @@ class BaseBuilder(object):
         self.types = {}
         if os.path.isfile(simapp_dtfile):
             self.ImportXMLType(simapp_dtfile)
+
     def GenerateUUIDByName(self, name, ns=None):
         """ Generate UUID """
         if ns != None:
             name = ns + "." + name
         s = md5.md5(md5.md5(name).hexdigest()).hexdigest()
         return "-".join( (s[:8],s[8:12], s[12:16], s[16:20],s[20:]) ).upper()
-    
+
+    def RefineNamespace(self, name, ns):
+        if ns == '':
+            ns = 'AppSim'
+        if dt_mapping.has_key(name):
+            ns = dt_mapping[name][1]
+            name = dt_mapping[name][0]
+        if ns == 'AppSim':
+            if self.types.has_key(ns) and self.types[ns].has_key(name):
+                pass
+            else:
+                ns = default_ns_name
+        return name,ns
+
+    def GetXsiType(self, name, ns=''):
+        if ns == '':
+            ns = 'AppSim'
+        if dt_mapping.has_key(name):
+            ns = dt_mapping[name][1]
+            name = dt_mapping[name][0]
+        try:
+            if self.types.has_key(ns) and self.types[ns].has_key(name):
+                return self.types[ns][name]['xsi:type'], name, ns
+            elif name[:4] == "Enum":
+                if ns == 'AppSim':
+                    ns = default_ns_name
+                return "Types:Enumeration", name, ns
+            else:
+                if ns == 'AppSim':
+                    ns = default_ns_name
+                return "Types:Structure", name, ns
+        except:
+            raise ValueError("Type[%s] has not uuid" % name)
     def GetTypeUuid(self, name, ns=''):
         if ns == '':
             ns = 'AppSim'
@@ -32,12 +65,12 @@ class BaseBuilder(object):
             ns = dt_mapping[name][1]
             name = dt_mapping[name][0]
         try:
-            if self.types.has_key(ns):
+            if self.types.has_key(ns) and self.types[ns].has_key(name):
                 return self.types[ns][name]['Uuid']
             else:
                 return self.GenerateUUIDByName(name, ns)
         except:
-            raise ValueError("Type[%s] has not uuid" % name)
+            raise ValueError("Type[%s, %s] has not uuid" % (ns, name) )
         
     def ImportXMLType(self, xmlfile):
         et = xmllib.parse(xmlfile)

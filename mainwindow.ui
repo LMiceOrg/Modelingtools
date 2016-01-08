@@ -105,6 +105,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_4">
+        <property name="text">
+         <string>Generate Dsc File</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -150,6 +157,7 @@
    <class>QsciScintilla</class>
    <extends>QFrame</extends>
    <header>Qsci/qsciscintilla.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

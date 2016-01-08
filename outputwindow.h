@@ -19,9 +19,11 @@ public slots:
     void modelExcelListChanged(const QStringList& sl);
     //update datastruct xml list
     void modelDataStructFiles(const QStringList& sl);
+    void modelModelDscFiles(const QStringList& sl);
 
     //Internal use
     void modelDataStructDblClicked(const QModelIndex& index);
+    void modelModelDscDblClicked(const QModelIndex& index);
 signals:
     void currentDataStructChanged(const QString&);
 private:

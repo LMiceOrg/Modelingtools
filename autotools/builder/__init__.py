@@ -18,6 +18,7 @@ dt_mapping = {
 'string':('String', 'AppSim'),
 'bool':('Bool','AppSim'),
 'int':('Int32','AppSim'),
+'char[256]':('String256', 'NTSim_Global'),
 'char[128]':('String128', 'NTSim_Global'),
 'char[32]':('String32', 'NTSim_Global'),
 'char[24]':('String24', 'NTSim_Global')

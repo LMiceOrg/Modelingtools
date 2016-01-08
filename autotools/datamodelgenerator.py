@@ -156,9 +156,9 @@ class XLDataModelGenerator(object):
 
     # Parse Excel filelist
     def Parse(self, files):
-        self.dt = ExcelDataModel()
-        #To gbk string
-        flist = files.decode('utf-8').encode('gbk').split(',')
+        #print "parse files:", files.decode('utf-8').encode('gbk')
+        #To unicode string
+        flist = files.decode('utf-8').split(',')
 
         #Loop each Excel file in flist
         for xl_name in flist:

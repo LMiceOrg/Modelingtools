@@ -73,7 +73,8 @@ LIBS += -lqscintilla2
 OTHER_FILES += autotools/*.py \
 autotools/modelparser/*.py \
 autotools/datamodel/*.py \
-autotools/builder/*.py
+autotools/builder/*.py \
+    autotools/modelingtools.py
 
 PRECOMPILED_HEADER += stdafx.h
 

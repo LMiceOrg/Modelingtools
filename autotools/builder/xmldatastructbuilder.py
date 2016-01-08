@@ -90,7 +90,8 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         tnode = xmllib.SubElement(node, "Type", {"Id": cp_id,"Name":cp_name,
                                          "Uuid": self.GetTypeUuid(cp_name, cp_ns),
                                          "xsi:type":"Types:Structure",
-                                         "Description":cp_desc,"Source": "%s[%s]" %(data.source.decode('gbk'), data.part_name) } )
+                                         "Description":cp_desc,
+                                         "Source": "%s[%s]" %(data.source, data.part_name) } )
         for item in cp_items:
             for i in range(len(item)):
                 if item[i] == None:
@@ -120,7 +121,8 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         tnode = xmllib.SubElement(node, "Type", {"Id": cp_id,"Name":cp_name,
                                          "Uuid": self.GetTypeUuid(cp_name, cp_ns),
                                          "xsi:type":"Types:Structure",
-                                         "Description":cp_cname,"Source": "%s[%s]" %(data.source.decode('gbk'), data.part_name) } )
+                                         "Description":cp_cname,
+                                         "Source": "%s[%s]" %(data.source, data.part_name) } )
         for item in cp_items:
             for i in range(len(item)):
                 if item[i] == None:

@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
             SLOT(modelExcelListChanged(QStringList)) );
     connect(this, SIGNAL(modelDataStructListChanged(QStringList)),
             outdock, SLOT(modelDataStructFiles(QStringList)) );
+    connect(this, SIGNAL(modelModelDescListChanged(QStringList)),
+            outdock, SLOT(modelModelDscFiles(QStringList)) );
 
     connect(outdock, SIGNAL(currentDataStructChanged(QString)),
             this, SLOT(editModelDataStruct(QString)) );
@@ -90,8 +92,8 @@ void MainWindow::on_pushButton_clicked()
     emit modelNameChanged(folder);
 
     ep->callModel("GetFileList", "s", folder.toUtf8().data());
-    qDebug()<<"call GetFileList"<<ep->returnType();
-    qDebug()<<"test "<<folder;
+//    qDebug()<<"call GetFileList"<<ep->returnType();
+//    qDebug()<<"test "<<folder;
     if( ep->returnType() && strcmp(ep->returnType(), "list") == 0) {
         PyObject* ret = ep->returnObject();
         //qDebug()<<"ret="<<ret;
@@ -145,7 +147,7 @@ void MainWindow::on_pushButton_2_clicked()
                     sl.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
                 }
                 item->setData(Qt::UserRole+1, sl);
-                qDebug()<<sl;
+//                qDebug()<<sl;
                 xlModels.push_back(item->text());
             }
 //            QDir dir(item->text());
@@ -237,7 +239,10 @@ void MainWindow::on_pushButton_3_clicked()
             param2.append( slist.at(j).value(4) )
                     .append(",");
         }
-        ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
+//        qDebug()<<"call GenerateDataStruct:"<<param2;
+        //ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
+        ep->callModel("GenerateDataStruct", "s", param2.toUtf8().data());
+
         //qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
 
     }
@@ -281,4 +286,16 @@ void MainWindow::onCheckOutputMessage()
         }
     }
 
+}
+
+// Generate Dsc File
+void MainWindow::on_pushButton_4_clicked()
+{
+    ep->callModel("SaveModelDesc", NULL);
+    QStringList dsfiles;
+    PyObject* ret = ep->returnObject();
+    for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
+        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))                              );
+    }
+    emit modelModelDescListChanged(dsfiles);
 }

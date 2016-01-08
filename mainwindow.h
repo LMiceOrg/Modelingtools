@@ -41,10 +41,13 @@ private slots:
 
     //Timer Interval to check output message
     void onCheckOutputMessage();
+    void on_pushButton_4_clicked();
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);
     void modelDataStructListChanged(const QStringList&);
+    void modelModelDescListChanged(const QStringList&);
     void outputMessage(const QStringList&);
 private:
     Ui::MainWindow *ui;
