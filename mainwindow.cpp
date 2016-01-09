@@ -315,3 +315,8 @@ void MainWindow::on_pushButton_4_clicked()
     }
     emit modelModelDescListChanged(dsfiles);
 }
+
+void MainWindow::on_actionQuit_Modeltools_triggered()
+{
+    qApp->quit();
+}

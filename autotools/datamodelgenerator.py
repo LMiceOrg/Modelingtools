@@ -7,7 +7,7 @@ XLDataModelGenerator
 驱动modelparser工作
 """
 from __init__ import *
-from datamodel.exceldatamodel import ExcelDataModel
+import datamodel.exceldatamodel
 import modelparser.excelparseradaptor
 from builder.xmldatastructbuilder import XMLDataStructBuilder
 from builder.xmlmodeldescbuilder import XMLModelDescBuilder
@@ -19,7 +19,7 @@ pother = re.compile(r'^([^_]+)[_]([^_]+)[_]([^.]+)[.]xls\w*')
 
 class XLDataModelGenerator(object):
     def __init__(self):
-        self.dt = ExcelDataModel()
+        self.dt = datamodel.exceldatamodel.ExcelDataModel()
         self.xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(nslist, dt_mapping, default_ns_name)
 
 

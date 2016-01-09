@@ -75,13 +75,15 @@ OTHER_FILES += autotools/*.py \
 autotools/modelparser/*.py \
 autotools/datamodel/*.py \
 autotools/builder/*.py \
-    autotools/modelingtools.py \
-    autotools/modelparser/excelparseradaptor.py
+css/*.css
 
 PRECOMPILED_HEADER += stdafx.h
 
 precompile_header:!isEmpty(PRECOMPILED_HEADER) {
 DEFINES += USING_PCH
 }
+
+RESOURCES += \
+    modelingtools.qrc
 
 

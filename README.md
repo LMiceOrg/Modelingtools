@@ -1,5 +1,5 @@
 Modeltools
 ======
 
-A set of GUI tools who can automatically modeling meta-models to destination models.
+A set of GUI tools do automatically model meta-models into intermedia-models.
 

@@ -141,36 +141,61 @@
     <addaction name="menuRecent_Projects"/>
     <addaction name="separator"/>
     <addaction name="actionClose_Project"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit_Modeltools"/>
    </widget>
    <widget class="QMenu" name="menu_Edit">
     <property name="title">
      <string>&amp;Edit</string>
     </property>
+    <addaction name="action"/>
+    <addaction name="action_2"/>
    </widget>
    <widget class="QMenu" name="menu_Build">
     <property name="title">
      <string>&amp;Build</string>
     </property>
+    <addaction name="action_3"/>
+    <addaction name="action_4"/>
+    <addaction name="action_5"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionPythonEditor"/>
+    <addaction name="actionXML_Editor"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
      <string>Window</string>
     </property>
+    <widget class="QMenu" name="menu">
+     <property name="title">
+      <string>视图列表</string>
+     </property>
+     <addaction name="action_11"/>
+    </widget>
+    <addaction name="action_9"/>
+    <addaction name="menu"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="action_12"/>
+    <addaction name="action_13"/>
+    <addaction name="separator"/>
+    <addaction name="action_15"/>
+    <addaction name="actionReport_bug"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
     <property name="title">
      <string>Analyze</string>
     </property>
+    <addaction name="action_6"/>
+    <addaction name="action_7"/>
+    <addaction name="action_8"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Edit"/>
@@ -228,6 +253,91 @@
   <action name="actionClose_Project">
    <property name="text">
     <string>Close Project</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>撤销</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>恢复</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>构建项目</string>
+   </property>
+  </action>
+  <action name="action_4">
+   <property name="text">
+    <string>重新构建</string>
+   </property>
+  </action>
+  <action name="action_5">
+   <property name="text">
+    <string>清理项目</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>格式验证</string>
+   </property>
+  </action>
+  <action name="action_7">
+   <property name="text">
+    <string>命名空间验证</string>
+   </property>
+  </action>
+  <action name="action_8">
+   <property name="text">
+    <string>模型映射验证</string>
+   </property>
+  </action>
+  <action name="actionPythonEditor">
+   <property name="text">
+    <string>PythonEditor</string>
+   </property>
+  </action>
+  <action name="actionXML_Editor">
+   <property name="text">
+    <string>XML Editor</string>
+   </property>
+  </action>
+  <action name="action_9">
+   <property name="text">
+    <string>进入全屏模式</string>
+   </property>
+  </action>
+  <action name="action_11">
+   <property name="text">
+    <string>输出窗口</string>
+   </property>
+  </action>
+  <action name="action_12">
+   <property name="text">
+    <string>帮助文件</string>
+   </property>
+  </action>
+  <action name="action_13">
+   <property name="text">
+    <string>帮助提示</string>
+   </property>
+  </action>
+  <action name="action_15">
+   <property name="text">
+    <string>关于本软件</string>
+   </property>
+  </action>
+  <action name="actionReport_bug">
+   <property name="text">
+    <string>Report bug</string>
+   </property>
+  </action>
+  <action name="actionQuit_Modeltools">
+   <property name="text">
+    <string>Quit Modeltools</string>
    </property>
   </action>
  </widget>

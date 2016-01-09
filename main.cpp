@@ -13,6 +13,15 @@ int main(int argc, char *argv[])
     //Py_InspectFlag = 1;
     //Py_Main(argc, argv);
     //PySys_SetArgvEx(argc, argv, 0);
+    /** View-style */
+    {
+        QFile file(":/css/lightstyle.css");
+        if( file.open(QIODevice::ReadOnly | QIODevice::Text) ) {
+            QString style(file.readAll());
+            file.close();
+            a.setStyleSheet(style);
+        }
+    }
     int ret;
     {
         MainWindow w;

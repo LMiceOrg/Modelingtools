@@ -43,6 +43,8 @@ private slots:
     void onCheckOutputMessage();
     void on_pushButton_4_clicked();
 
+    void on_actionQuit_Modeltools_triggered();
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);
