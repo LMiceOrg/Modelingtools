@@ -19,7 +19,20 @@ MainWindow::MainWindow(QWidget *parent) :
     QsciLexerXML *xml = new QsciLexerXML(this);
     ui->textEdit->setLexer(xml);
     ui->textEdit->setFolding(QsciScintilla::BoxedTreeFoldStyle);
-
+    // Show line number in left side
+    ui->textEdit->setMarginLineNumbers(QsciScintilla::SC_MARGIN_NUMBER, true);
+    ui->textEdit->setMarginWidth(QsciScintilla::SC_MARGIN_NUMBER, 32);
+    // Adjust font style
+    QFont fnt =xml->font(QsciLexerXML::Tag);
+    fnt.setPointSize(14);
+//    fnt.setBold(true);
+    //ui->textEdit->setFont(fnt);
+    xml->setFont(fnt, QsciLexerXML::Tag);
+    fnt =xml->font(QsciLexerXML::HTMLDoubleQuotedString);
+    fnt.setPointSize(16);
+    fnt.setItalic(true);
+    //ui->textEdit->setFont(fnt);
+    xml->setFont(fnt, QsciLexerXML::HTMLDoubleQuotedString);
     showMaximized();
 
     outdock=new OutputWindow(this);
@@ -216,6 +229,7 @@ void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
 //生成数据定义XML
 void MainWindow::on_pushButton_3_clicked()
 {
+    setCursor(Qt::WaitCursor);
     QMultiMap<QString, QStringList> mp;
     QListWidgetItem * item;
     for(int i=0; i < ui->listWidget->count(); ++i) {
@@ -253,6 +267,8 @@ void MainWindow::on_pushButton_3_clicked()
         dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))                              );
     }
     emit modelDataStructListChanged(dsfiles);
+
+    setCursor(Qt::ArrowCursor);
 
 }
 

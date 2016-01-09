@@ -164,7 +164,7 @@ int EmbedPython::callModel(const char *method, const char *format, ...)
         retobj = PyObject_CallMethodObjArgs(modeltool, md, NULL);
     }
 
-//    checkError();
+    checkError();
     PyErr_Print();
 
 

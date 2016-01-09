@@ -75,7 +75,8 @@ OTHER_FILES += autotools/*.py \
 autotools/modelparser/*.py \
 autotools/datamodel/*.py \
 autotools/builder/*.py \
-    autotools/modelingtools.py
+    autotools/modelingtools.py \
+    autotools/modelparser/excelparseradaptor.py
 
 PRECOMPILED_HEADER += stdafx.h
 

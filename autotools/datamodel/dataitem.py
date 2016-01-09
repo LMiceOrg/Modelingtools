@@ -18,6 +18,10 @@ class DataItem(object):
         self.Values=[]
         cnt = 0
         for arg in args:
+            if type(arg) == str:
+                arg = arg.decode('gbk').strip()
+            elif type(arg) == unicode:
+                arg = arg.strip()
             self.Values.append(arg)
             cnt = cnt + 1
             if cnt == len(self.Names):

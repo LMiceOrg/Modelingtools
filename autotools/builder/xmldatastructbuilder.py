@@ -38,7 +38,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         
         node = xmllib.SubElement(root, "Namespace", {"Id":ns, "Name":ns})
         xmllib.SubElement(node, "Description").text = "It is the data type definition of namespace named %s ." % ns
-        return root
+        return node
 
     def CreateRootNode(self,ns):
         """ 新建根接点 """

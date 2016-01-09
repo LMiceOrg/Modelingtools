@@ -11,6 +11,8 @@ import excelsheetparser
 
 class ExcelPublicEnumParser(excelsheetparser.ExcelSheetParser):
     def ParseExcelSheet(self, model, xl_name, sh_ctx, sh_idx, sh_name):
+
+        xl_name, sh_name = self.strip(xl_name, sh_name)
         #get namespace
         self.GetNamespace(xl_name, sh_idx, sh_name)
         #print "Namespace",self.ns, sh_name, len(sh_ctx)
@@ -21,7 +23,8 @@ class ExcelPublicEnumParser(excelsheetparser.ExcelSheetParser):
         for i in range(1, len(sh_ctx)):
             if len(sh_ctx[i])<5:
                 continue
-            ed_type, ed_desc, it_name, it_value, it_desc = sh_ctx[i][:5]
+            ed_type, ed_desc, it_name, it_value, it_desc = self.strip(sh_ctx[i][:5])
+
             if ed_type != "":
                 if last_ed_type != "":
                     #item_cnt = item_cnt +1
