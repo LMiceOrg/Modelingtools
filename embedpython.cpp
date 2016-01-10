@@ -161,7 +161,7 @@ int EmbedPython::callModel(const char *method, const char *format, ...)
     }
 
     checkError();
-    PyErr_Print();
+//    PyErr_Print();
 
 
 //    if(retobj) {
@@ -191,6 +191,52 @@ QString EmbedPython::errorMessage() const
     return emsg;
 }
 
+class PyObjectToMessage
+{
+public:
+    PyObjectToMessage(QString& msg)
+        :emsg(msg)
+    {}
+
+
+    void PyObjectToMessageString(PyObject* pv) {
+        if(!pv)
+            return;
+
+        if(PyString_Check(pv)) {
+            errvals.push_back( PyString_AsString(pv) );
+        } else if (PyTuple_Check(pv)) {
+            TupleToMessageString(pv);
+        } else if( PyList_Check(pv)) {
+            ListToMessageString(pv);
+        } else if(PyInt_Check(pv)) {
+            char buf[128] = {0};
+            sprintf(buf, " %ld", PyInt_AS_LONG(pv));
+            errvals.push_back(  buf );
+        }else{
+            qDebug()<<"not parse type:"<<pv->ob_type->tp_name;
+        }
+    }
+
+    void TupleToMessageString(PyObject* pv) {
+        for(Py_ssize_t i=0; i< PyTuple_Size(pv); ++i) {
+            PyObject* val = PyTuple_GetItem(pv, i);
+            PyObjectToMessageString(val);
+        }
+    }
+
+    void ListToMessageString(PyObject* pv) {
+        for(Py_ssize_t i=0; i< PyList_Size(pv); ++i) {
+            PyObject* val = PyList_GetItem(pv, i);
+            PyObjectToMessageString(val);
+        }
+    }
+
+    QString& emsg;
+    std::vector<std::string> errvals;
+
+};
+
 void EmbedPython::checkError()
 {
     // Print error stack
@@ -206,22 +252,7 @@ void EmbedPython::checkError()
             emsg += tr("Error Type:%1\n")
                     .arg(((PyTypeObject*)(ptp))->tp_name);
         }
-        if(pv && PyString_Check(pv) ) {
-//            qDebug()<<"2.2";
-            emsg += tr("  Error Value:%1\n")
-                    .arg( PyString_AsString(pv) );
 
-            //qDebug()<<"Error Value: emsg.c_str():"<<pv->ob_type->tp_name;
-        } else if(pv && PyUnicode_Check(pv)) {
-            emsg += tr("  Error Value:%1\n")
-                    .arg( tr("Unicode error") );
-        }else if(pv) {
-            if( PyString_Check( ((PyBaseExceptionObject*)(pv))->message) ) {
-//                qDebug()<<"2.3";
-                emsg += tr("  Error Value:%1\n")
-                        .arg( PyString_AsString( ((PyBaseExceptionObject*)(pv))->message ) );
-            }
-        }
 
         if(ptb) {
 
@@ -235,6 +266,37 @@ void EmbedPython::checkError()
                         .arg(PyString_AsString(codeobj->co_filename))
                         .arg(traceback->tb_lineno);
             }
+        }
+
+        if(pv && PyString_Check(pv) ) {
+//            qDebug()<<"2.2";
+            emsg += tr("  Error Value:%1\n")
+                    .arg( PyString_AsString(pv) );
+
+            //qDebug()<<"Error Value: emsg.c_str():"<<pv->ob_type->tp_name;
+        } else if(pv && PyUnicode_Check(pv)) {
+            emsg += tr("  Error Value:%1\n")
+                    .arg( tr("Unicode error") );
+        }else if(pv && PyTuple_Check(pv)) {
+//            qDebug()<<"2.3"<<pv->ob_type->tp_name;
+//            if( PyString_Check( ((PyBaseExceptionObject*)(pv))->message) ) {
+////
+//                emsg += tr("  Error Value:%1\n")
+//                        .arg( PyString_AsString( ((PyBaseExceptionObject*)(pv))->message ) );
+//            }
+            QString msgval = tr(" Error value: ");
+            PyObjectToMessage tm(msgval);
+            tm.PyObjectToMessageString(pv);
+            qDebug()<<"size:"<<tm.errvals.size();
+            if(tm.errvals.size() == 5) {
+                emsg += tr("Files: %2 (%3) \n %5 %1: %4\n")
+                        .arg(tm.errvals[0].c_str())
+                        .arg(tm.errvals[1].c_str())
+                        .arg(tm.errvals[2].c_str())
+                        .arg(tm.errvals[3].c_str())
+                        .arg(tm.errvals[4].c_str());
+            }
+
         }
 
         PyErr_Print();

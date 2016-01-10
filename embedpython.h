@@ -16,7 +16,7 @@ public:
     void finit();
     void reload();
 
-    int callModel(const char *method, const char *format, ...);
+    int callModel(const char *method, const char *format = NULL, ...);
     const char* returnType() const;
     PyObject* returnObject() const;
     QString errorMessage() const;
