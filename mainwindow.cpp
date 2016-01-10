@@ -54,20 +54,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
 #if __APPLE__
     //Debug purpose
-    ui->lineEdit->setText("/Users/hehao/work/doc/modelingtools/model");
+    ui->lineEdit->setText("/Users/hehao/work/doc/modelingtools/res20160109/model");
 #endif
 
-    ep = new EmbedPython;
+    ep = new EmbedPython(this);
+    connect(ep, SIGNAL(errorTrigger(QString)), this, SLOT(onCheckOutputMessage(QString)) );
 
-    QTimer *timer = new QTimer(this);
+    onCheckOutputMessage(ep->errorMessage());
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(onCheckOutputMessage()) );
-    timer->start(1000);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ep;
+//    delete ep;
 
     delete ui;
 }
@@ -128,7 +127,6 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_pushButton_2_clicked()
 {
 
-    QFileIconProvider ip;
     QStringList xlModels;
     QListWidgetItem * item;
     QFont font;
@@ -139,7 +137,7 @@ void MainWindow::on_pushButton_2_clicked()
             ep->callModel("CheckExcelFileModel", "s", item->text().toUtf8().data());
             //qDebug()<<item->text()<<" valid:" <<ep->returnType();
             if(strcmp(ep->returnType(), "NoneType") == 0) {
-                item->setIcon(ip.icon(QFileIconProvider::Trashcan));
+                item->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
                 font = item->font();
                 font.setUnderline(true);
                 font.setItalic(true);
@@ -147,7 +145,7 @@ void MainWindow::on_pushButton_2_clicked()
                 item->setCheckState(Qt::Unchecked);
                 item->setData(Qt::UserRole, false);
             } else {
-                item->setIcon(ip.icon(QFileIconProvider::Computer));
+                item->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
                 font = item->font();
                 font.setBold(true);
                 item->setFont(font);
@@ -289,15 +287,18 @@ void MainWindow::on_actionReloadmodel_triggered()
     ep->reload();
 }
 
-void MainWindow::onCheckOutputMessage()
+void MainWindow::onCheckOutputMessage(const QString &emsg)
 {
-    std::string s = ep->errorMessage();
-    QString emsg = QString::fromStdString(s);
 
     if (!emsg.isEmpty()) {
         QStringList sl = emsg.split("\n");
         if (sl.size() > 0) {
             emit outputMessage(sl);
+            ui->errListWidget->addItem(
+                        new QListWidgetItem(style()->standardIcon(QStyle::SP_MessageBoxCritical),
+                                            sl.at(0),
+                                            ui->errListWidget));
+
             ui->errListWidget->addItems(sl);
         }
     }

@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "embedpython.h"
 
+///** Lock for thread-safe */
+//QMutexLocker locker(&mutex);
 //#define MODELTOOL "autotools.component_parser_excel"
 #define MODELTOOL "autotools.modelingtools"
-EmbedPython::EmbedPython()
-    :modeltool(NULL), retobj(NULL),
+EmbedPython::EmbedPython(QObject *parent)
+    :QObject(parent), modeltool(NULL), retobj(NULL),
       //globals(NULL),locals(NULL),
       initialized(false)
 {
@@ -18,8 +20,6 @@ EmbedPython::~EmbedPython()
 
 bool EmbedPython::init()
 {
-    /** Lock for thread-safe */
-    QMutexLocker locker(&mutex);
 
     if(initialized)
         return true;
@@ -97,8 +97,6 @@ bool EmbedPython::init()
 
 void EmbedPython::finit()
 {
-    /** Lock for thread-safe */
-    QMutexLocker locker(&mutex);
 
     if(initialized) {
         Py_XDECREF(retobj);
@@ -115,8 +113,6 @@ void EmbedPython::finit()
 
 void EmbedPython::reload()
 {
-    /** Lock for thread-safe */
-    QMutexLocker locker(&mutex);
 
     if(initialized) {
         PyObject* newmodel = NULL;
@@ -190,21 +186,16 @@ PyObject *EmbedPython::returnObject() const
     return retobj;
 }
 
-std::string EmbedPython::errorMessage()
+QString EmbedPython::errorMessage() const
 {
-    /** Lock for thread-safe */
-    QMutexLocker locker(&mutex);
-
-    std::string e = emsg;
-    emsg.clear();
-    return e;
+    return emsg;
 }
 
 void EmbedPython::checkError()
 {
-
     // Print error stack
     if(PyErr_Occurred()) {
+        emsg.clear();
         //PyErr_Print();
 //        qDebug()<<"1";
         PyObject *ptp = NULL, *pv = NULL, *ptb = NULL;
@@ -212,26 +203,23 @@ void EmbedPython::checkError()
 //        qDebug()<<"2";
         if(ptp && PyType_Check(ptp)) {
 //            qDebug()<<"2.1";
-            emsg += "Error Type:";
-            emsg += ((PyTypeObject*)(ptp))->tp_name;
-            emsg +="\n";
+            emsg += tr("Error Type:%1\n")
+                    .arg(((PyTypeObject*)(ptp))->tp_name);
         }
         if(pv && PyString_Check(pv) ) {
 //            qDebug()<<"2.2";
-            emsg += "  Error Value:";
-            emsg += PyString_AsString(pv);
-            emsg +="\n";
+            emsg += tr("  Error Value:%1\n")
+                    .arg( PyString_AsString(pv) );
+
             //qDebug()<<"Error Value: emsg.c_str():"<<pv->ob_type->tp_name;
         } else if(pv && PyUnicode_Check(pv)) {
-            emsg += "  Error Value:";
-//            emsg += PyUnicode_AsUTF8String(pv);
-            emsg +="\n";
+            emsg += tr("  Error Value:%1\n")
+                    .arg( tr("Unicode error") );
         }else if(pv) {
             if( PyString_Check( ((PyBaseExceptionObject*)(pv))->message) ) {
 //                qDebug()<<"2.3";
-                emsg += "  Error Value:";
-                emsg += PyString_AsString( ((PyBaseExceptionObject*)(pv))->message );
-                emsg += "\n";
+                emsg += tr("  Error Value:%1\n")
+                        .arg( PyString_AsString( ((PyBaseExceptionObject*)(pv))->message ) );
             }
         }
 
@@ -240,21 +228,17 @@ void EmbedPython::checkError()
 //            qDebug()<<"3";
 
             PyTracebackObject *traceback = ((PyTracebackObject*)ptb);
-            char fmtmsg [512];
             for (;traceback ; traceback = traceback->tb_next) {
                 PyCodeObject *codeobj = traceback->tb_frame->f_code;
-                memset(fmtmsg, 0, 512);
-                sprintf(fmtmsg,
-                        "  %s: %s(# %d)\n",
-                        PyString_AsString(codeobj->co_name),
-                        PyString_AsString(codeobj->co_filename),
-                        traceback->tb_lineno
-                        );
-                emsg +=fmtmsg;
+                emsg += tr("  %1: %2(# %3)\n")
+                        .arg(PyString_AsString(codeobj->co_name))
+                        .arg(PyString_AsString(codeobj->co_filename))
+                        .arg(traceback->tb_lineno);
             }
         }
 
         PyErr_Print();
+        emit errorTrigger(emsg);
 
     }
 

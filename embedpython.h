@@ -5,10 +5,11 @@
 #include <string>
 
 //TODO:Python embed helper class
-class EmbedPython
+class EmbedPython:public QObject
 {
+    Q_OBJECT
 public:
-    EmbedPython();
+    EmbedPython(QObject* parent = 0);
     ~EmbedPython();
 
     bool init();
@@ -18,8 +19,11 @@ public:
     int callModel(const char *method, const char *format, ...);
     const char* returnType() const;
     PyObject* returnObject() const;
-    std::string errorMessage();
+    QString errorMessage() const;
     void checkError();
+
+signals:
+    void errorTrigger(const QString&);
 private:
     QByteArray  py_progname;
     QByteArray py_pythonhome;
@@ -30,7 +34,7 @@ private:
     //PyObject *locals;
     bool initialized;
     QMutex mutex;
-    std::string emsg;
+    QString emsg;
 
 };
 
