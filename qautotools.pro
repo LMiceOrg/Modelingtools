@@ -86,4 +86,7 @@ DEFINES += USING_PCH
 RESOURCES += \
     modelingtools.qrc
 
+DISTFILES += \
+    autotools/builder/cppheaderbuilder.py
+
 
