@@ -20,4 +20,8 @@
 
 #include <QMutexLocker>
 #include <QMutex>
+
+//STD library
+#include <vector>
+#include <string>
 #endif /** STDAFX_H */

@@ -25,4 +25,6 @@
 
 */
 
+/** NOTE: 单元测试框架的技术方案 Python Extention
+ * 方案2: Luajit + ToLua++   */
 

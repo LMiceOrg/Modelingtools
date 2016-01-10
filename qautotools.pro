@@ -75,7 +75,10 @@ OTHER_FILES += autotools/*.py \
 autotools/modelparser/*.py \
 autotools/datamodel/*.py \
 autotools/builder/*.py \
-css/*.css
+css/*.css \
+    autotools/builder/msvc2008builder.py \
+    autotools/builder/msvc2008solutionbuilder.py \
+    autotools/builder/msvc2008projectbuilder.py
 
 PRECOMPILED_HEADER += stdafx.h
 

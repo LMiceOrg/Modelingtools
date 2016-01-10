@@ -308,7 +308,7 @@ void MainWindow::onCheckOutputMessage(const QString &emsg)
 // Generate Dsc File
 void MainWindow::on_pushButton_4_clicked()
 {
-    ep->callModel("SaveModelDesc", NULL);
+    ep->callModel("SaveModelDesc");
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
     for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
@@ -320,4 +320,9 @@ void MainWindow::on_pushButton_4_clicked()
 void MainWindow::on_actionQuit_Modeltools_triggered()
 {
     qApp->quit();
+}
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    ep->callModel("SaveCppProject", NULL);
 }
