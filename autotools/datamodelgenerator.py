@@ -11,6 +11,8 @@ import datamodel.exceldatamodel
 import modelparser.excelparseradaptor
 from builder.xmldatastructbuilder import XMLDataStructBuilder
 from builder.xmlmodeldescbuilder import XMLModelDescBuilder
+
+import builder.msvc2008builder
 import re
 import os
 
@@ -119,6 +121,15 @@ class XLDataModelGenerator(object):
         builder.Build()
         builder.BuildEnd()
         return builder.GetFiles()
+
+    #Build MSVC2008 project
+    def BuildMsvc2008Solution(self, tofolder):
+        bd = builder.msvc2008builder.Msvc2008Builder(self.dt, tofolder)
+        bd.BuildBegin()
+        bd.Build()
+        bd.BuildEnd()
+        return bd.GetFiles()
+
     def GetDataModel(self):
         return self.dt
 

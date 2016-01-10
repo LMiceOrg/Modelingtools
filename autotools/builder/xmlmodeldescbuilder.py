@@ -21,7 +21,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         if type(folder) == str:
             self.folder = os.path.abspath(folder.decode('utf-8'))
         elif type(folder) == unicode:
-            self.folder = folder
+            self.folder = os.path.abspath(folder)
         else:
             raise TypeError("folder type (%s) is invalid!", str(type(folder)))
         

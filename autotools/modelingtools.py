@@ -23,3 +23,6 @@ def SaveDataStruct(*args, **kw):
 
 def SaveModelDesc(*args, **kw):
     return gen.BuildModelDesc('.')
+
+def SaveCppProject(*args, **kw):
+    return gen.BuildMsvc2008Solution('.')
