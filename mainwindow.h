@@ -40,7 +40,7 @@ private slots:
     void on_actionReloadmodel_triggered();
 
     //Timer Interval to check output message
-    void onCheckOutputMessage();
+    void onCheckOutputMessage(const QString& emsg);
     void on_pushButton_4_clicked();
 
     void on_actionQuit_Modeltools_triggered();

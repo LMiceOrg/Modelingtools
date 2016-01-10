@@ -85,24 +85,34 @@ void OutputWindow::modelExcelListChanged(const QStringList &sl)
             bool inserted = false;
             for(int j = 0; j<root->childCount(); ++j) {
                 if(root->child(j)->text(0).compare(xlpath, Qt::CaseInsensitive) == 0) {
-                    root->child(j)->addChild(new
-                                             QTreeWidgetItem(root->child(j),
-                                                             QStringList(xlfile)) );
+                    QTreeWidgetItem* item = new QTreeWidgetItem(
+                                       root->child(j),
+                                       QStringList(xlfile));
+                    item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
+//                    root->child(j)->addChild(new QTreeWidgetItem(
+//                                                 style()->standardIcon(QStyle::SP_FileIcon),
+//                                                 root->child(j),
+//                                                 QStringList(xlfile)) );
                     inserted= true;
                     break;//for-j
                 }
             }
             if(!inserted) {
-                QTreeWidgetItem* path = new QTreeWidgetItem(root,
-                                                            QStringList(xlpath) );
-                path->addChild(new QTreeWidgetItem(path, QStringList(xlfile)));
-                root->addChild(path);
+                QTreeWidgetItem* path = new QTreeWidgetItem(
+                            root,
+                            QStringList(xlpath) );
+                path->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
+                QTreeWidgetItem* item = new QTreeWidgetItem(
+                                   path,
+                                   QStringList(xlfile));
+                item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
+//                root->addChild(path);
             }
         } else { //path is empty
 
-            root->addChild(new
-                           QTreeWidgetItem(root,
-                                           QStringList(xlfile) ) );
+            root->addChild(new QTreeWidgetItem(
+                               root,
+                               QStringList(xlfile) ) );
         }
     }
     ui->treeWidget->expandAll();
@@ -112,10 +122,15 @@ void OutputWindow::modelDataStructFiles(const QStringList &sl)
 {
     QTreeWidget * tree = ui->treeDataStruct;
     QTreeWidgetItem* root = tree->topLevelItem(0);
+
+    //Remove and return children list
+    root->takeChildren();
+
     for(int i=0; i<sl.size(); ++i) {
         QFileInfo info(sl.at(i));
         QString xmlfile = info.fileName();
-        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
+        QTreeWidgetItem* item = new QTreeWidgetItem(root, QStringList( xmlfile ));
+        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveNetIcon));
     }
     tree->expandAll();
 
@@ -128,7 +143,9 @@ void OutputWindow::modelModelDscFiles(const QStringList &sl)
     for(int i=0; i<sl.size(); ++i) {
         QFileInfo info(sl.at(i));
         QString xmlfile = info.fileName();
-        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
+        QTreeWidgetItem* item = new QTreeWidgetItem(root, QStringList( xmlfile ));
+        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveCDIcon));
+//        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
     }
     tree->expandAll();
 }
