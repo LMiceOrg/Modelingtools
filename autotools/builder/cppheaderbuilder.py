@@ -28,15 +28,16 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         """关闭头文件 """    
         with open(filename, 'a') as class_definition_file:
                          # End the class definition.
-            class_definition_file.write('\n};\n\n')
+            class_definition_file.write('\n\n};\n\n')
             # Close the conditional include statement
             class_definition_file.write('#endif\n')
+            class_definition_file.close()
       
 
     def CreateCPPHeaderFile(self,ns):
         """ 为每个类新建头文件 """    
         author = ''
-        class_definition_file_name = '{0}.h'.format(ns)
+        class_definition_file_name =self.folder+ '/{0}.h'.format(ns)
         conditional_include_name_text = '{0}_H'.format(ns)
         conditional_include_name_text = conditional_include_name_text.upper()      
         with open(class_definition_file_name, 'w') as class_definition_file:
@@ -70,17 +71,12 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             # Skip the static data members in this loop and write
             # the static declarations afterward.
             class_definition_file.write('protected:\n')
-            class_definition_file.write('\n')
         return class_definition_file_name
 
     def CreateEnumCPPHeader(self, filename, ed_ns, ctx):
         """ 生成枚举类型头文件 """
         ed_type, ed_desc, ed_items = ctx[:3]
         ed_id = "%s.%s" %(ed_ns, ed_type)
-        '''tnode = xmllib.SubElement(node, "Type", {"Id": ed_id,"Name":ed_type,
-                                         "Uuid": self.GetTypeUuid(ed_type, ed_ns),
-                                         "xsi:type":"Types:Enumeration",
-                                         "Description":ed_desc} )'''
         with open(filename, 'a') as class_definition_file:
             # Write the class definition file header.
             class_definition_file.write('\n\n// ID: {0}'.format(ed_id))
@@ -91,18 +87,22 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             for item in ed_items:
                 if buffer_item!=None:
                     it_name, it_value, it_desc = item[:3]
-                    it_id = "%s.%s" %(ed_id, it_name)      
-                    class_definition_file.write('{0}'.format(it_name))
+                    it_id = "%s.%s" %(ed_id, it_name)
+                    it_value=int(it_value)
+                    class_definition_file.write('\n')
+                    class_definition_file.write('    {0}'.format(it_name))
                     class_definition_file.write('=')
                     class_definition_file.write('{0}'.format(it_value))
                     class_definition_file.write(',')
                 buffer_item=item
             it_name, it_value, it_desc = buffer_item[:3]
-            it_id = "%s.%s" %(ed_id, it_name)      
-            class_definition_file.write('{0}'.format(it_name))
+            it_id = "%s.%s" %(ed_id, it_name)
+            it_value=int(it_value)
+            class_definition_file.write('\n')
+            class_definition_file.write('    {0}'.format(it_name))
             class_definition_file.write('=')
             class_definition_file.write('{0}'.format(it_value))
-            class_definition_file.write('};')  
+            class_definition_file.write('\n};')  
 
 
  
