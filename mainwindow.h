@@ -47,6 +47,12 @@ private slots:
 
     void on_pushButton_5_clicked();
 
+    void on_actionDumpProject_triggered();
+
+    void on_actionRestoreProject_triggered();
+
+    void on_pushButton_6_clicked();
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);

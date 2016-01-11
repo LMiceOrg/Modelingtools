@@ -19,11 +19,35 @@ OutputWindow::OutputWindow(QWidget *parent) :
     ui->tabWidget->setTabText(1, tr("Data Structure"));
     ui->tabWidget->setTabText(2, tr("Model Description"));
 
+    modelFolder = qApp->applicationDirPath();
+
     QTreeWidget* tree;
+    QTreeWidgetItem* item;
+    QStringList ls;
+
     tree = ui->treeWidget;
-    tree->clear();
     tree->setColumnCount(1);
-    tree->setHeaderLabel(tr("Model folder:"));
+    tree->setHeaderLabel(tr("Model Excel File"));
+
+    tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
+    item = tree->topLevelItem(0);
+    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+
+    tree = ui->treeDataStruct;
+    tree->setColumnCount(1);
+    tree->setHeaderLabel(tr("Model Data Structure"));
+
+    tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
+    item = tree->topLevelItem(0);
+    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+
+    tree = ui->treeModelDsc;
+    tree->setColumnCount(1);
+    tree->setHeaderLabel(tr("Model Description"));
+
+    tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
+    item = tree->topLevelItem(0);
+    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
 }
 
 OutputWindow::~OutputWindow()
@@ -34,38 +58,25 @@ OutputWindow::~OutputWindow()
 void OutputWindow::modelNameChanged(const QString &title)
 {
     QTreeWidget* tree;
-    modelFolder = title;
-    tree = ui->treeWidget;
-    tree->clear();
-    tree->setColumnCount(1);
-    tree->setHeaderLabel(tr("Model Excel File"));
-    QStringList ls(modelFolder);
-
-    ui->treeWidget->insertTopLevelItem(0, new QTreeWidgetItem(ui->treeWidget, ls));
     QTreeWidgetItem* item;
-    item = ui->treeWidget->topLevelItem(0);
-    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
 
-    //data struct
-    ls.clear();
-    ls.append(qApp->applicationDirPath());
+    modelFolder = title;
+
+    tree = ui->treeWidget;
+
+    item = tree->topLevelItem(0);
+    item->takeChildren();
+    item->setText(0, title);
+
     tree = ui->treeDataStruct;
-    tree->clear();
-    tree->setColumnCount(1);
-    tree->setHeaderLabel(tr("Data structure files") );
-    tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
     item = tree->topLevelItem(0);
-    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+    item->takeChildren();
+    item->setText(0, title);
 
-//    ls.clear();
-//    ls.append(qApp->applicationDirPath());
     tree = ui->treeModelDsc;
-    tree->clear();
-    tree->setColumnCount(1);
-    tree->setHeaderLabel(tr("Model description files") );
-    tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
     item = tree->topLevelItem(0);
-    item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+    item->takeChildren();
+    item->setText(0, title);
 
 
 }
@@ -73,6 +84,9 @@ void OutputWindow::modelNameChanged(const QString &title)
 void OutputWindow::modelExcelListChanged(const QStringList &sl)
 {
     QTreeWidgetItem* root = ui->treeWidget->topLevelItem(0);
+
+    //Remove and return children list
+    root->takeChildren();
 
     for(int i=0; i<sl.size(); ++i) {
         QFileInfo info(sl.at(i));
@@ -140,6 +154,10 @@ void OutputWindow::modelModelDscFiles(const QStringList &sl)
 {
     QTreeWidget * tree = ui->treeModelDsc;
     QTreeWidgetItem* root = tree->topLevelItem(0);
+
+    //Remove and return children list
+    root->takeChildren();
+
     for(int i=0; i<sl.size(); ++i) {
         QFileInfo info(sl.at(i));
         QString xmlfile = info.fileName();

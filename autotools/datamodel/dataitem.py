@@ -35,6 +35,10 @@ class DataItem(object):
         return len(self.Values)
     #dict method
     def __getattr__(self, name):
-        return self.Values[self.Names.index(name)]
+        if name in ('source','part_idx','part_name','item_ns','item_type','item_val') > 0:
+            return self.Values[self.Names.index(name)]
+        else:
+            # Default behaviour
+            return object.__getattribute__(self, name)
     #def __setattr__(self, name, val):
     #self.Values[self.Names.index(name)] = val

@@ -23,7 +23,7 @@ class XLDataModelGenerator(object):
     def __init__(self):
         self.dt = datamodel.exceldatamodel.ExcelDataModel()
         self.xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(nslist, dt_mapping, default_ns_name)
-
+        self.proj_root = ""
 
     def FindFileBySurfix(self, flist, folder, surfix, pattern):
         files = os.listdir(folder)
@@ -48,6 +48,9 @@ class XLDataModelGenerator(object):
     #Get Excel files in folder                    
     def GetFileList(self, folder, surfixs=".xls,.xlsx", pattern='^[^~].*[.]xls\w*'):
         """ 遍历文件夹查找所有满足后缀的文件 """
+
+        self.proj_root = folder
+
         surfix = surfixs.split(",")
         if type(folder) == str:
             folder = folder.decode('utf-8')
@@ -132,6 +135,12 @@ class XLDataModelGenerator(object):
 
     def GetDataModel(self):
         return self.dt
+
+    def GetSources(self):
+        return self.dt.GetSources()
+
+    def GetProjectRoot(self):
+        return self.proj_root
 
     #unit test
     def test(self):

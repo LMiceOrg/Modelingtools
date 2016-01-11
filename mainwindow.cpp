@@ -124,6 +124,7 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
+//Validate Excel files
 void MainWindow::on_pushButton_2_clicked()
 {
 
@@ -227,37 +228,7 @@ void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
 //生成数据定义XML
 void MainWindow::on_pushButton_3_clicked()
 {
-    setCursor(Qt::WaitCursor);
-    QMultiMap<QString, QStringList> mp;
-    QListWidgetItem * item;
-    for(int i=0; i < ui->listWidget->count(); ++i) {
-        item = ui->listWidget->item(i);
-        if(item->checkState() == Qt::Checked) {
-            QStringList sl = item->data(Qt::UserRole+1).toStringList();
-            sl.push_back(item->text());
-            mp.insert(sl[0], sl);
 
-        }
-    }
-
-
-    QList<QString> keys = mp.uniqueKeys();
-    for(int k=0; k< keys.size(); ++k) {
-        QString key = keys.at(k);
-
-        QList<QStringList> slist = mp.values(key);
-        QString param2;
-        for(int j=0; j< slist.size(); ++j) {
-            param2.append( slist.at(j).value(4) )
-                    .append(",");
-        }
-//        qDebug()<<"call GenerateDataStruct:"<<param2;
-        //ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
-        ep->callModel("GenerateDataStruct", "s", param2.toUtf8().data());
-
-        //qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
-
-    }
     ep->callModel("SaveDataStruct", NULL);
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
@@ -266,7 +237,6 @@ void MainWindow::on_pushButton_3_clicked()
     }
     emit modelDataStructListChanged(dsfiles);
 
-    setCursor(Qt::ArrowCursor);
 
 }
 
@@ -312,7 +282,7 @@ void MainWindow::on_pushButton_4_clicked()
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
     for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
-        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))                              );
+        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
     }
     emit modelModelDescListChanged(dsfiles);
 }
@@ -325,4 +295,73 @@ void MainWindow::on_actionQuit_Modeltools_triggered()
 void MainWindow::on_pushButton_5_clicked()
 {
     ep->callModel("SaveCppProject", NULL);
+}
+
+void MainWindow::on_actionDumpProject_triggered()
+{
+    ep->callModel("Backup", "s", "proj.bak");
+}
+
+void MainWindow::on_actionRestoreProject_triggered()
+{
+    PyObject* ret;
+    ep->callModel("Restore", "s", "proj.bak");
+
+    //获取工程路径
+    ep->callModel("GetModelProjectName");
+    QString proj_root;
+    ret = ep->returnObject();
+    if(ret && PyString_Check(ret)) {
+        proj_root = PyString_AsString(ret);
+        emit modelNameChanged(proj_root);
+    }
+
+    //获取模型的源列表
+    ep->callModel("GetSourceList");
+    QStringList dsfiles;
+    ret = ep->returnObject();
+    if(!ret || !PyList_Check(ret)) {
+        //return type is not a list
+        return;
+    }
+    for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
+        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))  );
+    }
+//    qDebug()<<dsfiles;
+    emit modelExcelModelChanged(dsfiles);
+}
+
+// Parse Excel Files
+void MainWindow::on_pushButton_6_clicked()
+{
+    QMultiMap<QString, QStringList> mp;
+    QListWidgetItem * item;
+    for(int i=0; i < ui->listWidget->count(); ++i) {
+        item = ui->listWidget->item(i);
+        if(item->checkState() == Qt::Checked) {
+            QStringList sl = item->data(Qt::UserRole+1).toStringList();
+            sl.push_back(item->text());
+            mp.insert(sl[0], sl);
+
+        }
+    }
+
+
+    QList<QString> keys = mp.uniqueKeys();
+    for(int k=0; k< keys.size(); ++k) {
+        QString key = keys.at(k);
+
+        QList<QStringList> slist = mp.values(key);
+        QString param2;
+        for(int j=0; j< slist.size(); ++j) {
+            param2.append( slist.at(j).value(4) )
+                    .append(",");
+        }
+//        qDebug()<<"call GenerateDataStruct:"<<param2;
+        //ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
+        ep->callModel("ParseSources", "s", param2.toUtf8().data());
+
+        //qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
+
+    }
 }

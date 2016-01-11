@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
+    <width>766</width>
     <height>569</height>
    </rect>
   </property>
@@ -31,6 +31,13 @@
        <widget class="QPushButton" name="pushButton_2">
         <property name="text">
          <string>Valid Excel Files</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_6">
+        <property name="text">
+         <string>Parse Excel Files</string>
         </property>
        </widget>
       </item>
@@ -128,7 +135,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>750</width>
+     <width>766</width>
      <height>22</height>
     </rect>
    </property>
@@ -221,6 +228,8 @@
    </attribute>
    <addaction name="actionNameSpace"/>
    <addaction name="actionReloadmodel"/>
+   <addaction name="actionDumpProject"/>
+   <addaction name="actionRestoreProject"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNameSpace">
@@ -345,6 +354,16 @@
   <action name="actionQuit_Modeltools">
    <property name="text">
     <string>Quit Modeltools</string>
+   </property>
+  </action>
+  <action name="actionDumpProject">
+   <property name="text">
+    <string>dumpProject</string>
+   </property>
+  </action>
+  <action name="actionRestoreProject">
+   <property name="text">
+    <string>RestoreProject</string>
    </property>
   </action>
  </widget>
