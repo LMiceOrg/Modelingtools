@@ -52,6 +52,9 @@ LIBS += -lpython2.7.dll
 }
 macx-clang {
 
+#Boost library
+INCLUDEPATH += /opt/local/include
+
 QMAKE_LFLAGS += -F/opt/local/Library/Frameworks
 INCLUDEPATH += /opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
 LIBS += -framework Python
@@ -78,7 +81,8 @@ autotools/builder/*.py \
 css/*.css \
     autotools/builder/msvc2008builder.py \
     autotools/builder/msvc2008solutionbuilder.py \
-    autotools/builder/msvc2008projectbuilder.py
+    autotools/builder/msvc2008projectbuilder.py \
+    autotools/builder/qt5builder.py
 
 PRECOMPILED_HEADER += stdafx.h
 

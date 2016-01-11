@@ -10,6 +10,8 @@ import msvc2008solutionbuilder
 
 import msvc2008projectbuilder
 
+import qt5builder
+
 import os
 import time
 
@@ -19,6 +21,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
 
         self.sobuilder = msvc2008solutionbuilder.Msvc2008SolutionBuilder()
         self.pjbuilder = msvc2008projectbuilder.Msvc2008ProjectBuilder()
+        self.qt5builder = qt5builder.Qt5Builder(datamodel, folder)
     def BuildEnd(self):
         """写入 solution 文件 """
         for pj_name in self.elements:
@@ -27,7 +30,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             props["pj_cname"] = self.projects[pj_name][3]
             props["src_path"] = self.projects[pj_name][0]
 
-            props["so_folder"]="solution"
+            props["so_folder"]= pj_name
             props["pj_folder"]="src"
             props["tp_folder"] = "test"
             props["root"] = self.folder
@@ -51,6 +54,8 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             pj_file = self.pjbuilder.BuildProject(props)
             #create test project node
             #self.GenerateComponentNode(pj_name, root)
+            self.qt5builder.BuildSolution(props)
+            self.qt5builder.BuildProject(props)
 
 
             #save to dsc file

@@ -24,7 +24,7 @@ using namespace AppSim;
 
 """
 
-h_export_template=u"""ifndef {PJ_NAME}_EXPORT_H_
+h_export_template=u"""#ifndef {PJ_NAME}_EXPORT_H_
 #define {PJ_NAME}_EXPORT_H_
 #if defined(_WIN32)
         #pragma warning(disable: 4251)
