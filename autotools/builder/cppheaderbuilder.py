@@ -7,9 +7,51 @@ CPP头文件建造者
 
 import basebuilder
 
+import time
 import os
 import xml.etree.cElementTree as xmllib
 import xml.dom.minidom as minidom
+
+h_template=u"""
+/****************************************************************************
+**
+**	开发单位：Dist3
+**	开发者：hehao
+**	创建时间：{tm_now}
+**	版本号：V1.0
+**	描述信息：{h_name}
+****************************************************************************/
+#ifndef {H_NAME}_H_
+#define {H_NAME}_H_
+
+namespace {h_name}
+{{
+{enumlist}
+ {arraylist}
+ {structlist}
+}}
+
+#endif //{H_NAME}_H_
+"""
+
+enumlist_template=u"""
+enum {enum_name} {{
+    {enum_element}
+}};
+"""
+
+enum_template=u"""
+{ENUM}={value}"""
+
+arraylist_template=u"""
+{array_type} {array_name}[{array_value}];"""
+
+struct_template=u"""
+struct xxx {{
+AAA a;
+double b;
+}}
+"""
 
 class CPPHeaderBuilder(basebuilder.BaseBuilder):
     def __init__(self, datamodel, folder):
@@ -20,92 +62,58 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             self.folder = folder
         else:
             raise TypeError("folder type (%s) is invalid!", str(type(folder)))
-        
+        self.props={}   
         self.outfiles = []
         
         
-    def CloseCPPHeaderFile(self,filename):
-        """关闭头文件 """    
-        with open(filename, 'a') as class_definition_file:
-                         # End the class definition.
-            class_definition_file.write('\n\n};\n\n')
-            # Close the conditional include statement
-            class_definition_file.write('#endif\n')
-            class_definition_file.close()
-      
-
-    def CreateCPPHeaderFile(self,ns):
-        """ 为每个类新建头文件 """    
-        author = ''
-        class_definition_file_name =self.folder+ '/{0}.h'.format(ns)
-        conditional_include_name_text = '{0}_H'.format(ns)
-        conditional_include_name_text = conditional_include_name_text.upper()      
-        with open(class_definition_file_name, 'w') as class_definition_file:
-            # Write the class definition file header.
-            stars_text = '//**********************************************************************'
-            class_definition_file.write('{0}\n'.format(stars_text))
-            class_definition_file.write('// Class Definition File: {0}\n'.format(class_definition_file_name))
-            class_definition_file.write('// Author: {0}\n'.format(author))
-            class_definition_file.write('//\n')
-            class_definition_file.write('// Abstract:\n')
-            class_definition_file.write('//\n')
-            class_definition_file.write('//   This file contains the class definition for class {0}.\n'.format(ns))
-            class_definition_file.write('//\n')
-            class_definition_file.write('//\n')
-            class_definition_file.write('{0}\n'.format(stars_text))
-            class_definition_file.write('\n')
-            class_definition_file.write('#ifndef {0}\n'.format(conditional_include_name_text))
-            class_definition_file.write('#define {0}\n'.format(conditional_include_name_text))
-            class_definition_file.write('#include<vector>\n')
-
-            # Write the class definition include statements.
-            # Write the bracketed include statements first.
-             # Write the class definition header.
-            function_header_separator_text = '//======================================================================'
-            class_definition_file.write('\n{0}\n'.format(function_header_separator_text))
-            class_definition_file.write('// Class Definition\n')
-            class_definition_file.write('{0}\n\n'.format(function_header_separator_text))
-            # Start the class definition.
-            class_definition_file.write('class {0}\n{1}\n'.format(ns, '{'))
-            # Write the class definition data member declarations.
-            # Skip the static data members in this loop and write
-            # the static declarations afterward.
-            class_definition_file.write('protected:\n')
-        return class_definition_file_name
-
-    def CreateEnumCPPHeader(self, filename, ed_ns, ctx):
-        """ 生成枚举类型头文件 """
+    def CreateEnumCPPHeader(self, ed_ns, ctx):
+        """ 生成枚举类型头文件的prop """
         ed_type, ed_desc, ed_items = ctx[:3]
         ed_id = "%s.%s" %(ed_ns, ed_type)
-        with open(filename, 'a') as class_definition_file:
-            # Write the class definition file header.
-            class_definition_file.write('\n\n// ID: {0}'.format(ed_id))
-            class_definition_file.write('\n')
-            class_definition_file.write('Enum {0}'.format(ed_type))
-            class_definition_file.write('{')
-            buffer_item=None
-            for item in ed_items:
-                if buffer_item!=None:
-                    it_name, it_value, it_desc = item[:3]
-                    it_id = "%s.%s" %(ed_id, it_name)
-                    it_value=int(it_value)
-                    class_definition_file.write('\n')
-                    class_definition_file.write('    {0}'.format(it_name))
-                    class_definition_file.write('=')
-                    class_definition_file.write('{0}'.format(it_value))
-                    class_definition_file.write(',')
-                buffer_item=item
-            it_name, it_value, it_desc = buffer_item[:3]
+        listprop={}
+        listprop["enum_name"] =ed_type
+        listprop["enum_element"]= ''
+        length=len(ed_items)
+        i=1
+        for item in ed_items:
+            i=i+1
+            enumprop={}
+            it_name, it_value, it_desc = item[:3]
             it_id = "%s.%s" %(ed_id, it_name)
             it_value=int(it_value)
-            class_definition_file.write('\n')
-            class_definition_file.write('    {0}'.format(it_name))
-            class_definition_file.write('=')
-            class_definition_file.write('{0}'.format(it_value))
-            class_definition_file.write('\n};')  
+            enumprop["ENUM"] =('    ')+it_name
+            if i<=length:
+                enumprop["value"] =('{0}'.format(it_value))+(',')
+            else :
+                enumprop["value"] =('{0}'.format(it_value))
+            ctx = enum_template.format(** enumprop)
+            listprop["enum_element"] =listprop["enum_element"]+ctx 
+        ctx = enumlist_template.format(** listprop)  
+        self.props["enumlist"] = self.props["enumlist"]+ctx
+        
+    def CreateArrayCPPHeader(self, ad_ns, ctx):
+        """ 生成数组类型头文件的prop """
+        ad_name, ad_desc, ad_type, ad_dim = ctx[:4]
+        ad_id = "%s.%s" %(ad_ns, ad_name)
+        listprop={}
+        listprop["array_type"] =('    ')+ad_type[6:10].lower()
+        listprop["array_name"]= ad_name
+        listprop["array_value"]= ad_type[11:-1] 
+        ctx = arraylist_template.format(** listprop)  
+        self.props["arraylist"] = self.props["arraylist"]+ctx
 
+    def CreateCompCPPHeader(self,item):
+        """ 生成复合结构体类型头文件的prop """
 
- 
+        
+    def writeCPPHeaderFile(self):
+        """ 写头文件 """
+        ctx = h_template.format(** self.props)
+        name = os.path.join(self.props["pj_path"], "%s.h" % self.props["h_name"])
+        f=open(name, "w")
+        f.write( ctx.encode('utf-8') )
+        f.close()
+     
     def BuildBegin(self):
         """ 构建准备，检查构建条件以及初始化 """
         
@@ -119,13 +127,25 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         """开始构建 为每一个Namespace创建一个CPP头文件 """
         #创建Namespace element
         for ns in self.GetNamespaces():#namespace表示各种不同的类，平台类、传感器器类，
-            filename = self.CreateCPPHeaderFile(ns)#为每个类建立一个枚举的头文件
+            self.props = {}
+            self.props["tm_now"] =time.strftime("%Y-%m-%d %H:%M:%S")
+            self.props["h_name"] =ns
+            self.props["pj_path"] =self.folder
+            self.props["H_NAME"] = ns.upper()
+            self.props["enumlist"]=''
+            self.props["arraylist"]=''
+            self.props["structlist"]=''
             for item in self.GetItemByNamespace(ns):
-                if   item.item_type == "EnumData":    #枚举类型
+                if item.item_type == "EnumData":    #枚举类型
                     #print "enum item"
-                    self.CreateEnumCPPHeader(filename, item.item_ns, item.item_val)#在头文件中加入值
-            self.CloseCPPHeaderFile(filename) 
-        
+                    self.CreateEnumCPPHeader(item.item_ns, item.item_val)#在头文件中加入值
+                elif item.item_type == "ArrayData":   #数组类型
+                    #print "array"
+                    self.CreateArrayCPPHeader(item.item_ns, item.item_val)
+                elif item.item_type == "CompData":    #复合结构
+                    self.CreateCompCPPHeader(item)
+            self.writeCPPHeaderFile()
+
     def BuildEnd(self):
         """结束构建 关闭所有头文件 """
         '''for ns in self.elements:
