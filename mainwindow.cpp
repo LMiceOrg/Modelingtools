@@ -27,6 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this, SIGNAL(modelExcelModelChanged(QStringList)),
             outdock, SLOT(modelExcelListChanged(QStringList)) );
+
+    connect(this, SIGNAL(modelExcelModelAdd(QString)),
+            outdock, SLOT(modelExcelAddFile(QString)) );
+
+    connect(this, SIGNAL(modelExcelModelRemove(QString)),
+            outdock, SLOT(modelExcelRemoveFile(QString)) );
+
     connect(this, SIGNAL(modelDataStructListChanged(QStringList)),
             outdock, SLOT(modelDataStructFiles(QStringList)) );
     connect(this, SIGNAL(modelModelDescListChanged(QStringList)),
@@ -39,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
             outdock, SLOT(modelModelCodeFiles(QStringList)) );
     connect(outdock, SIGNAL(currentCodeFileChanged(QString)),
             this, SLOT(editModelCodeFile(QString)) );
+
 
     addDockWidget(Qt::LeftDockWidgetArea, outdock);
 
@@ -99,6 +107,8 @@ void MainWindow::on_pushButton_clicked()
     setWindowTitle( tr("%1 - [Opening Model] %2").arg(title).arg(folder) );
     emit modelNameChanged(folder);
 
+    isLoading = true;
+
     ep->callModel("GetFileList", "s", folder.toUtf8().data());
 //    qDebug()<<"call GetFileList"<<ep->returnType();
 //    qDebug()<<"test "<<folder;
@@ -117,6 +127,8 @@ void MainWindow::on_pushButton_clicked()
             }
         }
     }
+
+    isLoading = false;
 
 }
 
@@ -149,12 +161,12 @@ void MainWindow::on_pushButton_2_clicked()
                 item->setCheckState(Qt::Checked);
                 item->setData(Qt::UserRole, true);
 
-                QStringList sl;
-                PyObject* ret = ep->returnObject();
-                for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
-                    sl.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
-                }
-                item->setData(Qt::UserRole+1, sl);
+//                QStringList sl;
+//                PyObject* ret = ep->returnObject();
+//                for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
+//                    sl.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
+//                }
+//                item->setData(Qt::UserRole+1, sl);
 //                qDebug()<<sl;
                 xlModels.push_back(item->text());
             }
@@ -198,27 +210,48 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::on_actionNameSpace_triggered()
 {
-    nslist.push_back(std::pair<std::string, std::string>("Global", "NTSim_Global"));
-    DialogNamespace dlg(nslist);
+//    nslist.push_back(std::pair<std::string, std::string>("Global", "NTSim_Global"));
+#if __APPLE__
+    QDir dir(qApp->applicationDirPath());
+    dir.cdUp();
+    dir.cd("Resources");
+    dir.cd("autotools");
+    QString cfgfile = dir.filePath("__init__.py");
+
+    DialogNamespace dlg(cfgfile);
     dlg.exec();
+#endif
 }
 
-void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
+void MainWindow::on_listWidget_itemChanged(QListWidgetItem *item)
 {
-    QListWidgetItem * item;
-    item = ui->listWidget->item(index.row());
+    if(isLoading)
+        return;
+
+    isLoading = true;
     if(item) {
         if(item->flags().testFlag(Qt::ItemIsUserCheckable)) {
             Qt::CheckState cs = item->checkState();
             if(cs == Qt::Checked) {
                 cs = Qt::Unchecked;
                 item->setCheckState(cs);
+                emit modelExcelModelRemove(item->text());
             }else if(cs == Qt::Unchecked && item->data(Qt::UserRole).toBool() == true) {
                 cs = Qt::Checked;
                 item->setCheckState(cs);
+                emit modelExcelModelAdd(item->text());
             }
         }
     }
+    isLoading = false;
+}
+
+void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
+{
+    QListWidgetItem * item;
+    item = ui->listWidget->item(index.row());
+    on_listWidget_itemChanged(item);
+
 }
 
 //生成数据定义XML
@@ -358,6 +391,7 @@ void MainWindow::on_actionDumpProject_triggered()
     ep->callModel("Backup", "s", "proj.bak");
 }
 
+//载入工程
 void MainWindow::on_actionRestoreProject_triggered()
 {
     PyObject* ret;
@@ -381,44 +415,68 @@ void MainWindow::on_actionRestoreProject_triggered()
         //return type is not a list
         return;
     }
+
+    isLoading = true;
+
+    QListWidgetItem * item;
+    QFont font;
+    ui->listWidget->clear();
     for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
-        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))  );
+        QString xlfile = PyString_AsString(PyList_GetItem(ret, i));
+        dsfiles.push_back( xlfile  );
+
+        item = new QListWidgetItem(ui->listWidget);
+        item->setText( xlfile );
+        item->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
+        font = item->font();
+        font.setBold(true);
+        item->setFont(font);
+        item->setCheckState(Qt::Checked);
+        item->setData(Qt::UserRole, true);
     }
 //    qDebug()<<dsfiles;
     emit modelExcelModelChanged(dsfiles);
+
+    isLoading = false;
 }
 
 // Parse Excel Files
 void MainWindow::on_pushButton_6_clicked()
 {
-    QMultiMap<QString, QStringList> mp;
+//    QMultiMap<QString, QStringList> mp;
     QListWidgetItem * item;
+    QString param2;
     for(int i=0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
         if(item->checkState() == Qt::Checked) {
-            QStringList sl = item->data(Qt::UserRole+1).toStringList();
-            sl.push_back(item->text());
-            mp.insert(sl[0], sl);
+//            QStringList sl = item->data(Qt::UserRole+1).toStringList();
+//            sl.push_back(item->text());
+//            mp.insert(sl[0], sl);
+            param2.append(item->text()).append(",");
+
 
         }
     }
+    ep->callModel("ParseSources", "s", param2.toUtf8().data());
 
 
-    QList<QString> keys = mp.uniqueKeys();
-    for(int k=0; k< keys.size(); ++k) {
-        QString key = keys.at(k);
+//    QList<QString> keys = mp.uniqueKeys();
+//    for(int k=0; k< keys.size(); ++k) {
+//        QString key = keys.at(k);
 
-        QList<QStringList> slist = mp.values(key);
-        QString param2;
-        for(int j=0; j< slist.size(); ++j) {
-            param2.append( slist.at(j).value(4) )
-                    .append(",");
-        }
-//        qDebug()<<"call GenerateDataStruct:"<<param2;
-        //ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
-        ep->callModel("ParseSources", "s", param2.toUtf8().data());
+//        QList<QStringList> slist = mp.values(key);
+//        QString param2;
+//        for(int j=0; j< slist.size(); ++j) {
+//            param2.append( slist.at(j).value(4) )
+//                    .append(",");
+//        }
+////        qDebug()<<"call GenerateDataStruct:"<<param2;
+//        //ep->callModel("GenerateDataStruct", "(ss)", key.toUtf8().data(), param2.toUtf8().data());
+//        ep->callModel("ParseSources", "s", param2.toUtf8().data());
 
-        //qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
+//        //qDebug()<<keys.size()<<slist.size()<<"Call GenerateDataStruct:"<<key;
 
-    }
+//    }
 }
+
+

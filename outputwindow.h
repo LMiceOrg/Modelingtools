@@ -17,6 +17,8 @@ public:
 public slots:
     void modelNameChanged(const QString& title);
     void modelExcelListChanged(const QStringList& sl);
+    void modelExcelAddFile(const QString& name);
+    void modelExcelRemoveFile(const QString& name);
     //update datastruct xml list
     void modelDataStructFiles(const QStringList& sl);
     void modelModelDscFiles(const QStringList& sl);
@@ -37,5 +39,7 @@ private:
     Ui::OutputWindow *ui;
     QString modelFolder;
 };
+
+
 
 #endif // OUTPUTWINDOW_H

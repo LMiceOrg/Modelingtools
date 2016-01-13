@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <QListWidgetItem>
 
 
 #include "dialognamespace.h"
@@ -56,21 +57,26 @@ private slots:
 
     void on_pushButton_6_clicked();
 
+    void on_listWidget_itemChanged(QListWidgetItem *item);
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);
+    void modelExcelModelAdd(const QString&);
+    void modelExcelModelRemove(const QString&);
     void modelDataStructListChanged(const QStringList&);
     void modelModelDescListChanged(const QStringList&);
     void outputMessage(const QStringList&);
     void modelCodeFileListChanged(const QStringList&);
 private:
     Ui::MainWindow *ui;
-    std::vector<std::pair<std::string, std::string> > nslist;
+//    std::vector<std::pair<std::string, std::string> > nslist;
     OutputWindow* outdock;
     QString title;
     EmbedPython *ep;
     QsciLexerXML* xmlparser;
     QsciLexerCPP* cppparser;
+    bool isLoading;
 };
 
 #endif // MAINWINDOW_H

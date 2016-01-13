@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "mainwindow.h"
 
+#include <QTranslator>
 
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
@@ -40,6 +41,11 @@ int main(int argc, char *argv[])
             a.setStyleSheet(style);
         }
     }
+    /** Translation */
+    QTranslator tran;
+    tran.load(a.applicationDirPath() + "/modelingtools.zh_CN");
+    a.installTranslator(&tran);
+
     int ret;
     {
         MainWindow w;

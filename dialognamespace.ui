@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>990</width>
+    <height>555</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,6 +54,7 @@
    <class>QsciScintilla</class>
    <extends>QFrame</extends>
    <header>Qsci/qsciscintilla.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -109,58 +109,94 @@ void OutputWindow::modelExcelListChanged(const QStringList &sl)
 {
     QTreeWidget* tree = ui->treeWidget;
     QTreeWidgetItem* root = tree->topLevelItem(0);
-    QPixmap px(":/flatastic1");
-    int px_width = 112, px_height = 112;
 
     //Remove and return children list
     root->takeChildren();
 
     for(int i=0; i<sl.size(); ++i) {
-        QFileInfo info(sl.at(i));
-//        QString st = info.absoluteFilePath();
-//        st.replace(modelFolder, tr(""));
-        QString xlpath = info.absolutePath().replace(modelFolder, tr(""));
-
-        QString xlfile = info.fileName();
-        if(xlpath.compare("")!=0) {
-            bool inserted = false;
-            for(int j = 0; j<root->childCount(); ++j) {
-                if(root->child(j)->text(0).compare(xlpath, Qt::CaseInsensitive) == 0) {
-                    QTreeWidgetItem* item = new QTreeWidgetItem(
-                                       root->child(j),
-                                       QStringList(xlfile));
-                    item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
-//                    item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
-//                    root->child(j)->addChild(new QTreeWidgetItem(
-//                                                 style()->standardIcon(QStyle::SP_FileIcon),
-//                                                 root->child(j),
-//                                                 QStringList(xlfile)) );
-                    inserted= true;
-                    break;//for-j
-                }
-            }
-            if(!inserted) {
-                QTreeWidgetItem* path = new QTreeWidgetItem(
-                            root,
-                            QStringList(xlpath) );
-                //path->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
-                path->setIcon(0, QIcon(px.copy(4*px_width,4*px_height,  px_width,px_height)));
-                QTreeWidgetItem* item = new QTreeWidgetItem(
-                                   path,
-                                   QStringList(xlfile));
-                //item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
-                item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
-//                root->addChild(path);
-            }
-        } else { //path is empty
-
-            root->addChild(new QTreeWidgetItem(
-                               root,
-                               QStringList(xlfile) ) );
-        }
+        modelExcelAddFile(sl.at(i));
     }
     tree->expandAll();
 }
+
+void OutputWindow::modelExcelAddFile(const QString &name)
+{
+    QTreeWidget* tree = ui->treeWidget;
+    QTreeWidgetItem* root = tree->topLevelItem(0);
+    QPixmap px(":/flatastic1");
+    const int px_width = 112, px_height = 112;
+
+    QFileInfo info(name);
+    QString xlpath = info.absolutePath().replace(modelFolder, tr(""));
+
+    QString xlfile = info.fileName();
+    if(xlpath.compare("")!=0) {
+        bool inserted = false;
+        for(int j = 0; j<root->childCount(); ++j) {
+            if(root->child(j)->text(0).compare(xlpath, Qt::CaseInsensitive) == 0) {
+                QTreeWidgetItem* item = new QTreeWidgetItem(
+                                   root->child(j),
+                                   QStringList(xlfile));
+                item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
+                inserted= true;
+                break;//for-j
+            }
+        }
+        if(!inserted) {
+            QTreeWidgetItem* path = new QTreeWidgetItem(
+                        root,
+                        QStringList(xlpath) );
+            //path->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
+            path->setIcon(0, QIcon(px.copy(4*px_width,4*px_height,  px_width,px_height)));
+            QTreeWidgetItem* item = new QTreeWidgetItem(
+                               path,
+                               QStringList(xlfile));
+            //item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
+            item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
+//                root->addChild(path);
+        }
+    } else { //path is empty
+
+        root->addChild(new QTreeWidgetItem(
+                           root,
+                           QStringList(xlfile) ) );
+    }
+}
+
+void OutputWindow::modelExcelRemoveFile(const QString &name)
+{
+    QTreeWidget* tree = ui->treeWidget;
+    QTreeWidgetItem* root = tree->topLevelItem(0);
+    QFileInfo info(name);
+    QString xlpath = info.absolutePath().replace(modelFolder, tr(""));
+    QString xlfile = info.fileName();
+
+    bool removed = false;
+    for(int j = 0; j<root->childCount(); ++j) {
+        if(root->child(j)->text(0).compare(xlpath, Qt::CaseInsensitive) == 0) {
+            QTreeWidgetItem* item = root->child(j);
+            for(int k = 0; k< item->childCount(); ++k) {
+                if( item->child(k)->text(0).compare(xlfile, Qt::CaseInsensitive) == 0) {
+                    //Gotcha!
+                    item->takeChild(k);
+                    removed = true;
+                    break;//for-k
+                }
+            }
+            if(removed) {
+                if( item->childCount() == 0) {
+                    root->takeChild(j);
+                }
+                break;//for-j
+            }
+        } else if(root->child(j)->text(0).compare(xlfile, Qt::CaseInsensitive) == 0) {
+            root->takeChild(j);
+            break;//for-j
+        }
+    }
+
+}
+
 
 void OutputWindow::modelDataStructFiles(const QStringList &sl)
 {

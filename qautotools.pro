@@ -65,6 +65,11 @@ pysrc.path = $$OUT_PWD/modelingtools.app/Contents/Resources/autotools
 qsci.path = $$OUT_PWD/modelingtools.app/Contents/MacOS
 qsci.files += $$[QT_INSTALL_LIBS]/libqscintilla2.12.dylib
 
+#translation
+trans.path = $$OUT_PWD/modelingtools.app/Contents/MacOS
+trans.files = *.qm
+INSTALLS += trans
+
 INSTALLS += qsci
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
 #QMAKE_CXXFLAGS += -std=c++03
@@ -102,4 +107,5 @@ RESOURCES += \
 DISTFILES += \
     autotools/builder/cppheaderbuilder.py
 
+TRANSLATIONS += modelingtools.zh_CN.ts
 
