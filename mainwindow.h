@@ -6,7 +6,7 @@
 #include <string>
 #include <map>
 #include <QListWidgetItem>
-
+#include <QKeyEvent>
 
 #include "dialognamespace.h"
 #include "outputwindow.h"
@@ -58,6 +58,13 @@ private slots:
     void on_pushButton_6_clicked();
 
     void on_listWidget_itemChanged(QListWidgetItem *item);
+
+    //Keypress
+    void on_KeyPressed(int type);
+
+    void on_actionEnlarge_triggered();
+
+    void on_actionBesmall_triggered();
 
 signals:
     void modelNameChanged(const QString&);

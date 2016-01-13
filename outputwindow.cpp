@@ -2,6 +2,8 @@
 #include "outputwindow.h"
 #include "ui_outputwindow.h"
 
+#include <QProcess>
+
 OutputWindow::OutputWindow(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::OutputWindow)
@@ -138,6 +140,7 @@ void OutputWindow::modelExcelAddFile(const QString &name)
                                    root->child(j),
                                    QStringList(xlfile));
                 item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
+                item->setData(0, Qt::UserRole, info.absoluteFilePath());
                 inserted= true;
                 break;//for-j
             }
@@ -153,13 +156,15 @@ void OutputWindow::modelExcelAddFile(const QString &name)
                                QStringList(xlfile));
             //item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
             item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
+            item->setData(0, Qt::UserRole, info.absoluteFilePath());
 //                root->addChild(path);
         }
     } else { //path is empty
 
-        root->addChild(new QTreeWidgetItem(
+        QTreeWidgetItem* item =new QTreeWidgetItem(
                            root,
-                           QStringList(xlfile) ) );
+                           QStringList(xlfile) );
+        item->setData(0, Qt::UserRole, info.absoluteFilePath());
     }
 }
 
@@ -325,4 +330,15 @@ void OutputWindow::modelModelDscDblClicked(const QModelIndex &index)
 void OutputWindow::on_treeProject_doubleClicked(const QModelIndex &index)
 {
     emit currentCodeFileChanged(index.data(Qt::UserRole).toString());
+}
+
+void OutputWindow::on_treeWidget_doubleClicked(const QModelIndex &index)
+{
+    QString name = index.data(Qt::UserRole).toString();
+    if(name.isEmpty())
+        return;
+
+    name = "open " + name;
+
+     QProcess::startDetached(name);
 }

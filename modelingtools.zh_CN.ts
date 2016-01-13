@@ -177,7 +177,7 @@
     <message>
         <location filename="mainwindow.ui" line="198"/>
         <source>&amp;Help</source>
-        <translation>帮助(&amp;H)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="208"/>
@@ -307,7 +307,7 @@
     <message>
         <location filename="mainwindow.ui" line="351"/>
         <source>Report bug</source>
-        <translation>提交错误</translation>
+        <translation>向开发者提交Bug</translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="356"/>

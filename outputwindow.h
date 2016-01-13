@@ -35,6 +35,8 @@ signals:
 private slots:
     void on_treeProject_doubleClicked(const QModelIndex &index);
 
+    void on_treeWidget_doubleClicked(const QModelIndex &index);
+
 private:
     Ui::OutputWindow *ui;
     QString modelFolder;

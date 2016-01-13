@@ -64,6 +64,18 @@ MainWindow::MainWindow(QWidget *parent) :
     onCheckOutputMessage(ep->errorMessage());
 
     ui->tabWidget->setTabText(0, tr("Output Window"));
+
+    QPixmap px(":/flatastic2");
+    int px_width = 112, px_height = 112;
+    ui->actionNameSpace->setIcon(QIcon(px.copy(0*px_width,2*px_height,  px_width,px_height)));
+    ui->actionReloadmodel->setIcon(QIcon(px.copy(4*px_width,5*px_height,  px_width,px_height)));
+    ui->actionDumpProject->setIcon(QIcon(px.copy(3*px_width,0*px_height,  px_width,px_height)));
+    ui->actionRestoreProject->setIcon(QIcon(px.copy(3*px_width,4*px_height,  px_width,px_height)));
+
+    ui->mainToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    ui->mainToolBar->setIconSize(QSize(16,16));
+
+
     showMaximized();
 
 }
@@ -228,29 +240,64 @@ void MainWindow::on_listWidget_itemChanged(QListWidgetItem *item)
     if(isLoading)
         return;
 
-    isLoading = true;
+//    disconnect(ui->listWidget, SIGNAL(itemChanged(QListWidgetItem*))
+//               ,this, SLOT(on_listWidget_itemChanged(QListWidgetItem*)) );
+
+//    isLoading = true;
+//    qDebug()<<item;
     if(item) {
         if(item->flags().testFlag(Qt::ItemIsUserCheckable)) {
             Qt::CheckState cs = item->checkState();
             if(cs == Qt::Checked) {
-                cs = Qt::Unchecked;
-                item->setCheckState(cs);
-                emit modelExcelModelRemove(item->text());
-            }else if(cs == Qt::Unchecked && item->data(Qt::UserRole).toBool() == true) {
-                cs = Qt::Checked;
-                item->setCheckState(cs);
+//                cs = Qt::Unchecked;
+//                qDebug()<<"list change";
+                //item->setCheckState(cs);
                 emit modelExcelModelAdd(item->text());
+
+            }else if(cs == Qt::Unchecked && item->data(Qt::UserRole).toBool() == true) {
+//                cs = Qt::Checked;
+                //item->setCheckState(cs);
+                emit modelExcelModelRemove(item->text());
             }
         }
     }
-    isLoading = false;
+
+//    connect(ui->listWidget, SIGNAL(itemChanged(QListWidgetItem*))
+//               ,this, SLOT(on_listWidget_itemChanged(QListWidgetItem*)) );
+
+    //    isLoading = false;
+}
+
+void MainWindow::on_KeyPressed(int type)
+{
+    QFont fnt = ui->textEdit->lexer()->defaultFont();
+    if(type == 1) {
+        int sz = fnt.pointSize() + 2;
+        //if(sz >32) sz = 32;
+        fnt.setPointSize( sz );
+    } else {
+        int sz = fnt.pointSize() - 2;
+        if(sz < 8) sz = 8;
+        fnt.setPointSize( sz );
+
+    }
+    ui->textEdit->lexer()->setFont(fnt);
 }
 
 void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
 {
     QListWidgetItem * item;
     item = ui->listWidget->item(index.row());
-    on_listWidget_itemChanged(item);
+    if(item) {
+        if(item->flags().testFlag(Qt::ItemIsUserCheckable)) {
+            Qt::CheckState cs = item->checkState();
+            if(cs == Qt::Unchecked)
+                cs = Qt::Checked;
+            else
+                cs = Qt::Unchecked;
+            item->setCheckState(cs);
+        }
+    }
 
 }
 
@@ -480,3 +527,13 @@ void MainWindow::on_pushButton_6_clicked()
 }
 
 
+
+void MainWindow::on_actionEnlarge_triggered()
+{
+    on_KeyPressed(1);
+}
+
+void MainWindow::on_actionBesmall_triggered()
+{
+    on_KeyPressed(0);
+}

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>766</width>
+    <width>911</width>
     <height>569</height>
    </rect>
   </property>
@@ -135,7 +135,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>766</width>
+     <width>911</width>
      <height>22</height>
     </rect>
    </property>
@@ -228,8 +228,11 @@
    </attribute>
    <addaction name="actionNameSpace"/>
    <addaction name="actionReloadmodel"/>
+   <addaction name="separator"/>
    <addaction name="actionDumpProject"/>
    <addaction name="actionRestoreProject"/>
+   <addaction name="separator"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNameSpace">
@@ -364,6 +367,16 @@
   <action name="actionRestoreProject">
    <property name="text">
     <string>RestoreProject</string>
+   </property>
+  </action>
+  <action name="actionEnlarge">
+   <property name="text">
+    <string>enlarge</string>
+   </property>
+  </action>
+  <action name="actionBesmall">
+   <property name="text">
+    <string>besmall</string>
    </property>
   </action>
  </widget>
