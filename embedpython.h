@@ -4,7 +4,7 @@
 #include <stdarg.h>
 #include <string>
 
-//TODO:Python embed helper class
+
 class EmbedPython:public QObject
 {
     Q_OBJECT

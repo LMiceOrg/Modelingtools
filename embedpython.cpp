@@ -277,6 +277,7 @@ void EmbedPython::checkError()
         } else if(pv && PyUnicode_Check(pv)) {
             emsg += tr("  Error Value:%1\n")
                     .arg( tr("Unicode error") );
+
         }else if(pv && PyTuple_Check(pv)) {
 //            qDebug()<<"2.3"<<pv->ob_type->tp_name;
 //            if( PyString_Check( ((PyBaseExceptionObject*)(pv))->message) ) {
@@ -296,7 +297,22 @@ void EmbedPython::checkError()
                         .arg(tm.errvals[3].c_str())
                         .arg(tm.errvals[4].c_str());
             }
+            else {
+                emsg += tr("error length %1\n")
+                        .arg(tm.errvals.size());
+            }
 
+        }else if(pv) {
+             PyObject* spv = PyObject_Str(pv);
+             if(spv) {
+                emsg += tr("%1:%2\n")
+                        .arg(pv->ob_type->tp_name)
+                        .arg(PyString_AsString(spv));
+             }else {
+                 emsg += tr("%1\n")
+                         .arg(pv->ob_type->tp_name);
+             }
+                Py_XDECREF(spv);
         }
 
         PyErr_Print();

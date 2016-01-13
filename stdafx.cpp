@@ -1,4 +1,6 @@
 #include "stdafx.h"
+/** FIXED [TODO] 增加错误提示功能 */
+/** FIXED [TODO]:Python embed helper class */
 
 /** NOTE: 在C++与Python之间传递参数使用UTF-8编码格式 */
 /** FIXME: 增加工程文档描述和管理 */

@@ -11,6 +11,7 @@
 #include "outputwindow.h"
 #include "embedpython.h"
 
+
 namespace Ui {
 class MainWindow;
 }

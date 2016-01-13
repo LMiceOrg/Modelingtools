@@ -232,10 +232,12 @@ void MainWindow::on_pushButton_3_clicked()
     ep->callModel("SaveDataStruct", NULL);
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
-    for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
-        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))                              );
+    if(ret && PyList_Check(ret)) {
+        for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
+            dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i))                              );
+        }
+        emit modelDataStructListChanged(dsfiles);
     }
-    emit modelDataStructListChanged(dsfiles);
 
 
 }

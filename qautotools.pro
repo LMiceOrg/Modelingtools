@@ -66,8 +66,13 @@ qsci.path = $$OUT_PWD/modelingtools.app/Contents/MacOS
 qsci.files += $$[QT_INSTALL_LIBS]/libqscintilla2.12.dylib
 
 INSTALLS += qsci
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+#QMAKE_CXXFLAGS += -std=c++03
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -march=native  -Wall -Wextra -Wpedantic  -stdlib=libc++
+#QMAKE_CXXFLAGS += -E
 
-QMAKE_CXXFLAGS += -march=native -std=c++11 -Wall -Wextra -Wpedantic
+LIBS += -stdlib=libc++
 }
 
 LIBS += -lqscintilla2
