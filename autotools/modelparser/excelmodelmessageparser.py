@@ -61,7 +61,7 @@ class ExcelModelMessageParser(excelsheetparser.ExcelSheetParser):
             last_cp.append([it_name, it_ns, it_cname, it_type, it_grain, it_unit,
                             it_default, it_min, it_max, it_desc, it_asign] )
         # process the last compdata
-        if len(last_cp) >0:
+        if last_cp_name != "" and len(last_cp) >0:
             model.AppendItem(xl_name, sh_idx, sh_name, last_cp_ns, "ModelMessage",(
                 last_cp_name, last_cp_ns, last_cp_cname, last_cp_io, last_cp_desc, last_cp_var, last_cp))
         

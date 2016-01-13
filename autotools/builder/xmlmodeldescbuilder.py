@@ -140,7 +140,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                 elif not type(item[i]) == unicode:
                     #print type(item[i]), type(item[i]) != unicode
                     item[i] = unicode(item[i])
-            it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = item
+            it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = item[:10]
             pp = xmllib.SubElement(pps, "Property", {"Name":it_name, "ChineseName":it_cname})
             xmllib.SubElement(pp, "Description").text = it_desc
             #refinement namespace
@@ -233,9 +233,11 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                     pass
                 elif item.item_type == "CompData":  #复合数据结构
                     #self.AddCompType(item)
+                    #print "CompData"
                     pass
                 elif item.item_type == "ArrayData": #数据类型
                     #self.AddArrayType(item)
+                    #print "ArrayData"
                     pass
     def BuildEnd(self):
         """写入 dsc文件 """

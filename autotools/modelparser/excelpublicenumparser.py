@@ -26,7 +26,7 @@ class ExcelPublicEnumParser(excelsheetparser.ExcelSheetParser):
             ed_type, ed_desc, it_name, it_value, it_desc = self.strip(sh_ctx[i][:5])
 
             if ed_type != "":
-                if last_ed_type != "":
+                if last_ed_type != "" and len(last_ed_items) >0:
                     #item_cnt = item_cnt +1
                     model.AppendItem(xl_name, sh_idx, sh_name, self.ns, "EnumData", (last_ed_type, last_ed_desc, last_ed_items))
                 #new enumdata
@@ -34,8 +34,9 @@ class ExcelPublicEnumParser(excelsheetparser.ExcelSheetParser):
                 last_ed_desc = ed_desc
                 last_ed_items = []
             #append item data
+            it_name = it_name.replace(' ', '')
             last_ed_items.append((it_name, it_value, it_desc))
         #process the last one
-        if len(last_ed_items) >0:
+        if last_ed_type != "" and len(last_ed_items) >0:
             model.AppendItem(xl_name, sh_idx, sh_name, self.ns, "EnumData", (last_ed_type, last_ed_desc, last_ed_items))
         #print "items:", item_cnt

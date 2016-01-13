@@ -50,7 +50,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
                                                       "xmlns:Catalogue":"http://www.appsoft.com.cn/Core/Catalogue",
                                                       "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"})
         xmllib.SubElement(root, "Description").text = "It is the data type definition file of namespace named %s" % ns
-        xmllib.SubElement(root, "Import", {"Namespace":"AppSim", "Location":"AppSim"})
+        xmllib.SubElement(root, "Import", {"Namespace":"%s" % basebuilder.g_ns_name, "Location":"%s" %  basebuilder.g_ns_name})
         return root
 
     def CreateEnumDataItem(self, node, ed_ns, ctx):
@@ -84,7 +84,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         cp_ns = data.item_ns
         ctx = data.item_val
         cp_name, cp_desc, cp_items = ctx[:3]
-
+        #print cp_name, cp_ns
         cp_id = "%s.%s" %(cp_ns, cp_name)
         #print type(data.part_name)
         tnode = xmllib.SubElement(node, "Type", {"Id": cp_id,"Name":cp_name,
@@ -101,7 +101,9 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
                     item[i] = str(item[i])
             #it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc
             #print len(item)
-            it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = item
+            it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = item[:10]
+            #refinement namespace
+            it_type, it_ns = self.RefineNamespace(it_type, it_ns)
             it_id = "%s.%s" %(cp_id, it_name)
             fnode = xmllib.SubElement(tnode, "Field", {"Id": it_id, "Name":it_name,
             "Description":it_desc, "Unit":it_unit, "ChineseName":it_cname, "GrainSize": it_grain,
@@ -154,6 +156,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
 
         #创建Namespace element
         for ns in self.GetNamespaces():
+            #print ns, len(self.GetItemByNamespace(ns))
             root = self.CreateRootNode(ns)
             node = self.CreateNamespaceNode(root, ns)
             for item in self.GetItemByNamespace(ns):
@@ -164,6 +167,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
                     #print "array"
                     self.CreateArrayDataItem(node, item.item_ns, item.item_val)
                 elif item.item_type == "CompData":    #复合结构
+                    #print "CompData"
                     self.CreateCompDataItem(node, item)
                 elif item.item_type == "ModelMessage":  #模型消息
                     self.CreateModelMessageItem(node, item)

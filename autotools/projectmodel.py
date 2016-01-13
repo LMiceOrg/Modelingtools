@@ -35,7 +35,7 @@ class DataType(BaseContext):
         return "-".join( (s[:8],s[8:12], s[12:16], s[16:20],s[20:]) ).upper()
     def GetUuid(self, ns, name):
         if ns == '':
-            ns = 'AppSim'
+            ns = 'RTL'
         if dt_mapping.has_key(name):
             ns = dt_mapping[name][1]
             name = dt_mapping[name][0]

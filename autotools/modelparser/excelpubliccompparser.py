@@ -14,7 +14,7 @@ class ExcelPublicCompParser(excelsheetparser.ExcelSheetParser):
     def ParseExcelSheet(self, model, xl_name, sh_ctx, sh_idx, sh_name):
         #get namespace
         self.GetNamespace(xl_name, sh_idx, sh_name)
-        
+        #print "CompData", self.ns
         last_cp_name=""
         last_cp_ns = ""
         last_cp_desc =""
@@ -22,9 +22,9 @@ class ExcelPublicCompParser(excelsheetparser.ExcelSheetParser):
         
         #枚举行
         for i in range(1, len(sh_ctx)):
-            if len(sh_ctx[i]) <13:
-                continue
-            cp_name, cp_ns, cp_desc, it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = sh_ctx[i][:13]
+            if len(sh_ctx[i]) <12:
+                raise ValueError(u"[%s]:[%s] CompData sheet cols error, should be 12, but(%d)" % ( xl_name, sh_name, len(sh_ctx[i]) ) )
+            cp_name, cp_desc, it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = sh_ctx[i][:12]
             cp_ns = self.ns
 
             cp_name = cp_name.strip()
@@ -47,8 +47,10 @@ class ExcelPublicCompParser(excelsheetparser.ExcelSheetParser):
                 last_cp_desc = cp_desc
                 last_cp = []
             # append item data
+            if it_name == "":
+                continue
             last_cp.append([it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc] )
         # process the last compdata
-        if len(last_cp) >0:
+        if last_cp_name != "" and len(last_cp) >0:
             model.AppendItem(xl_name, sh_idx, sh_name, self.ns, "CompData", (last_cp_name, last_cp_desc, last_cp))
         

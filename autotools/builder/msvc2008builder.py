@@ -10,6 +10,8 @@ import msvc2008solutionbuilder
 
 import msvc2008projectbuilder
 
+import cppheaderbuilder
+
 import qt5builder
 
 import os
@@ -22,8 +24,10 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
         self.sobuilder = msvc2008solutionbuilder.Msvc2008SolutionBuilder()
         self.pjbuilder = msvc2008projectbuilder.Msvc2008ProjectBuilder()
         self.qt5builder = qt5builder.Qt5Builder(datamodel, folder)
+        self.cppbuilder = cppheaderbuilder.CPPHeaderBuilder(datamodel, folder)
     def BuildEnd(self):
         """写入 solution 文件 """
+        self.cppbuilder.Build()
         for pj_name in self.elements:
             props = {}
             props["tm_now"] =time.strftime("%Y-%m-%d %H:%M:%S")
@@ -56,6 +60,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             #self.GenerateComponentNode(pj_name, root)
             self.qt5builder.BuildSolution(props)
             self.qt5builder.BuildProject(props)
+
 
 
             #save to dsc file

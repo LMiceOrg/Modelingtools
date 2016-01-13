@@ -95,7 +95,7 @@ class DataTypeFileGenerator:
                                                       "xmlns:Catalogue":"http://www.appsoft.com.cn/Core/Catalogue",
                                                       "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"})
         xmllib.SubElement(self.root, "Description").text = "It is the definition file of namespace named %s" % self.ns
-        xmllib.SubElement(self.root, "Import", {"Namespace":"AppSim", "Location":"AppSim"})
+        xmllib.SubElement(self.root, "Import", {"Namespace":"RTL", "Location":"RTL"})
     def GetNsKeyBySheetName(self, name):
         for k in self.nslist:
             if name.find(self.nslist[k][0]) >= 0:

@@ -10,6 +10,7 @@ import os
 import xml.etree.cElementTree as xmllib
 import xml.dom.minidom as minidom
 
+
 h_userdata_template = u"""#ifndef {PJ_NAME}_USERDATATYPE_H_
 #define {PJ_NAME}_USERDATATYPE_H_
 #include <AppSimKernel.h>

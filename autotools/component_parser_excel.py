@@ -102,16 +102,16 @@ class DSCFileGenerator:
                                                       "Name":item["Name"],
                                                       "Language":item["Language"] })
         xmllib.SubElement(project, "Description").text = item["Description"]
-    #Import AppSim
+    #Import Global namespace
     def GenImport(self):
         self.GenImportType()
         self.GenImportSimApp()        
     def GenImportSimApp(self):
         #Import Default SimApp Types
-        ip = xmllib.SubElement(self.root, "Import", {"Id":"AppSim",
-                                                     "Name":"AppSim",
-                                                     "Location":"AppSim" })
-        tp = xmllib.SubElement(ip, "Type", {"Id":"AppSim.Bool",
+        ip = xmllib.SubElement(self.root, "Import", {"Id":"RTL" ,
+                                                     "Name":"RTL" ,
+                                                     "Location":"RTL" })
+        tp = xmllib.SubElement(ip, "Type", {"Id":"RTL.Bool",
                                             "Name":"Bool",
                                             "Uuid":"214162B3-D5FA-4b94-BF3A-CD0C95EC85AF",
                                             "xsi:type":"Types:PrimitiveType" })
@@ -274,7 +274,7 @@ def GenerateStruct(ns, root, etype, edesc, edict):
         ename, dtype, cname, evdesc = item
         iid = "%s.%s.%s" %(ns, etype, ename)
         field = xmllib.SubElement(node, "Field", {"Id":iid,"Name":ename})
-        xmllib.SubElement(field, "Type", {"Namespace":"AppSim",
+        xmllib.SubElement(field, "Type", {"Namespace":"RTL",
                                           "Href":dtype,
                                           "HrefUuid":GenerateUUIDByName(dtype),
                                             "Description":evdesc})
@@ -562,7 +562,7 @@ def test(num):
     pp = BaseContext()
     pp.Name = "Radius"
     pp.Href = "Float64"
-    pp.Namespace = "AppSim"
+    pp.Namespace = "RTL"
     pp.xsitype = "Types:Float64Value"
     pp.value = "0.0"
     pps.append(pp)
@@ -621,7 +621,7 @@ if __name__ == "__main__":
     print default_ns_name
     #import projectmodel as pm
     #dt = pm.DataType()
-    #dt.ImportXML(r"I:\dist3\20151229\model\code\modelingtools\AppSim_Types.xml")
+    #dt.ImportXML(r"I:\dist3\20151229\model\code\modelingtools\RTL_Types.xml")
     #dt.ImportXML(r"I:\work\build-qautotools-Desktop_Qt_5_3_MinGW_w64_32bit_MSYS2-Debug\NTSim_Comm.xml")
     #print GetFileList("i:\\dist3\\20151229\\model")
     ctx = GetExcelContent(r"I:\dist3\20151229\model\接口设计\excel\0_枚举和复合结构数据类型\0B_CompDataType.xls".decode('utf-8'))
