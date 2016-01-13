@@ -6,7 +6,7 @@
 """
 
 import xml.etree.cElementTree as xmllib
-from __init__ import *
+from autotools.__init__ import *
 
 import os
 import hashlib as md5
@@ -15,7 +15,7 @@ class BaseBuilder(object):
     def __init__(self, dt):
         self.dt = dt #DataModel
         self.name = ""
-        self.types = {}
+        self.types = {} #namespace ->{ name --> {key --> value} }
         if os.path.isfile(simapp_dtfile):
             self.ImportXMLType(simapp_dtfile)
 
@@ -27,12 +27,16 @@ class BaseBuilder(object):
         return "-".join( (s[:8],s[8:12], s[12:16], s[16:20],s[20:]) ).upper()
 
     def RefineNamespace(self, name, ns):
+        if name == '':
+            #debug
+            #raise ValueError("name is empty")
+            name = 'long'
         if ns == '':
-            ns = 'AppSim'
+            ns = g_ns_name #Global namespace name
         if dt_mapping.has_key(name):
             ns = dt_mapping[name][1]
             name = dt_mapping[name][0]
-        if ns == 'AppSim':
+        if ns == g_ns_name:#Global namespace name
             if self.types.has_key(ns) and self.types[ns].has_key(name):
                 pass
             else:
@@ -41,7 +45,7 @@ class BaseBuilder(object):
 
     def GetXsiType(self, name, ns=''):
         if ns == '':
-            ns = 'AppSim'
+            ns = g_ns_name #Global namespace name
         if dt_mapping.has_key(name):
             ns = dt_mapping[name][1]
             name = dt_mapping[name][0]
@@ -49,18 +53,22 @@ class BaseBuilder(object):
             if self.types.has_key(ns) and self.types[ns].has_key(name):
                 return self.types[ns][name]['xsi:type'], name, ns
             elif name[:4] == "Enum":
-                if ns == 'AppSim':
+                if ns == g_ns_name: #Global namespace name
                     ns = default_ns_name
                 return "Types:Enumeration", name, ns
             else:
-                if ns == 'AppSim':
+                if ns == g_ns_name: #Global namespace name
                     ns = default_ns_name
                 return "Types:Structure", name, ns
         except:
             raise ValueError("Type[%s] has not uuid" % name)
     def GetTypeUuid(self, name, ns=''):
+        if name == '':
+            #debug
+            #raise ValueError("name is empty")
+            name = 'long'
         if ns == '':
-            ns = 'AppSim'
+            ns = g_ns_name #Global namespace name
         if dt_mapping.has_key(name):
             ns = dt_mapping[name][1]
             name = dt_mapping[name][0]
@@ -68,7 +76,11 @@ class BaseBuilder(object):
             if self.types.has_key(ns) and self.types[ns].has_key(name):
                 return self.types[ns][name]['Uuid']
             else:
-                return self.GenerateUUIDByName(name, ns)
+                for ns in self.types:
+                    if self.types[ns].has_key(name):
+                        return self.types[ns][name]['Uuid']
+            #else goto here
+            return self.GenerateUUIDByName(name, ns)
         except:
             raise ValueError("Type[%s, %s] has not uuid" % (ns, name) )
         
@@ -80,6 +92,8 @@ class BaseBuilder(object):
         for inode in  et.findall("./Import"):
             #add namespace
             ns = inode.attrib['Name']
+            if ns == 'AppSim':
+                ns = g_ns_name
             if not self.types.has_key( ns ):
                 self.types[ns] = {}
             for tnode in inode.findall("./Type"):
