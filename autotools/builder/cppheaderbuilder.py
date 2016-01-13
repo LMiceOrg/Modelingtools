@@ -34,7 +34,7 @@ ad_template=version_template + u"""
 
 #include <string>
 #include <cstdint>
-#include <type_traits>
+#include <string.h>
 
 /** 全局类型别名 */
 {globaltypedefs}
@@ -56,29 +56,103 @@ template<class _Tp, _Tp __v> struct cv {{
 
 // Default pod is 0
 template<class T> struct is_pod: public LMice::cv<int, 0> {{}};
-
+template<> struct is_pod<int>: public LMice::cv<int, 1>{{}};
 
 template <class TSubClass>
 struct LMBaseClass
 {{
+    typedef LMBaseClass<TSubClass>  this_type;
+
     inline int size() const {{
+        TSubClass* p = static_cast<TSubClass*>(this);
+        p->OnSize();
+    }}
+
+    int OnSize() const {{
+        // 总是 返回 类型的大小
+        //如果是可变长度类型，需要用户重载此函数
         return sizeof(TSubClass);
     }}
+
+    inline void swap(this_type& x) const {{
+        this_type c(x);
+        x = *this;
+        *this = c;
+    }}
+
+    inline char* data() const {{
+        // 只提供 POD类型时的访问
+        if(is_pod()) {{
+            return reinterpret_cast<char*>(this);
+        }} else {{
+            return NULL;
+        }}
+    }}
+
+    inline int pack(char* buffer, int buffer_size) const {{
+        TSubClass* p = static_cast<TSubClass*>(this);
+        return p->OnPack(buffer, buffer_size);
+    }}
+
+    int OnPack(char* buffer, int buffer_size) const {{
+        int ret = -1;
+        // 非POD类型，以及buffer太小情况的pack处理，由用户实现处理
+        if(is_pod()) {{
+            if(size() <= buffer_size) {{
+                memcpy(buffer, (char*)this, size());
+                ret = 0;
+            }}
+        }}
+        return ret;
+    }}
+
+    inline int unpack(const char* buffer, int buffer_size) {{
+        TSubClass* p = static_cast<TSubClass*>(this);
+        return p->OnUnpack(buffer, buffer_size);
+    }}
+
+    int OnUnpack(const char* buffer, int buffer_size) {{
+        int ret = -1;
+        // 非POD类型，以及buffer_size太小情况的unpack处理，由用户实现处理
+        if(is_pod()) {{
+            if(size() <= buffer_size) {{
+                memcpy((char*)this, buffer, size());
+                ret = 0;
+            }}
+        }}
+        return ret;
+    }}
+
 
     inline bool is_pod() const {{
         return LMice::is_pod<TSubClass>::value;
     }}
 
-    void init() {{
+    inline void clear() {{
         TSubClass* p = static_cast<TSubClass*>(this);
-        p->doInit();
+        p->OnClear();
     }}
 
-    void doInit() {{
-        if(LMice::is_pod<TSubClass>::value) {{
+    void OnClear() {{
+        //在POD类型时，调用memset初始化
+        //非POD类型，用户重载此函数
+        if(is_pod()) {{
             memset(this, 0, size());
         }}
     }}
+
+
+
+#if __cplusplus >= 199711L
+    // c++0x 标准扩展
+#endif
+
+#if __cplusplus >= 201103L
+    // c++11 标准扩展
+protected:
+    // 不允许直接实例化基类
+    LMBaseClass() = default;
+#endif
 
 }};
 

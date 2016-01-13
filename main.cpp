@@ -8,11 +8,14 @@
 
 #endif
 
-//#include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/NTSim.h"
+#include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/NTSim.h"
 //NTSim_Jam::JamBeamPara_T o;
 
 int main(int argc, char *argv[])
 {
+//    o.data();
+
+
 //    qDebug()<<o.is_pod()<<o.size();
 //    o.init();
 //#ifdef __APPLE__
