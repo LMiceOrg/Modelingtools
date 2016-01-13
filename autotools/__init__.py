@@ -6,10 +6,13 @@
 """
 import os
 
+#本地模型命名空间
 l_ns_name = 'NTSim'
 default_ns_key = '0_'
 default_ns_name = "NTSim_Global"
 
+#模型描述文件
+model_decl_key = 'M3_'
 #列表
 nslist ={
 '0_':["通用类","NTSim_Global", None],
@@ -21,6 +24,22 @@ nslist ={
 'D_':["指挥控制与数据处理设备类","NTSim_CCDP", None]
 }
 
+#生成的数据描述XML命名空间
+l_xmlns_datastructs={
+'xmlns:Types':"http://www.appsoft.com.cn/Core/Types",
+"xmlns:xlink":"http://www.w3.org/1999/xlink",
+"xsi:schemaLocation":"http://www.appsoft.com.cn/Core/Catalogue Core/Catalogue.xsd",
+"xmlns:Catalogue":"http://www.appsoft.com.cn/Core/Catalogue",
+"xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
+}
+
+l_xmlns_modeldescs={
+"xmlns:Types":"http://www.appsoft.com.cn/Core/Types",
+"xsi:schemaLocation":"http://www.appsoft.com.cn/Component ../Component.xsd",
+"xmlns:Component":"http://www.appsoft.com.cn/Component",
+"xmlns:xlink":"http://www.w3.org/1999/xlink",
+"xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"
+}
 
 #全局类型命名空间
 g_ns_name = "RealTimeLibrary"
@@ -83,4 +102,4 @@ def gen_g_ns_type():
 
 
 simapp_dtfile = os.path.split(os.path.abspath(__file__))[0]+"/builder/AppSim_Types.xml"
-__all__=['default_ns_key', 'default_ns_name', 'dt_mapping', 'nslist', 'g_ns_name', 'gen_g_ns_type', 'simapp_dtfile', 'l_ns_name']
+__all__=['default_ns_key', 'default_ns_name', 'dt_mapping', 'nslist', 'g_ns_name', 'gen_g_ns_type', 'simapp_dtfile', 'l_ns_name', 'model_decl_key', 'l_xmlns_datastructs', 'l_xmlns_modeldescs']

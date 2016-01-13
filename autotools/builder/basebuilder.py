@@ -100,6 +100,7 @@ class BaseBuilder(object):
                 value = dict(tnode.attrib)
                 if value.has_key("{http://www.w3.org/2001/XMLSchema-instance}type"):
                     value["xsi:type"]= value["{http://www.w3.org/2001/XMLSchema-instance}type"]
+                    value.pop("{http://www.w3.org/2001/XMLSchema-instance}type")
                 value["Description"] = ""
                 #print tnode.attrib, type(tnode.attrib) == dict
                 key = tnode.attrib["Name"]
@@ -121,6 +122,7 @@ class BaseBuilder(object):
                 value = dict(tnode.attrib)
                 if value.has_key("{http://www.w3.org/2001/XMLSchema-instance}type"):
                     value["xsi:type"]= value["{http://www.w3.org/2001/XMLSchema-instance}type"]
+                    value.pop("{http://www.w3.org/2001/XMLSchema-instance}type")
                 if not value.has_key("Description"):
                     value["Description"] = ""
                 #Description optional

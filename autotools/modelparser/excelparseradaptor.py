@@ -11,7 +11,7 @@ import excelmodelpropertyparser
 import excelmodelmessageparser
 import excelmodeleventparser
 import excelmodelinitparamparser
-
+import excelmodeldeclarationparser
 
 class ExcelParserAdaptor(object):
     def __init__(self, nslist, name_aliase, default_namespace):
@@ -22,6 +22,7 @@ class ExcelParserAdaptor(object):
         self.mmparser = excelmodelmessageparser.ExcelModelMessageParser(nslist, name_aliase, default_namespace)
         self.meparser = excelmodeleventparser.ExcelModelEventParser(nslist, name_aliase, default_namespace)
         self.miparser = excelmodelinitparamparser.ExcelModelInitParamParser(nslist, name_aliase, default_namespace)
+        self.mdparser = excelmodeldeclarationparser.ExcelModelDeclarationParser(nslist, name_aliase, default_namespace)
 
 
     #Read Excel file content
@@ -106,7 +107,11 @@ class ExcelParserAdaptor(object):
                     for sh_idx in ctx:
                         sh_name, sh_ctx = ctx[sh_idx]
                         self.paparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
-
+            elif xlfile[:3].lower() == 'm3_': #模型描述
+                sh_idx = 0
+                if ctx.has_key(sh_idx): #Only parse the first sheet
+                    sh_name, sh_ctx = ctx[sh_idx]
+                    self.mdparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
             else: #模型的数据结构定义文件 (初始化参数，输入输出消息，发送接收事件，性能属性)
                 if len(ctx) >= 4:
                     #model init param

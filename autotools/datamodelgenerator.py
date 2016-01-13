@@ -24,6 +24,7 @@ class XLDataModelGenerator(object):
         self.dt = datamodel.exceldatamodel.ExcelDataModel()
         self.xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(nslist, dt_mapping, default_ns_name)
         self.proj_root = ""
+        self.datastructs={}
 
     def FindFileBySurfix(self, flist, folder, surfix, pattern):
         files = os.listdir(folder)
@@ -93,6 +94,14 @@ class XLDataModelGenerator(object):
                 ret.append(lv[0][0])
                 ret.append(lv[0][1])
                 ret.append(lv[0][2])
+        elif model_decl_key == name[:len(model_decl_key)]:
+            #模型描述Excel
+            ns = default_ns_name
+            ret.append(ns)
+            #File type
+            ret.append(model_decl_key)
+            ret.append("ModelDeclaration")
+            ret.append("ModelDeclaration")
         else:
             #default namespace
             ns = nslist[default_ns_key]
@@ -103,6 +112,7 @@ class XLDataModelGenerator(object):
                 ret.append(lv[0][0])
                 ret.append(lv[0][1])
                 ret.append(lv[0][2])
+        #print t, len(ret)
         if len(ret) == 4:
             return ret
 
@@ -115,11 +125,16 @@ class XLDataModelGenerator(object):
         builder.BuildBegin()
         builder.Build()
         builder.BuildEnd()
+        #cache datastructs
+        self.datastructs = dict( builder.datastructs)
         return builder.GetFiles()
 
     #Build XML-style model description
     def BuildModelDesc(self, tofolder):
         builder = XMLModelDescBuilder(self.dt, tofolder)
+        #set datastructs
+        builder.datastructs = self.datastructs
+
         builder.BuildBegin()
         builder.Build()
         builder.BuildEnd()

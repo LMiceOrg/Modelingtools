@@ -154,7 +154,7 @@ int EmbedPython::callModel(const char *method, const char *format, ...)
         args = Py_VaBuildValue(format, vl);
         checkError();
         va_end(vl);
-
+//        qDebug()<<"method "<<method<<" arg type:"<<args->ob_type->tp_name;
         retobj = PyObject_CallMethodObjArgs(modeltool, md, args, NULL);
     } else {
         retobj = PyObject_CallMethodObjArgs(modeltool, md, NULL);

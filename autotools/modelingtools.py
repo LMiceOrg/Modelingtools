@@ -32,6 +32,7 @@ def SaveCppProject(*args, **kw):
 
 def CheckFistParamAsFile(fn,*args, **kw):
     def wrapped(*args, **kw):
+        name = ''
         if kw.has_key('file'):
             name = kw['file']
         elif len(args) >= 1:
@@ -39,9 +40,7 @@ def CheckFistParamAsFile(fn,*args, **kw):
         else:
             raise AttributeError("file name parameter not given")
 
-        if type(name) == str:
-            name = name.decode('gbk')
-        elif not type(name) == unicode:
+        if type(name) not in (str, unicode):
             raise TypeError("file name type must be string")
 
         kw['file']=name
@@ -59,6 +58,7 @@ def Restore(*args, **kw):
 
 @CheckFistParamAsFile
 def Backup(*args, **kw):
+    #print str(args), str(kw), str(gen)
     name = kw['file']
     f=open(name, "wb")
     pickle.dump(gen, f)

@@ -283,10 +283,12 @@ void MainWindow::on_pushButton_4_clicked()
     ep->callModel("SaveModelDesc");
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
-    for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
-        dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
+    if(ret && PyList_Check(ret)) {
+        for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
+            dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
+        }
+        emit modelModelDescListChanged(dsfiles);
     }
-    emit modelModelDescListChanged(dsfiles);
 }
 
 void MainWindow::on_actionQuit_Modeltools_triggered()

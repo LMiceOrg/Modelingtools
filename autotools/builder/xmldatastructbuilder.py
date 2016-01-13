@@ -44,11 +44,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         """ 新建根接点 """
         root = xmllib.Element("Catalogue:Catalogue", {"Id":"%sDataType" % self.name,
                                                       "Name":"%sDataType" % self.name,
-                                                      "xmlns:Types":"http://www.appsoft.com.cn/Core/Types",
-                                                      "xmlns:xlink":"http://www.w3.org/1999/xlink",
-                                                      "xsi:schemaLocation":"http://www.appsoft.com.cn/Core/Catalogue Core/Catalogue.xsd",
-                                                      "xmlns:Catalogue":"http://www.appsoft.com.cn/Core/Catalogue",
-                                                      "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"})
+                                                      }, **basebuilder.l_xmlns_datastructs)
         xmllib.SubElement(root, "Description").text = "It is the data type definition file of namespace named %s" % ns
         xmllib.SubElement(root, "Import", {"Namespace":"%s" % basebuilder.g_ns_name, "Location":"%s" %  basebuilder.g_ns_name})
         return root
@@ -57,7 +53,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         """ 生成枚举类型 """
         ed_type, ed_desc, ed_items = ctx[:3]
         ed_id = "%s.%s" %(ed_ns, ed_type)
-        tnode = xmllib.SubElement(node, "Type", {"Id": ed_id,"Name":ed_type,
+        tnode = xmllib.Element("Type", {"Id": ed_id,"Name":ed_type,
                                          "Uuid": self.GetTypeUuid(ed_type, ed_ns),
                                          "xsi:type":"Types:Enumeration",
                                          "Description":ed_desc} )
@@ -68,15 +64,23 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
                                                 "Value":str(int( it_value ) ),
                                                 "Description":it_desc})
 
+        node.append(tnode)
+        #cache type node
+        self.datastructs[ed_id] = xmllib.tostring(tnode)
+
     def CreateArrayDataItem(self, node, ad_ns, ctx):
         """ 生成数组类型 """
         #print "array"
         ad_name, ad_desc, ad_type, ad_dim = ctx[:4]
         ad_id = "%s.%s" %(ad_ns, ad_name)
-        tnode = xmllib.SubElement(node, "Type", {"Id":ad_id,
+        tnode = xmllib.Element("Type", {"Id":ad_id,
             "Uuid":self.GetTypeUuid(ad_name, ad_ns),"Name":ad_name, "DataType":ad_type,
             "xsi:type":"Types:PrimitiveType"} )
         xmllib.SubElement(tnode, "Description").text = ad_desc
+
+        node.append(tnode)
+        #cache type node
+        self.datastructs[ad_id] = xmllib.tostring(tnode)
 
     def CreateCompDataItem(self, node, data):
         """ 生成复合结构体类型 """
@@ -87,7 +91,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         #print cp_name, cp_ns
         cp_id = "%s.%s" %(cp_ns, cp_name)
         #print type(data.part_name)
-        tnode = xmllib.SubElement(node, "Type", {"Id": cp_id,"Name":cp_name,
+        tnode = xmllib.Element("Type", {"Id": cp_id,"Name":cp_name,
                                          "Uuid": self.GetTypeUuid(cp_name, cp_ns),
                                          "xsi:type":"Types:Structure",
                                          "Description":cp_desc,
@@ -109,6 +113,11 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
             "Description":it_desc, "Unit":it_unit, "ChineseName":it_cname, "GrainSize": it_grain,
             "Default":it_default, "Min":it_min, "Max":it_max})
             xmllib.SubElement(fnode, "Type", {"Namespace":it_ns, "Href":it_type,"HrefUuid":self.GetTypeUuid(it_type, it_ns) })
+
+        node.append(tnode)
+        #cache type node
+        self.datastructs[cp_id] = xmllib.tostring(tnode)
+
     def CreateModelMessageItem(self, node, data):
         """ 模型消息"""
         ctx = data.item_val
@@ -120,7 +129,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
             return
         
         #print type(data.part_name)
-        tnode = xmllib.SubElement(node, "Type", {"Id": cp_id,"Name":cp_name,
+        tnode = xmllib.Element("Type", {"Id": cp_id,"Name":cp_name,
                                          "Uuid": self.GetTypeUuid(cp_name, cp_ns),
                                          "xsi:type":"Types:Structure",
                                          "Description":cp_cname,
@@ -142,18 +151,25 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
             "Description":it_desc, "Unit":it_unit, "ChineseName":it_cname, "GrainSize": it_grain,
             "Default":it_default, "Min":it_min, "Max":it_max})
             xmllib.SubElement(fnode, "Type", {"Namespace":it_ns, "Href":it_type,"HrefUuid":self.GetTypeUuid(it_type, it_ns) })
+
+        node.append(tnode)
+        #cache type node
+        self.datastructs[cp_id] = xmllib.tostring(tnode)
+
     def BuildBegin(self):
         """ 构建准备，检查构建条件以及初始化 """
         
         if not os.path.isdir(self.folder):
             raise RuntimeError(u"folder(%s) is not exist!" % self.folder)
 
+        #数据结构定义需要在模型描述中复用，因此需要存储下来
+        self.datastructs={} # id<ns::name> --> string<xml>
         self.elements = {}
         self.outfiles = []
         #append default XML namespace
     def Build(self):
         """开始构建 为每一个Namespace创建一个XML对象 """
-
+        #获取模型描述列表
         #创建Namespace element
         for ns in self.GetNamespaces():
             #print ns, len(self.GetItemByNamespace(ns))
