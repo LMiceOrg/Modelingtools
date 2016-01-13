@@ -27,7 +27,16 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
         self.cppbuilder = cppheaderbuilder.CPPHeaderBuilder(datamodel, folder)
     def BuildEnd(self):
         """写入 solution 文件 """
+
+        #生成全局头文件
+        self.outfiles = []
+        self.cppbuilder.BuildBegin()
         self.cppbuilder.Build()
+        self.cppbuilder.BuildEnd()
+        cpp_file = self.cppbuilder.GetFiles()
+        for f in cpp_file:
+            self.outfiles.append(f.encode('utf-8'))
+
         for pj_name in self.elements:
             props = {}
             props["tm_now"] =time.strftime("%Y-%m-%d %H:%M:%S")
@@ -53,17 +62,20 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
 
             #create solution node
             so_file = self.sobuilder.BuildSolution(props)
+            self.outfiles.append(so_file.encode('utf-8'))
 
             #create model project node
             pj_file = self.pjbuilder.BuildProject(props)
+            for f in pj_file:
+                self.outfiles.append(f.encode('utf-8'))
             #create test project node
             #self.GenerateComponentNode(pj_name, root)
-            self.qt5builder.BuildSolution(props)
-            self.qt5builder.BuildProject(props)
-
-
-
-            #save to dsc file
+            so_file = self.qt5builder.BuildSolution(props)
             self.outfiles.append(so_file.encode('utf-8'))
+            pj_file = self.qt5builder.BuildProject(props)
+            for f in pj_file:
+                self.outfiles.append(f.encode('utf-8'))
+            #save to dsc file
+            #self.outfiles.append(so_file.encode('utf-8'))
     def GetFiles(self):
         return self.outfiles

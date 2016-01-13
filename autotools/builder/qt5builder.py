@@ -108,12 +108,14 @@ class Qt5Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
         return self.BuildSolutionFile()
 
     def BuildProject(self, pps):
+        files = []
         #project
         ctx = pj_template.format(**pps)
         name = os.path.join(pps["pj_path"], "%s.pro" % self.props["pj_name"])
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        files.append(name)
 
         #test project
         ctx = tp_template.format(**pps)
@@ -121,8 +123,9 @@ class Qt5Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        files.append(name)
 
-        return name
+        return files
 
     def BuildEnd(self):
         """ 写入pro 文件 """

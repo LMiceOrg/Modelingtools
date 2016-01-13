@@ -579,18 +579,21 @@ class Msvc2008ProjectBuilder(object):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
         ctx = h_userdata_template.format(** self.props)
         name = os.path.join(self.props["pj_path"], "%suserdatatype.h" % self.props["pj_name"])
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
         ctx = h_export_template.format(** self.props)
         name = os.path.join(self.props["pj_path"], "%sexport.h" % self.props["pj_name"])
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
     def BuildCppFile(self):
         ctx = cpp_template.format(** self.props)
@@ -598,6 +601,7 @@ class Msvc2008ProjectBuilder(object):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
     def BuildConfiguration(self, root, cfg_type):
         node = xmllib.SubElement(root, "Configuration", {"Name":"%s|Win32" % cfg_type,
@@ -678,6 +682,7 @@ class Msvc2008ProjectBuilder(object):
         xmllib.SubElement(node, "File", {"RelativePath":".\\%sUserDataType.h" % self.props['pj_name'] }).text = " "
 
     def BuildProject(self, props = None, tp = ""):
+        self.outfiles = []
         if props != None:
             self.props = props
 
@@ -712,9 +717,12 @@ class Msvc2008ProjectBuilder(object):
         f = open(name, "w")
         f.write(data)
         f.close()
+        self.outfiles.append(name)
 
         #Header files
         self.BuildHeaderFile()
 
         #Cpp file
         self.BuildCppFile()
+
+        return self.outfiles

@@ -429,12 +429,14 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
         ctx = eh_template.format(** self.props)
         name = os.path.join(self.props["pj_path"], "%s_Enum.h" % self.props["h_name"])
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
      
     def WriteArrayHeaderFile(self):
         """ 枚举类型 数组类型与别名 """
@@ -456,6 +458,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
     def CreateDependsHeaderFile(self):
         if len(self.depends) ==0:
@@ -496,6 +499,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
 
         name = os.path.join(self.props["pj_path"], "%s_Depends.h" % basebuilder.l_ns_name)
         self.props["h_name"] =basebuilder.l_ns_name+ "_Depends"
@@ -505,6 +509,8 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
+        self.outfiles.append(name)
+
     def BuildBegin(self):
         """ 构建准备，检查构建条件以及初始化 """
         

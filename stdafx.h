@@ -5,6 +5,7 @@
 #include <Python.h>
 #include <frameobject.h>
 
+#include <Qsci/qscilexercpp.h>
 #include <Qsci/qscilexerxml.h>
 #include <Qsci/qscilexerpython.h>
 

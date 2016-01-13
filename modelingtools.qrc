@@ -1,5 +1,16 @@
 <RCC>
     <qresource prefix="/">
         <file>css/lightstyle.css</file>
+        <file alias="flatastic1">css/flatastic_part_1_full.png</file>
+        <file alias="flatastic2">css/flatastic_part_2_full.png</file>
+        <file alias="flatastic3">css/flatastic_part_4_full.png</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>css/xmldoc.ico</file>
+        <file>css/headerfile.ico</file>
+        <file>css/cplusplus.ico</file>
+        <file>css/qtproject.ico</file>
+        <file>css/vcproject.ico</file>
+        <file>css/vcsolution.ico</file>
     </qresource>
 </RCC>

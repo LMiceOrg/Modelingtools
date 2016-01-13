@@ -16,29 +16,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QsciLexerXML *xml = new QsciLexerXML(this);
-    ui->textEdit->setLexer(xml);
-    ui->textEdit->setFolding(QsciScintilla::BoxedTreeFoldStyle);
-    // Show line number in left side
-    ui->textEdit->setMarginLineNumbers(QsciScintilla::SC_MARGIN_NUMBER, true);
-    ui->textEdit->setMarginWidth(QsciScintilla::SC_MARGIN_NUMBER, 32);
-    // Adjust font style
-    QFont fnt =xml->font(QsciLexerXML::Tag);
-    fnt.setPointSize(14);
-//    fnt.setBold(true);
-    //ui->textEdit->setFont(fnt);
-    xml->setFont(fnt, QsciLexerXML::Tag);
-    fnt =xml->font(QsciLexerXML::HTMLDoubleQuotedString);
-    fnt.setPointSize(16);
-    fnt.setItalic(true);
-    //ui->textEdit->setFont(fnt);
-    xml->setFont(fnt, QsciLexerXML::HTMLDoubleQuotedString);
-    showMaximized();
+    xmlparser = new QsciLexerXML(this);
+    cppparser = new QsciLexerCPP(this);
+
+
 
     outdock=new OutputWindow(this);
-    connect(this, SIGNAL(modelNameChanged(QString)), outdock, SLOT(modelNameChanged(QString)) );
-    connect(this, SIGNAL(modelExcelModelChanged(QStringList)), outdock,
-            SLOT(modelExcelListChanged(QStringList)) );
+    connect(this, SIGNAL(modelNameChanged(QString)),
+            outdock, SLOT(modelNameChanged(QString)) );
+
+    connect(this, SIGNAL(modelExcelModelChanged(QStringList)),
+            outdock, SLOT(modelExcelListChanged(QStringList)) );
     connect(this, SIGNAL(modelDataStructListChanged(QStringList)),
             outdock, SLOT(modelDataStructFiles(QStringList)) );
     connect(this, SIGNAL(modelModelDescListChanged(QStringList)),
@@ -46,6 +34,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(outdock, SIGNAL(currentDataStructChanged(QString)),
             this, SLOT(editModelDataStruct(QString)) );
+
+    connect(this, SIGNAL(modelCodeFileListChanged(QStringList)),
+            outdock, SLOT(modelModelCodeFiles(QStringList)) );
+    connect(outdock, SIGNAL(currentCodeFileChanged(QString)),
+            this, SLOT(editModelCodeFile(QString)) );
 
     addDockWidget(Qt::LeftDockWidgetArea, outdock);
 
@@ -61,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ep, SIGNAL(errorTrigger(QString)), this, SLOT(onCheckOutputMessage(QString)) );
 
     onCheckOutputMessage(ep->errorMessage());
+
+    ui->tabWidget->setTabText(0, tr("Output Window"));
+    showMaximized();
 
 }
 
@@ -252,6 +248,53 @@ void MainWindow::editModelDataStruct(const QString &name)
     ui->textEdit->setUtf8(true);
     ui->textEdit->setText(ctx);
     ui->textEdit->setAutoIndent(true);
+
+    ui->textEdit->setLexer(xmlparser);
+    ui->textEdit->setFolding(QsciScintilla::BoxedTreeFoldStyle);
+    // Show line number in left side
+    ui->textEdit->setMarginLineNumbers(QsciScintilla::SC_MARGIN_NUMBER, true);
+    ui->textEdit->setMarginWidth(QsciScintilla::SC_MARGIN_NUMBER, 32);
+    // Adjust font style
+    QFont fnt =xmlparser->font(QsciLexerXML::Tag);
+    fnt.setPointSize(14);
+//    fnt.setBold(true);
+    //ui->textEdit->setFont(fnt);
+    xmlparser->setFont(fnt, QsciLexerXML::Tag);
+    fnt =xmlparser->font(QsciLexerXML::HTMLDoubleQuotedString);
+    fnt.setPointSize(16);
+    fnt.setItalic(true);
+    //ui->textEdit->setFont(fnt);
+    xmlparser->setFont(fnt, QsciLexerXML::HTMLDoubleQuotedString);
+}
+
+//编辑代码文件
+void MainWindow::editModelCodeFile(const QString &name)
+{
+    QFile f(name);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QString ctx = QString(f.readAll());
+    f.close();
+    ui->textEdit->setUtf8(true);
+    ui->textEdit->setText(ctx);
+    ui->textEdit->setAutoIndent(true);
+
+    ui->textEdit->setLexer(cppparser);
+    ui->textEdit->setFolding(QsciScintilla::BoxedTreeFoldStyle);
+    // Show line number in left side
+    ui->textEdit->setMarginLineNumbers(QsciScintilla::SC_MARGIN_NUMBER, true);
+    ui->textEdit->setMarginWidth(QsciScintilla::SC_MARGIN_NUMBER, 32);
+    // Adjust font style
+//    QFont fnt =xml->font(QsciLexerXML::Tag);
+//    fnt.setPointSize(14);
+////    fnt.setBold(true);
+//    //ui->textEdit->setFont(fnt);
+//    xml->setFont(fnt, QsciLexerXML::Tag);
+//    fnt =xml->font(QsciLexerXML::HTMLDoubleQuotedString);
+//    fnt.setPointSize(16);
+//    fnt.setItalic(true);
+//    //ui->textEdit->setFont(fnt);
+//    xml->setFont(fnt, QsciLexerXML::HTMLDoubleQuotedString);
 }
 
 void MainWindow::on_actionReloadmodel_triggered()
@@ -296,9 +339,18 @@ void MainWindow::on_actionQuit_Modeltools_triggered()
     qApp->quit();
 }
 
+// 生成模型代码
 void MainWindow::on_pushButton_5_clicked()
 {
+    QStringList dsfiles;
     ep->callModel("SaveCppProject", NULL);
+    PyObject* ret = ep->returnObject();
+    if(ret && PyList_Check(ret)) {
+        for(Py_ssize_t i=0; i< PyList_Size(ret); ++i) {
+            dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
+        }
+        emit modelCodeFileListChanged(dsfiles);
+    }
 }
 
 void MainWindow::on_actionDumpProject_triggered()
@@ -317,6 +369,7 @@ void MainWindow::on_actionRestoreProject_triggered()
     ret = ep->returnObject();
     if(ret && PyString_Check(ret)) {
         proj_root = PyString_AsString(ret);
+        setWindowTitle( tr("%1 - [Opening Model] %2").arg(title).arg(proj_root) );
         emit modelNameChanged(proj_root);
     }
 

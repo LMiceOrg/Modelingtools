@@ -38,6 +38,8 @@ private slots:
     //Internal use
     //show model data struct xml file
     void editModelDataStruct(const QString& name);
+    void editModelCodeFile(const QString& name);
+
     void on_actionReloadmodel_triggered();
 
     //Timer Interval to check output message
@@ -60,12 +62,15 @@ signals:
     void modelDataStructListChanged(const QStringList&);
     void modelModelDescListChanged(const QStringList&);
     void outputMessage(const QStringList&);
+    void modelCodeFileListChanged(const QStringList&);
 private:
     Ui::MainWindow *ui;
     std::vector<std::pair<std::string, std::string> > nslist;
     OutputWindow* outdock;
     QString title;
     EmbedPython *ep;
+    QsciLexerXML* xmlparser;
+    QsciLexerCPP* cppparser;
 };
 
 #endif // MAINWINDOW_H
