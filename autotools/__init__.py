@@ -26,17 +26,17 @@ nslist ={
 
 #生成的数据描述XML命名空间
 l_xmlns_datastructs={
-'xmlns:Types':"http://www.appsoft.com.cn/Core/Types",
+'xmlns:Types':"http://rtl.tsinghua.edu.cn/Core/Types",
 "xmlns:xlink":"http://www.w3.org/1999/xlink",
-"xsi:schemaLocation":"http://www.appsoft.com.cn/Core/Catalogue Core/Catalogue.xsd",
-"xmlns:Catalogue":"http://www.appsoft.com.cn/Core/Catalogue",
+"xsi:schemaLocation":"http://rtl.tsinghua.edu.cn/Core/Catalogue Core/Catalogue.xsd",
+"xmlns:Catalogue":"http://rtl.tsinghua.edu.cn/Core/Catalogue",
 "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
 }
 
 l_xmlns_modeldescs={
-"xmlns:Types":"http://www.appsoft.com.cn/Core/Types",
-"xsi:schemaLocation":"http://www.appsoft.com.cn/Component ../Component.xsd",
-"xmlns:Component":"http://www.appsoft.com.cn/Component",
+"xmlns:Types":"http://rtl.tsinghua.edu.cn/Core/Types",
+"xsi:schemaLocation":"http://rtl.tsinghua.edu.cn/Component ../Component.xsd",
+"xmlns:Component":"http://rtl.tsinghua.edu.cn/Component",
 "xmlns:xlink":"http://www.w3.org/1999/xlink",
 "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"
 }

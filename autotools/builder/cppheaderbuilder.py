@@ -64,8 +64,8 @@ struct LMBaseClass
     typedef LMBaseClass<TSubClass>  this_type;
 
     inline int size() const {{
-        TSubClass* p = static_cast<TSubClass*>(this);
-        p->OnSize();
+        const TSubClass* p = static_cast<const TSubClass*>(this);
+        return p->OnSize();
     }}
 
     int OnSize() const {{
