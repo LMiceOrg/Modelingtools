@@ -69,6 +69,7 @@ OutputWindow::OutputWindow(QWidget *parent) :
     tree->insertTopLevelItem(0, new QTreeWidgetItem(tree, ls));
     item = tree->topLevelItem(0);
     item->setChildIndicatorPolicy(QTreeWidgetItem::DontShowIndicatorWhenChildless);
+
 }
 
 OutputWindow::~OutputWindow()
@@ -245,20 +246,26 @@ void OutputWindow::modelModelDscFiles(const QStringList &sl)
     tree->expandAll();
 }
 
-QString GetIcon(const QString& file) {
+const QIcon& GetIcon(const QString& file) {
+    static QIcon hpp(":/icon/css/headerfile.ico");
+    static QIcon cpp(":/icon/css/cplusplus.ico");
+    static QIcon pro(":/icon/css/qtproject.ico");
+    static QIcon sln(":/icon/css/vcsolution.ico");
+    static QIcon vcp(":/icon/css/vcproject.ico");
+    static QIcon def(":/icon/css/xmldoc.ico");
     //qDebug()<<file;
     if ( file.endsWith(".h") || file.endsWith(".hpp") ) {
-        return ":/icon/css/headerfile.ico";
+        return hpp;
     } else if(file.endsWith(".cpp") || file.endsWith(".c") ) {
-        return ":/icon/css/cplusplus.ico";
+        return cpp;
     } else if(file.endsWith(".pro") ) {
-        return ":/icon/css/qtproject.ico";
+        return pro;
     } else if(file.endsWith(".sln") ) {
-        return ":/icon/css/vcsolution.ico";
+        return sln;
     } else if(file.endsWith(".vcproj") ) {
-        return ":/icon/css/vcproject.ico";
+        return vcp;
     } else {
-        return ":/icon/css/xmldoc.ico";
+        return def;
     }
 
 }
@@ -271,10 +278,13 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
     root->takeChildren();
 
     for(int i=0; i<sl.size(); ++i) {
+//        QString flabspath = sl.at(i);
+//        QString xlpath = flabspath.replace(modelFolder, tr(""));
+//        QString xlfile = flabspath.right(flabspath.length() -1 - flabspath.lastIndexOf("/") );
         QFileInfo info(sl.at(i));
         QString xlpath = info.absolutePath().replace(modelFolder, tr(""));
-
         QString xlfile = info.fileName();
+        QString flabspath = info.absoluteFilePath();
         if(xlpath.compare("")!=0) {
             bool inserted = false;
             for(int j = 0; j<root->childCount(); ++j) {
@@ -282,8 +292,8 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
                     QTreeWidgetItem* item = new QTreeWidgetItem(
                                        root->child(j),
                                        QStringList(xlfile));
-                    item->setIcon(0, QIcon( GetIcon(xlfile) ));
-                    item->setData(0, Qt::UserRole, info.absoluteFilePath() );
+                    item->setIcon(0, GetIcon(xlfile) );
+                    item->setData(0, Qt::UserRole, flabspath);
 //                    item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
                     inserted= true;
                     break;//for-j
@@ -298,9 +308,9 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
                 QTreeWidgetItem* item = new QTreeWidgetItem(
                                    path,
                                    QStringList(xlfile));
-                //item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
-                item->setIcon(0, QIcon( GetIcon(xlfile) ));
-                item->setData(0, Qt::UserRole, info.absoluteFilePath() );
+//                item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
+                item->setIcon(0, GetIcon(xlfile) );
+                item->setData(0, Qt::UserRole, flabspath );
 //                root->addChild(path);
             }
         } else { //path is empty
@@ -309,8 +319,8 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
             QTreeWidgetItem* item = new QTreeWidgetItem(
                                root,
                                QStringList(xlfile));
-            item->setIcon(0, QIcon( GetIcon(xlfile) ));
-            item->setData(0, Qt::UserRole, info.absoluteFilePath() );
+            item->setIcon(0, GetIcon(xlfile) );
+            item->setData(0, Qt::UserRole, flabspath );
         }
     }
     tree->expandAll();

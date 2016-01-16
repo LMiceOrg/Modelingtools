@@ -233,6 +233,7 @@
    <addaction name="actionRestoreProject"/>
    <addaction name="separator"/>
    <addaction name="separator"/>
+   <addaction name="actionClearProject"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNameSpace">
@@ -377,6 +378,11 @@
   <action name="actionBesmall">
    <property name="text">
     <string>besmall</string>
+   </property>
+  </action>
+  <action name="actionClearProject">
+   <property name="text">
+    <string>ClearProject</string>
    </property>
   </action>
  </widget>

@@ -76,3 +76,6 @@ def GetSourceList(*args, **kw):
 
 def GetModelProjectName(*args, **kw):
     return gen.GetProjectRoot()
+
+def ClearProject(*argc, **kw):
+    gen.ClearProject()

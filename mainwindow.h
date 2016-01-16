@@ -66,6 +66,8 @@ private slots:
 
     void on_actionBesmall_triggered();
 
+    void on_actionClearProject_triggered();
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);

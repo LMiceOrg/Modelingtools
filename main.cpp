@@ -14,7 +14,6 @@
 
 int main(int argc, char *argv[])
 {
-//    o.data();
 
 
 //    qDebug()<<o.is_pod()<<o.size();

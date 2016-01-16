@@ -15,6 +15,7 @@ from builder.xmlmodeldescbuilder import XMLModelDescBuilder
 import builder.msvc2008builder
 import re
 import os
+import time
 
 pglobal = re.compile(r'^0[^_]+[_](\w+)[.]xls\w*')
 pother = re.compile(r'^([^_]+)[_]([^_]+)[_]([^.]+)[.]xls\w*')
@@ -22,7 +23,7 @@ pother = re.compile(r'^([^_]+)[_]([^_]+)[_]([^.]+)[.]xls\w*')
 class XLDataModelGenerator(object):
     def __init__(self):
         self.dt = datamodel.exceldatamodel.ExcelDataModel()
-        self.xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(nslist, dt_mapping, default_ns_name)
+
         self.proj_root = ""
         self.datastructs={}
 
@@ -117,7 +118,8 @@ class XLDataModelGenerator(object):
             return ret
 
     def Parse(self, files):
-        self.xlparser.Parse(files, self.dt)
+        xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(nslist, dt_mapping, default_ns_name)
+        xlparser.Parse(files, self.dt)
 
     #Build XML-style data struct
     def BuildDataStruct(self, tofolder):
@@ -142,11 +144,15 @@ class XLDataModelGenerator(object):
 
     #Build MSVC2008 project
     def BuildMsvc2008Solution(self, tofolder):
+        t1 = time.time()
         bd = builder.msvc2008builder.Msvc2008Builder(self.dt, tofolder)
         bd.BuildBegin()
         bd.Build()
         bd.BuildEnd()
-        return bd.GetFiles()
+        t2 = time.time()
+        print "Build 2008 solution:", t2-t1
+        flist = bd.GetFiles()
+        return ",".join(flist)
 
     def GetDataModel(self):
         return self.dt
@@ -156,6 +162,9 @@ class XLDataModelGenerator(object):
 
     def GetProjectRoot(self):
         return self.proj_root
+
+    def ClearProject(self):
+        self.dt.itdict = {}
 
     #unit test
     def test(self):

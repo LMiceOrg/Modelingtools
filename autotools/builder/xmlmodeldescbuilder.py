@@ -71,16 +71,19 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
             node_id = "%s.%s" %(xsi_ns, xsi_name)
             #nsnode = xmllib.SubElement(nsnode, "Type", {"Id":node_id,"Name":xsi_name,
             #    "Uuid":self.GetTypeUuid(xsi_name, xsi_ns), "xsi:type": xsi_type })
-            if self.datastructs.has_key(node_id):
-                ctx = self.datastructs[node_id].replace('xsi:type', 'xsi_type')
-                tnode = xmllib.fromstring(ctx)
-                if tnode.attrib.has_key('xsi_type'):
-                    tnode.attrib.pop('xsi_type')
-
+            if self.ds_nodes.has_key(node_id):
+                tnode = self.ds_nodes[node_id]
                 tnode.set("xsi:type", xsi_type)
-                tnode.set("Uuid", self.GetTypeUuid(xsi_name, xsi_ns))
-                tnode.set("Id",node_id)
-                tnode.set("Name",xsi_name)
+            #if self.datastructs.has_key(node_id):
+            #    ctx = self.datastructs[node_id].replace('xsi:type', 'xsi_type')
+            #    tnode = xmllib.fromstring(ctx)
+            #    if tnode.attrib.has_key('xsi_type'):
+            #        tnode.attrib.pop('xsi_type')
+            #
+            #    tnode.set("xsi:type", xsi_type)
+            #    #tnode.set("Uuid", self.GetTypeUuid(xsi_name, xsi_ns))
+            #    #tnode.set("Id",node_id)
+            #    #tnode.set("Name",xsi_name)
 
                 nsnode.append(tnode)
         #Generate Global namespace import
@@ -270,6 +273,14 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         self.elements = {} #key:project name, value dict of {node_type:node}
         self.reftypes={} # key: project name, value: list of tuple(namespace,name)
         self.outfiles = []
+        self.ds_nodes = {}
+        for node_id in self.datastructs:
+            #
+            ctx = self.datastructs[node_id].replace('xsi:type', 'xsi_type')
+            tnode = xmllib.fromstring(ctx)
+            if tnode.attrib.has_key('xsi_type'):
+                tnode.attrib.pop('xsi_type')
+            self.ds_nodes[node_id] = tnode
     def Build(self):
         """开始构建 为每一个ModelInitParam创建一个XML对象 """
 
@@ -297,6 +308,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                     pass
     def BuildEnd(self):
         """写入 dsc文件 """
+        #print 'default_ns_name:', len(self.GetItemByNamespace(basebuilder.default_ns_name) )
         for pj_name in self.elements:
             #create root node
             root = self.GenerateProjectRootNode(pj_name)

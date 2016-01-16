@@ -430,6 +430,11 @@ void MainWindow::on_pushButton_5_clicked()
             dsfiles.push_back( PyString_AsString(PyList_GetItem(ret, i)) );
         }
         emit modelCodeFileListChanged(dsfiles);
+    } else if(ret && PyString_Check(ret)) {
+        QString files = PyString_AsString(ret);
+        dsfiles = files.split(",");
+        //qDebug()<<files;
+        emit modelCodeFileListChanged(dsfiles);
     }
 }
 
@@ -536,4 +541,9 @@ void MainWindow::on_actionEnlarge_triggered()
 void MainWindow::on_actionBesmall_triggered()
 {
     on_KeyPressed(0);
+}
+
+void MainWindow::on_actionClearProject_triggered()
+{
+    ep->callModel("ClearProject");
 }
