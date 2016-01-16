@@ -19,6 +19,11 @@ class BaseBuilder(object):
         if os.path.isfile(simapp_dtfile):
             self.ImportXMLType(simapp_dtfile)
 
+    def PrettifyName(self, name):
+        if type(name) not in (str, unicode):
+            name = str(name)
+        return name.strip().replace("\n", "")
+
     def GenerateUUIDByName(self, name, ns=None):
         """ Generate UUID """
         if ns != None:

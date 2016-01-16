@@ -278,7 +278,7 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
 
     for(int i=0; i<sl.size(); ++i) {
 //        QString flabspath = sl.at(i);
-//        QString xlpath = flabspath.replace(modelFolder, tr(""));
+//        QString xlpath = flabspath.left(flabspath.lastIndexOf("/")).replace(modelFolder, tr(""));
 //        QString xlfile = flabspath.right(flabspath.length() -1 - flabspath.lastIndexOf("/") );
         QFileInfo info(sl.at(i));
         QString xlpath = info.absolutePath().replace(modelFolder, tr(""));

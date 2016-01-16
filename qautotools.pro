@@ -93,7 +93,9 @@ css/*.css \
     autotools/builder/msvc2008solutionbuilder.py \
     autotools/builder/msvc2008projectbuilder.py \
     autotools/builder/qt5builder.py \
-    autotools/modelparser/excelmodeldeclarationparser.py
+    autotools/modelparser/excelmodeldeclarationparser.py \
+    autotools/modelparser/excelmodelperfparser.py \
+    autotools/builder/inimodelperfbuilder.py
 
 PRECOMPILED_HEADER += stdafx.h
 

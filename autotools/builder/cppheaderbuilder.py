@@ -425,14 +425,14 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
     def writeCPPHeaderFile(self):
         """ 写头文件 """
         ctx = h_template.format(** self.props)
-        name = os.path.join(self.props["pj_path"], "%s.h" % self.props["h_name"])
+        name = os.path.join(self.props["pj_path"], "common", "include", "%s.h" % self.props["h_name"])
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
         self.outfiles.append(name)
 
         ctx = eh_template.format(** self.props)
-        name = os.path.join(self.props["pj_path"], "%s_Enum.h" % self.props["h_name"])
+        name = os.path.join(self.props["pj_path"], "common", "include", "%s_Enum.h" % self.props["h_name"])
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
@@ -451,7 +451,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         self.props['enumlist']= ''
         for ns in self.GetNamespaces():
             self.props['enumlist'] += '#include "%s_Enum.h"\n' % ns
-        name = os.path.join(self.props["pj_path"], "%s.h" % ad_header_name)
+        name = os.path.join(self.props["pj_path"], "common", "include", "%s.h" % ad_header_name)
         self.props["H_NAME"] = ad_header_name.upper()
         ctx = ad_template.format(**self.props)
 
@@ -487,7 +487,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
 
     def WriteLocalHeaderFile(self):
         """ 模型开发入口 头文件 """
-        name = os.path.join(self.props["pj_path"], "%s.h" % basebuilder.l_ns_name)
+        name = os.path.join(self.props["pj_path"], "common", "include", "%s.h" % basebuilder.l_ns_name)
         self.props["h_name"] =basebuilder.l_ns_name
         self.props["H_NAME"] = basebuilder.l_ns_name.upper()
         self.props['deplist'] = self.deplist
@@ -501,7 +501,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         f.close()
         self.outfiles.append(name)
 
-        name = os.path.join(self.props["pj_path"], "%s_Depends.h" % basebuilder.l_ns_name)
+        name = os.path.join(self.props["pj_path"], "common", "include", "%s_Depends.h" % basebuilder.l_ns_name)
         self.props["h_name"] =basebuilder.l_ns_name+ "_Depends"
         self.props["H_NAME"] =self.props["h_name"].upper()
 
@@ -522,6 +522,10 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         #append default XML namespace
     def Build(self):
         """开始构建 为每一个Namespace创建一个CPP头文件 """
+        cipath = os.path.join(self.folder, "common", "include")
+        if not os.path.exists(cipath):
+            os.makedirs(cipath)
+
         #print self.GetNamespaces()
         self.depends={} #struct --> {struct}
         self.depvalue={}

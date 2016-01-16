@@ -3,9 +3,9 @@
 /** FIXED [TODO]:Python embed helper class */
 
 /** NOTE: 在C++与Python之间传递参数使用UTF-8编码格式 */
-/** FIXME: 增加工程文档描述和管理 */
-/** FIXME: Excel文件最后的空行会造成解析错误！！*/
-/** FIXME: EmbedPython: UnicodeEncodeError cannot process */
+/** FIXED: 增加工程文档描述和管理 */
+/** FIXED: Excel文件最后的空行会造成解析错误！！*/
+/** FIXED: EmbedPython: UnicodeEncodeError cannot process */
 /** NOTE:  性能参数多粒度的用逗号分隔（列）结尾用分号分隔（行）
 11,12,13;
 21,22,23;

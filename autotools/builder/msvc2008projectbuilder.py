@@ -74,12 +74,12 @@ public:
         /**
         *@brief 组件构造函数
         */
-        {PJ_NAME}(void);
+        {pj_name}(void);
 
         /**
         *@brief 组件析构函数
         */
-        virtual ~{PJ_NAME}(void);
+        virtual ~{pj_name}(void);
 
         /**
         *@brief 组件初始化
@@ -188,8 +188,8 @@ cpp_template=u"""
 #include "{pj_name}.h"
 IComponent* create()
 {{
-        IComponent* {PJ_NAME}Instance = new {PJ_NAME}();
-        return {PJ_NAME}Instance;
+        IComponent* {pj_name}Instance = new {pj_name}();
+        return {pj_name}Instance;
 }}
 
 /**

@@ -14,6 +14,7 @@ class ExcelModelInitParamParser(excelsheetparser.ExcelSheetParser):
         #get namespace
         self.GetNamespace(xl_name, sh_idx, sh_name)
 
+
         last_mp_name = ""
         last_mp_cname = ""
         mp_items=[]

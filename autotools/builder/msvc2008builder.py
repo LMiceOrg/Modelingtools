@@ -38,12 +38,14 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             self.outfiles.append(f.encode('utf-8'))
 
         for pj_name in self.elements:
+            #print pj_name.encode('utf-8')
+            md_item = self.GetModelDecl(pj_name)
             props = {}
             props["tm_now"] =time.strftime("%Y-%m-%d %H:%M:%S")
             props["pj_cname"] = self.projects[pj_name][3]
             props["src_path"] = self.projects[pj_name][0]
 
-            props["so_folder"]= pj_name
+            props["so_folder"]= md_item.item_val[6]
             props["pj_folder"]="src"
             props["tp_folder"] = "test"
             props["root"] = self.folder
@@ -63,6 +65,8 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             #create solution node
             so_file = self.sobuilder.BuildSolution(props)
             self.outfiles.append(so_file.encode('utf-8'))
+            #if pj_name == 'DirIntConsole':
+            #    print md_item.item_val[6], so_file.encode('utf-8')
 
             #create model project node
             pj_file = self.pjbuilder.BuildProject(props)

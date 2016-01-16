@@ -13,6 +13,7 @@ from builder.xmldatastructbuilder import XMLDataStructBuilder
 from builder.xmlmodeldescbuilder import XMLModelDescBuilder
 
 import builder.msvc2008builder
+import builder.inimodelperfbuilder
 import re
 import os
 import time
@@ -144,15 +145,20 @@ class XLDataModelGenerator(object):
 
     #Build MSVC2008 project
     def BuildMsvc2008Solution(self, tofolder):
-        t1 = time.time()
+        #t1 = time.time()
         bd = builder.msvc2008builder.Msvc2008Builder(self.dt, tofolder)
         bd.BuildBegin()
         bd.Build()
         bd.BuildEnd()
-        t2 = time.time()
-        print "Build 2008 solution:", t2-t1
+        #t2 = time.time()
+        #print "Build 2008 solution:", t2-t1
+        perfbd = builder.inimodelperfbuilder.IniModelPerfBuilder(self.dt, tofolder)
+        perfbd.BuildBegin()
+        perfbd.Build()
+        perfbd.BuildEnd()
+        f = perfbd.GetFiles()
         flist = bd.GetFiles()
-        return ",".join(flist)
+        return flist+f
 
     def GetDataModel(self):
         return self.dt

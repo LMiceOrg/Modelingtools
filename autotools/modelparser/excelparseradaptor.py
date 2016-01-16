@@ -12,6 +12,7 @@ import excelmodelmessageparser
 import excelmodeleventparser
 import excelmodelinitparamparser
 import excelmodeldeclarationparser
+import excelmodelperfparser
 
 class ExcelParserAdaptor(object):
     def __init__(self, nslist, name_aliase, default_namespace):
@@ -23,7 +24,7 @@ class ExcelParserAdaptor(object):
         self.meparser = excelmodeleventparser.ExcelModelEventParser(nslist, name_aliase, default_namespace)
         self.miparser = excelmodelinitparamparser.ExcelModelInitParamParser(nslist, name_aliase, default_namespace)
         self.mdparser = excelmodeldeclarationparser.ExcelModelDeclarationParser(nslist, name_aliase, default_namespace)
-
+        self.mperfparser = excelmodelperfparser.ExcelModelPerfParser(nslist,name_aliase, default_namespace)
 
     #Read Excel file content
     def GetExcelContent(self, name):
@@ -112,8 +113,11 @@ class ExcelParserAdaptor(object):
                 if ctx.has_key(sh_idx): #Only parse the first sheet
                     sh_name, sh_ctx = ctx[sh_idx]
                     self.mdparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
+
             else: #模型的数据结构定义文件 (初始化参数，输入输出消息，发送接收事件，性能属性)
-                if len(ctx) >= 4:
+                #for i in range(len(ctx)):
+                #    print i, ctx[i][0].encode('utf-8')
+                if len(ctx) >= 5:
                     #model init param
                     sh_idx = 0
                     sh_name, sh_ctx = ctx[sh_idx]
@@ -123,11 +127,12 @@ class ExcelParserAdaptor(object):
                     sh_name, sh_ctx = ctx[sh_idx]
                     self.mmparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
                     #model event
-                    sh_idx = 2
-                    sh_name, sh_ctx = ctx[sh_idx]
-                    self.meparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
-                    #model property
                     sh_idx = 3
                     sh_name, sh_ctx = ctx[sh_idx]
-                    self.mpparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
+                    self.meparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
+                    #model performance property
+                    sh_idx = 4
+                    sh_name, sh_ctx = ctx[sh_idx]
+
+                    self.mperfparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
 
