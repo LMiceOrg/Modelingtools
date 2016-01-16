@@ -40,6 +40,10 @@ private slots:
 private:
     Ui::OutputWindow *ui;
     QString modelFolder;
+    QIcon *xmlIcon;
+    QIcon *excelIcon;
+    QIcon *folderIcon;
+    QIcon* descIcon;
 };
 
 

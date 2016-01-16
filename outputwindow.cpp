@@ -30,7 +30,10 @@ OutputWindow::OutputWindow(QWidget *parent) :
     ui->tabWidget->setTabIcon(2, QIcon(px.copy(4*px_width,0*px_height,  px_width,px_height)));
     ui->tabWidget->setTabIcon(3, QIcon(px.copy(1*px_width,0*px_height,  px_width,px_height)));
 
-
+    xmlIcon = new QIcon(px.copy(1*px_width,2*px_height,  px_width,px_height));
+    excelIcon = new QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height));
+    folderIcon = new QIcon(px.copy(4*px_width,4*px_height,  px_width,px_height));
+    descIcon = new QIcon(px.copy(0*px_width,1*px_height,  px_width,px_height));
 
     modelFolder = qApp->applicationDirPath();
 
@@ -126,8 +129,6 @@ void OutputWindow::modelExcelAddFile(const QString &name)
 {
     QTreeWidget* tree = ui->treeWidget;
     QTreeWidgetItem* root = tree->topLevelItem(0);
-    QPixmap px(":/flatastic1");
-    const int px_width = 112, px_height = 112;
 
     QFileInfo info(name);
     QString xlpath = info.absolutePath().replace(modelFolder, tr(""));
@@ -140,7 +141,7 @@ void OutputWindow::modelExcelAddFile(const QString &name)
                 QTreeWidgetItem* item = new QTreeWidgetItem(
                                    root->child(j),
                                    QStringList(xlfile));
-                item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
+                item->setIcon(0, *excelIcon);
                 item->setData(0, Qt::UserRole, info.absoluteFilePath());
                 inserted= true;
                 break;//for-j
@@ -151,12 +152,12 @@ void OutputWindow::modelExcelAddFile(const QString &name)
                         root,
                         QStringList(xlpath) );
             //path->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
-            path->setIcon(0, QIcon(px.copy(4*px_width,4*px_height,  px_width,px_height)));
+            path->setIcon(0, *folderIcon);
             QTreeWidgetItem* item = new QTreeWidgetItem(
                                path,
                                QStringList(xlfile));
             //item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
-            item->setIcon(0, QIcon(px.copy(4*px_width,2*px_height,  px_width,px_height)));
+            item->setIcon(0, *excelIcon);
             item->setData(0, Qt::UserRole, info.absoluteFilePath());
 //                root->addChild(path);
         }
@@ -165,6 +166,7 @@ void OutputWindow::modelExcelAddFile(const QString &name)
         QTreeWidgetItem* item =new QTreeWidgetItem(
                            root,
                            QStringList(xlfile) );
+        item->setIcon(0, *excelIcon);
         item->setData(0, Qt::UserRole, info.absoluteFilePath());
     }
 }
@@ -208,8 +210,6 @@ void OutputWindow::modelDataStructFiles(const QStringList &sl)
 {
     QTreeWidget * tree = ui->treeDataStruct;
     QTreeWidgetItem* root = tree->topLevelItem(0);
-    QPixmap px(":/flatastic1");
-    int px_width = 112, px_height = 112;
     //Remove and return children list
     root->takeChildren();
 
@@ -218,7 +218,7 @@ void OutputWindow::modelDataStructFiles(const QStringList &sl)
         QString xmlfile = info.fileName();
         QTreeWidgetItem* item = new QTreeWidgetItem(root, QStringList( xmlfile ));
 //        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveNetIcon));
-        item->setIcon(0, QIcon(px.copy(1*px_width,2*px_height,  px_width,px_height)));
+        item->setIcon(0, *xmlIcon);
         item->setData(0, Qt::UserRole, info.absoluteFilePath() );
     }
     tree->expandAll();
@@ -229,8 +229,7 @@ void OutputWindow::modelModelDscFiles(const QStringList &sl)
 {
     QTreeWidget * tree = ui->treeModelDsc;
     QTreeWidgetItem* root = tree->topLevelItem(0);
-    QPixmap px(":/flatastic1");
-    int px_width = 112, px_height = 112;
+
     //Remove and return children list
     root->takeChildren();
 
@@ -239,7 +238,7 @@ void OutputWindow::modelModelDscFiles(const QStringList &sl)
         QString xmlfile = info.fileName();
         QTreeWidgetItem* item = new QTreeWidgetItem(root, QStringList( xmlfile ));
 //        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveCDIcon));
-        item->setIcon(0, QIcon(px.copy(0*px_width,1*px_height,  px_width,px_height)));
+        item->setIcon(0, *descIcon);
         item->setData(0, Qt::UserRole, info.absoluteFilePath() );
 //        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
     }
