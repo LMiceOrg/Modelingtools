@@ -139,8 +139,8 @@ void OutputWindow::modelExcelAddFile(const QString &name)
         for(int j = 0; j<root->childCount(); ++j) {
             if(root->child(j)->text(0).compare(xlpath, Qt::CaseInsensitive) == 0) {
                 QTreeWidgetItem* item = new QTreeWidgetItem(
-                                   root->child(j),
-                                   QStringList(xlfile));
+                            root->child(j),
+                            QStringList(xlfile));
                 item->setIcon(0, *excelIcon);
                 item->setData(0, Qt::UserRole, info.absoluteFilePath());
                 inserted= true;
@@ -154,18 +154,18 @@ void OutputWindow::modelExcelAddFile(const QString &name)
             //path->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
             path->setIcon(0, *folderIcon);
             QTreeWidgetItem* item = new QTreeWidgetItem(
-                               path,
-                               QStringList(xlfile));
+                        path,
+                        QStringList(xlfile));
             //item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
             item->setIcon(0, *excelIcon);
             item->setData(0, Qt::UserRole, info.absoluteFilePath());
-//                root->addChild(path);
+            //                root->addChild(path);
         }
     } else { //path is empty
 
         QTreeWidgetItem* item =new QTreeWidgetItem(
-                           root,
-                           QStringList(xlfile) );
+                    root,
+                    QStringList(xlfile) );
         item->setIcon(0, *excelIcon);
         item->setData(0, Qt::UserRole, info.absoluteFilePath());
     }
@@ -217,7 +217,7 @@ void OutputWindow::modelDataStructFiles(const QStringList &sl)
         QFileInfo info(sl.at(i));
         QString xmlfile = info.fileName();
         QTreeWidgetItem* item = new QTreeWidgetItem(root, QStringList( xmlfile ));
-//        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveNetIcon));
+        //        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveNetIcon));
         item->setIcon(0, *xmlIcon);
         item->setData(0, Qt::UserRole, info.absoluteFilePath() );
     }
@@ -237,10 +237,10 @@ void OutputWindow::modelModelDscFiles(const QStringList &sl)
         QFileInfo info(sl.at(i));
         QString xmlfile = info.fileName();
         QTreeWidgetItem* item = new QTreeWidgetItem(root, QStringList( xmlfile ));
-//        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveCDIcon));
+        //        item->setIcon(0, style()->standardIcon(QStyle::SP_DriveCDIcon));
         item->setIcon(0, *descIcon);
         item->setData(0, Qt::UserRole, info.absoluteFilePath() );
-//        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
+        //        root->addChild(new QTreeWidgetItem(root, QStringList( xmlfile )) );
     }
     tree->expandAll();
 }
@@ -277,9 +277,9 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
     root->takeChildren();
 
     for(int i=0; i<sl.size(); ++i) {
-//        QString flabspath = sl.at(i);
-//        QString xlpath = flabspath.left(flabspath.lastIndexOf("/")).replace(modelFolder, tr(""));
-//        QString xlfile = flabspath.right(flabspath.length() -1 - flabspath.lastIndexOf("/") );
+        //        QString flabspath = sl.at(i);
+        //        QString xlpath = flabspath.left(flabspath.lastIndexOf("/")).replace(modelFolder, tr(""));
+        //        QString xlfile = flabspath.right(flabspath.length() -1 - flabspath.lastIndexOf("/") );
         QFileInfo info(sl.at(i));
         QString xlpath = info.absolutePath().replace(modelFolder, tr(""));
         QString xlfile = info.fileName();
@@ -289,11 +289,11 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
             for(int j = 0; j<root->childCount(); ++j) {
                 if(root->child(j)->text(0).compare(xlpath, Qt::CaseInsensitive) == 0) {
                     QTreeWidgetItem* item = new QTreeWidgetItem(
-                                       root->child(j),
-                                       QStringList(xlfile));
+                                root->child(j),
+                                QStringList(xlfile));
                     item->setIcon(0, GetIcon(xlfile) );
                     item->setData(0, Qt::UserRole, flabspath);
-//                    item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
+                    //                    item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
                     inserted= true;
                     break;//for-j
                 }
@@ -305,19 +305,19 @@ void OutputWindow::modelModelCodeFiles(const QStringList &sl)
                 path->setIcon(0, style()->standardIcon(QStyle::SP_DirIcon));
                 //path->setIcon(0, QIcon(px.copy(4*px_width,4*px_height,  px_width,px_height)));
                 QTreeWidgetItem* item = new QTreeWidgetItem(
-                                   path,
-                                   QStringList(xlfile));
-//                item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
+                            path,
+                            QStringList(xlfile));
+                //                item->setIcon(0, style()->standardIcon(QStyle::SP_FileIcon) );
                 item->setIcon(0, GetIcon(xlfile) );
                 item->setData(0, Qt::UserRole, flabspath );
-//                root->addChild(path);
+                //                root->addChild(path);
             }
         } else { //path is empty
 
 
             QTreeWidgetItem* item = new QTreeWidgetItem(
-                               root,
-                               QStringList(xlfile));
+                        root,
+                        QStringList(xlfile));
             item->setIcon(0, GetIcon(xlfile) );
             item->setData(0, Qt::UserRole, flabspath );
         }
@@ -346,8 +346,17 @@ void OutputWindow::on_treeWidget_doubleClicked(const QModelIndex &index)
     QString name = index.data(Qt::UserRole).toString();
     if(name.isEmpty())
         return;
-
+#if defined(__WIN32)
+    QString cmd = "open";
+    ShellExecuteW(NULL,
+                 cmd.toStdWString().c_str(),
+                 name.toStdWString().c_str(),
+                 NULL,
+                 NULL,
+                 SW_SHOW);
+#elif defined(__APPLE__)
     name = "open " + name;
 
-     QProcess::startDetached(name);
+    QProcess::startDetached(name);
+#endif
 }

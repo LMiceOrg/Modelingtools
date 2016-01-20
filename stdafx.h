@@ -26,6 +26,11 @@
 #include <vector>
 #include <string>
 
+//Platform specs
+#ifdef __WIN32
+#include <Shellapi.h>
+#pragma comment(lib, "Shell32.lib")
+#endif
 
 
 #endif /** STDAFX_H */
