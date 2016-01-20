@@ -45,6 +45,14 @@ ad_template=version_template + u"""
 /** 各命名空间的枚举类型定义 */
 {enumlist}
 
+
+#define LMICE_STATIC_ASSERT(COND,MSG)       typedef char Error_##MSG[(!!(COND))*2-1]
+#define LMICE_COMPILE_TIME_ASSERT4(X, W)    LMICE_STATIC_ASSERT(X,static_assertion_##W )
+#define LMICE_COMPILE_TIME_ASSERT3(X, FUNC, LN) LMICE_COMPILE_TIME_ASSERT4(X, User_Must_Implement_##FUNC##_function_at_line_##LN)
+#define LMICE_COMPILE_TIME_ASSERT2(X, f, l) LMICE_COMPILE_TIME_ASSERT3(X, f, l)
+#define lmice_static_assert(X, func)        LMICE_COMPILE_TIME_ASSERT2(X, func, __LINE__)
+
+
 namespace LMice {{
 
 //enum value is_pod
@@ -71,6 +79,7 @@ struct LMBaseClass
     int OnSize() const {{
         // 总是 返回 类型的大小
         //如果是可变长度类型，需要用户重载此函数
+        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnSize);
         return sizeof(TSubClass);
     }}
 
@@ -80,13 +89,11 @@ struct LMBaseClass
         *this = c;
     }}
 
-    inline char* data() const {{
+    inline const char* data() const {{
         // 只提供 POD类型时的访问
-        if(is_pod()) {{
-            return reinterpret_cast<char*>(this);
-        }} else {{
-            return NULL;
-        }}
+        lmice_static_assert(LMice::is_pod<TSubClass>::value, data);
+        return reinterpret_cast<const char*>(this);
+
     }}
 
     inline int pack(char* buffer, int buffer_size) const {{
@@ -97,11 +104,10 @@ struct LMBaseClass
     int OnPack(char* buffer, int buffer_size) const {{
         int ret = -1;
         // 非POD类型，以及buffer太小情况的pack处理，由用户实现处理
-        if(is_pod()) {{
-            if(size() <= buffer_size) {{
-                memcpy(buffer, (char*)this, size());
-                ret = 0;
-            }}
+        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnPack);
+        if(size() <= buffer_size) {{
+            memcpy(buffer, (char*)this, size());
+            ret = 0;
         }}
         return ret;
     }}
@@ -114,12 +120,12 @@ struct LMBaseClass
     int OnUnpack(const char* buffer, int buffer_size) {{
         int ret = -1;
         // 非POD类型，以及buffer_size太小情况的unpack处理，由用户实现处理
-        if(is_pod()) {{
-            if(size() <= buffer_size) {{
-                memcpy((char*)this, buffer, size());
-                ret = 0;
-            }}
+        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnUnpack);
+        if(size() <= buffer_size) {{
+            memcpy((char*)this, buffer, size());
+            ret = 0;
         }}
+
         return ret;
     }}
 
@@ -136,9 +142,9 @@ struct LMBaseClass
     void OnClear() {{
         //在POD类型时，调用memset初始化
         //非POD类型，用户重载此函数
-        if(is_pod()) {{
-            memset(this, 0, size());
-        }}
+        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnClear);
+        memset(this, 0, size());
+
     }}
 
 

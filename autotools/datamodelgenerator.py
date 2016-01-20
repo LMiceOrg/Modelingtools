@@ -134,19 +134,27 @@ class XLDataModelGenerator(object):
 
     #Build XML-style model description
     def BuildModelDesc(self, tofolder):
+        t1 = time.time()
         builder = XMLModelDescBuilder(self.dt, tofolder)
         #set datastructs
         builder.datastructs = self.datastructs
 
         builder.BuildBegin()
+        t3 = time.time()
         builder.Build()
+        t4=time.time()
         builder.BuildEnd()
+        t2 = time.time()
+        print "Build Model Desc", t2-t1,t3-t1, t4-t3, t2-t4
         return builder.GetFiles()
 
     #Build MSVC2008 project
     def BuildMsvc2008Solution(self, tofolder):
         #t1 = time.time()
         bd = builder.msvc2008builder.Msvc2008Builder(self.dt, tofolder)
+        #set datastructs
+        bd.datastructs = self.datastructs
+
         bd.BuildBegin()
         bd.Build()
         bd.BuildEnd()

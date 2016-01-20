@@ -9,12 +9,19 @@
 
 #endif
 
-//#include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/NTSim.h"
-//NTSim_Jam::JamBeamPara_T o;
+#include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/NTSim.h"
+NTSim_Jam::JamBeamPara_T o;
+NTSim_Global::PlatDAdjConPara_T o2;
 
 int main(int argc, char *argv[])
 {
 
+    qDebug()<<o.size();
+    o.clear();
+    o.data();
+    qDebug()<<o2.size();
+//    o2.clear();
+    //qDebug()<<o2.size();
 
 //    qDebug()<<o.is_pod()<<o.size();
 //    o.init();

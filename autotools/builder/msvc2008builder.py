@@ -38,6 +38,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             self.outfiles.append(f.encode('utf-8'))
 
         for pj_name in self.elements:
+            self.cur_proj = self.projects[pj_name]
             #print pj_name.encode('utf-8')
             md_item = self.GetModelDecl(pj_name)
             props = {}

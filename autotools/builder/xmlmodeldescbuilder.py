@@ -149,7 +149,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
 
         pj_element = self.elements[pj_name]
         if pj_element.has_key("Properties"):
-            com.append(pj_element["Properties"])
+            com.extend(pj_element["Properties"])
         if pj_element.has_key("Inputs"):
             com.append(pj_element["Inputs"])
         if pj_element.has_key("Outputs"):
@@ -194,6 +194,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
             pj_cname = lv[0][2]
         #store project properties
         self.projects[pj_name] = [item.source, pj_num, pj_name, pj_cname]
+        self.cur_proj=self.projects[pj_name]
         return pj_num, pj_name, pj_cname
 
     def GetProjectNodeByName(self, pj_name, key):
@@ -233,9 +234,9 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                 ad_ns, ad_name, ad_size = self.GetArrayElementTypeAndSize(it_type, it_ns)
                 ad_xsitype, ad_name, ad_ns = self.GetXsiType(ad_name, ad_ns)
                 dnode = xmllib.SubElement(pp, "Default", {"xsi:type":"%sValue" % it_xsitype})
-
-                for i in range( int(ad_size) ):
-                    xmllib.SubElement(dnode, "ItemValue", {"Value":"", "xsi:type":"Types:%sValue" % ad_name })
+                dnode.extend( [xmllib.Element("ItemValue", {"Value":"", "xsi:type":"Types:%sValue" % ad_name }) ] * int(ad_size) )
+                #for i in range( int(ad_size) ):
+                #    xmllib.SubElement(dnode, "ItemValue", {"Value":"", "xsi:type":"Types:%sValue" % ad_name })
 
             else:
                 xmllib.SubElement(pp, "Default", {"Value":it_default, "xsi:type":"%sValue" % it_xsitype})
