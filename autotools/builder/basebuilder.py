@@ -20,6 +20,7 @@ class BaseBuilder(object):
             self.ImportXMLType(simapp_dtfile)
 
     def PrettifyName(self, name):
+        """ Convert name to string type and strip <return> in content """
         if type(name) not in (str, unicode):
             name = str(name)
         return name.strip().replace("\n", "")

@@ -7,9 +7,13 @@ XML格式的数据结构建造者
 
 import basebuilder
 
+import re
 import os
 import xml.etree.cElementTree as xmllib
 import xml.dom.minidom as minidom
+
+#Array<Char,32>
+adtype_parser = re.compile("^\s*Array[<]\s*(\w+)\s*[,]\s*(\w+)\s*[>]")
 
 class XMLDataStructBuilder(basebuilder.BaseBuilder):
     def __init__(self, datamodel, folder):
@@ -45,7 +49,7 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         root = xmllib.Element("Catalogue:Catalogue", {"Id":"%sDataType" % self.name,
                                                       "Name":"%sDataType" % self.name,
                                                       }, **basebuilder.l_xmlns_datastructs)
-        xmllib.SubElement(root, "Description").text = "It is the data type definition file of namespace named %s" % ns
+        xmllib.SubElement(root, "Description").text = "It is the definition file of namespace named %s." % ns
         xmllib.SubElement(root, "Import", {"Namespace":"%s" % basebuilder.g_ns_name, "Location":"%s" %  basebuilder.g_ns_name})
         return root
 
@@ -68,15 +72,34 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         #cache type node
         self.datastructs[ed_id] = xmllib.tostring(tnode)
 
+    def ParseArrayDataType(self, ad_type):
+        """ 解析ad_type 返回数据类型和数量"""
+        items = adtype_parser.findall(ad_type)
+        if len(items) == 0:
+            raise ValueError("Array data type[%s] is invalid!" % ad_type)
+        return items[0]
+
     def CreateArrayDataItem(self, node, ad_ns, ctx):
         """ 生成数组类型 """
         #print "array"
         ad_name, ad_desc, ad_type, ad_dim = ctx[:4]
         ad_id = "%s.%s" %(ad_ns, ad_name)
+
+        it_type, it_num = self.ParseArrayDataType(ad_type)
+        it_ns = ''
+        it_type, it_ns = self.RefineNamespace(it_type, it_ns)
+
         tnode = xmllib.Element("Type", {"Id":ad_id,
-            "Uuid":self.GetTypeUuid(ad_name, ad_ns),"Name":ad_name, "DataType":ad_type,
-            "xsi:type":"Types:PrimitiveType"} )
+            "Uuid":self.GetTypeUuid(ad_name, ad_ns),
+            "Name":ad_name,
+            "Dim":self.PrettifyName(ad_dim),
+            "xsi:type":"Types:Array",
+            "Size":it_num} )
+
         xmllib.SubElement(tnode, "Description").text = ad_desc
+        xmllib.SubElement(tnode, "ItemType", {"Namespace":it_ns,
+            "Href":it_type,
+            "HrefUuid":self.GetTypeUuid(it_type, it_ns) })
 
         node.append(tnode)
         #cache type node
