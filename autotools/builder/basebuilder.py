@@ -49,25 +49,6 @@ class BaseBuilder(object):
                 ns = default_ns_name
         return name,ns
 
-    def GetXsiType(self, name, ns=''):
-        if ns == '':
-            ns = g_ns_name #Global namespace name
-        if dt_mapping.has_key(name):
-            ns = dt_mapping[name][1]
-            name = dt_mapping[name][0]
-        try:
-            if self.types.has_key(ns) and self.types[ns].has_key(name):
-                return self.types[ns][name]['xsi:type'], name, ns
-            elif name[:4] == "Enum":
-                if ns == g_ns_name: #Global namespace name
-                    ns = default_ns_name
-                return "Types:Enumeration", name, ns
-            else:
-                if ns == g_ns_name: #Global namespace name
-                    ns = default_ns_name
-                return "Types:Structure", name, ns
-        except:
-            raise ValueError("Type[%s] has not uuid" % name)
     def GetTypeUuid(self, name, ns=''):
         if name == '':
             #debug

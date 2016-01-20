@@ -30,7 +30,8 @@ class ExcelModelEventParser(excelsheetparser.ExcelSheetParser):
                 continue
             #cp_io :输入输出类型  cp_var:是否可变长
             cp_name, cp_ns, cp_cname, cp_io, cp_desc, cp_var, it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc, it_asign = sh_ctx[i][:17]
-            cp_ns = self.ns
+            if cp_ns == "":
+                cp_ns = self.ns
 
             cp_ns = cp_ns.strip()
             cp_name = cp_name.strip()

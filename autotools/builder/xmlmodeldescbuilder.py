@@ -52,6 +52,38 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         xmllib.SubElement(pnode, "Description").text = "%s; %s." % (md_item.item_val[4], md_item.item_val[5])
         return root
 
+    def GetXsiType(self, name, ns=''):
+        """ 根据类型的名称和命名空间， 生成xsi:type """
+        #print name, ns
+        if ns == '':
+            ns = basebuilder.g_ns_name #Global namespace name
+        if basebuilder.dt_mapping.has_key(name):
+            ns = basebuilder.dt_mapping[name][1]
+            name = basebuilder.dt_mapping[name][0]
+
+        if self.types.has_key(ns) and self.types[ns].has_key(name): #已有类型
+            return self.types[ns][name]['xsi:type'], name, ns
+        else: #从自定义数据中查找
+            node_id = "%s.%s" %(ns, name)
+            if self.ds_nodes.has_key(node_id):
+                return self.ds_nodes[node_id].get("xsi:type"), name, ns
+
+        raise ValueError( "%s Type[%s.%s] has not uuid" % (self.cur_proj[0].encode('utf-8'), ns.encode('utf-8'), name.encode('utf-8')) )
+
+    def GetArrayElementTypeAndSize(self, name, ns):
+        """ namespace, name, size """
+        node_id = "%s.%s" %(ns, name)
+        if self.ds_nodes.has_key(node_id):
+            it = self.ds_nodes[node_id].find("ItemType")
+            return it.get("Namespace"), it.get("Href"), self.ds_nodes[node_id].get("Size")
+        else:
+            if name.find("Wstring") == 0:
+                ssz = name.replace("Wstring", "").strip()
+                return ns, "Wchar", ssz
+            elif name.find("String") == 0:
+                ssz = name.replace("String", "").strip()
+                return ns, "Char", ssz
+
     def GenerateProjectImport(self, pj_name, root):
 
         if not self.reftypes.has_key(pj_name):
@@ -61,7 +93,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
 
         for id in tlist:
             namespace, name = tlist[id]
-            name, namespace = self.RefineNamespace(name, namespace)
+            #name, namespace = self.RefineNamespace(name, namespace)
             if not imports.has_key(namespace):
                 nsnode = xmllib.SubElement(root, "Import", {"Id":namespace, "Name":namespace,
                     "Location":namespace})
@@ -69,6 +101,8 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
             nsnode = imports[namespace]
             xsi_type,xsi_name,xsi_ns = self.GetXsiType(name, namespace)
             node_id = "%s.%s" %(xsi_ns, xsi_name)
+            if xsi_type == None:
+                print node_id, " has none xsi_type"
             #nsnode = xmllib.SubElement(nsnode, "Type", {"Id":node_id,"Name":xsi_name,
             #    "Uuid":self.GetTypeUuid(xsi_name, xsi_ns), "xsi:type": xsi_type })
             if self.ds_nodes.has_key(node_id):
@@ -137,7 +171,8 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         xmllib.SubElement(root, "Resource", {"platform":"_X86_32_WIN_5_VC90", "path":"", "name":"%s.dll" % md_item.item_val[6]})
 
     def SaveDscFile(self, pj_name, root):
-        doc = minidom.parseString( xmllib.tostring(root, 'utf-8') )
+        x = xmllib.tostring(root, 'utf-8')
+        doc = minidom.parseString( x )
         data = doc.toprettyxml(encoding="utf-8")
         name = os.path.join(self.folder, u"%s.xml" % pj_name)
 
@@ -192,7 +227,18 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
             it_type, it_ns = self.RefineNamespace(it_type, it_ns)
             xmllib.SubElement(pp, "Type", {"Namespace":it_ns,"Href":it_type, "HrefUuid":self.GetTypeUuid(it_type, it_ns)})
             #TODO: what are xsi:types of user defined types
-            xmllib.SubElement(pp, "Default", {"Value":it_default, "xsi:type":"Types:%sValue" % it_type})
+            it_xsitype, it_type, it_ns = self.GetXsiType(it_type, it_ns)
+            if it_xsitype == "Types:Array":
+                #array data init
+                ad_ns, ad_name, ad_size = self.GetArrayElementTypeAndSize(it_type, it_ns)
+                ad_xsitype, ad_name, ad_ns = self.GetXsiType(ad_name, ad_ns)
+                dnode = xmllib.SubElement(pp, "Default", {"xsi:type":"%sValue" % it_xsitype})
+
+                for i in range( int(ad_size) ):
+                    xmllib.SubElement(dnode, "ItemValue", {"Value":"", "xsi:type":"Types:%sValue" % ad_name })
+
+            else:
+                xmllib.SubElement(pp, "Default", {"Value":it_default, "xsi:type":"%sValue" % it_xsitype})
 
             #update reftypes
             if not self.reftypes.has_key(pj_name):
@@ -238,6 +284,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         parent = innode
         name = "ReceiveEvent"
         cp_name, cp_ns, cp_cname, cp_io, cp_desc, cp_var, cp_items = item.item_val[:7]
+
         cp_name, cp_ns = self.RefineNamespace(cp_name, cp_ns)
         if cp_io == u"输出":
             parent = outnode
@@ -279,6 +326,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
             ctx = self.datastructs[node_id].replace('xsi:type', 'xsi_type')
             tnode = xmllib.fromstring(ctx)
             if tnode.attrib.has_key('xsi_type'):
+                tnode.set("xsi:type", tnode.get("xsi_type") )
                 tnode.attrib.pop('xsi_type')
             self.ds_nodes[node_id] = tnode
     def Build(self):
@@ -308,8 +356,11 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                     pass
     def BuildEnd(self):
         """写入 dsc文件 """
+        #for k in self.ds_nodes.keys():
+        #    print k
         #print 'default_ns_name:', len(self.GetItemByNamespace(basebuilder.default_ns_name) )
         for pj_name in self.elements:
+            self.cur_proj = self.projects[pj_name]
             #create root node
             root = self.GenerateProjectRootNode(pj_name)
             #create import node
@@ -322,7 +373,10 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
             self.GenerateResourceNode(pj_name, root)
 
             #save to dsc file
-            self.SaveDscFile(pj_name, root)
+            if root == None:
+                print "none xml", pj_name
+            else:
+                self.SaveDscFile(pj_name, root)
 
     def GetFiles(self):
         return self.outfiles

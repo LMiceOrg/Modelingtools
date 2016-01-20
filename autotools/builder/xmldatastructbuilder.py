@@ -149,7 +149,8 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
         cp_id = "%s.%s" %(cp_ns, cp_name)
 
         if len(cp_items) == 1:
-            return
+            if cp_items[0][0] == "":
+                return
         
         #print type(data.part_name)
         tnode = xmllib.Element("Type", {"Id": cp_id,"Name":cp_name,

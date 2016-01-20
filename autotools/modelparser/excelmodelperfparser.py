@@ -18,7 +18,7 @@ class ExcelModelPerfParser(excelsheetparser.ExcelSheetParser):
     def ParseExcelSheet(self, model, xl_name, sh_ctx, sh_idx, sh_name):
         #get namespace
         self.GetNamespace(xl_name, sh_idx, sh_name)
-        print sh_name.encode('utf-8'), 'ExcelModelPerfParser'
+        #print sh_name.encode('utf-8'), 'ExcelModelPerfParser'
         #the perf need look for each cols
         last_md_name=""
         last_md_cname =""
