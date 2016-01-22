@@ -14,15 +14,9 @@
         <translation>工具参数集</translation>
     </message>
     <message>
-        <location filename="dialognamespace.cpp" line="12"/>
+        <location filename="dialognamespace.cpp" line="14"/>
         <source># Namespace settings #
 
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="dialognamespace.cpp" line="14"/>
-        <source>%1 = %2
 </source>
         <translation type="unfinished"></translation>
     </message>
@@ -185,169 +179,184 @@
         <translation>分析</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="237"/>
+        <location filename="mainwindow.ui" line="241"/>
         <source>NameSpace</source>
         <translation>偏好配置</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="240"/>
+        <location filename="mainwindow.ui" line="244"/>
         <source>Setting Namespace</source>
         <translation>建模工具首选项设置</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="245"/>
+        <location filename="mainwindow.ui" line="249"/>
         <source>reloadmodel</source>
         <translation>重载工具</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="250"/>
+        <location filename="mainwindow.ui" line="254"/>
         <source>New Project</source>
         <translation>新建工程</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="253"/>
+        <location filename="mainwindow.ui" line="257"/>
         <source>Meta+N</source>
         <translation>Ctrl + N</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="258"/>
+        <location filename="mainwindow.ui" line="262"/>
         <source>Open Project</source>
         <translation>打开工程</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="261"/>
+        <location filename="mainwindow.ui" line="265"/>
         <source>Meta+O</source>
         <translation>Ctrl+O</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="266"/>
+        <location filename="mainwindow.ui" line="270"/>
         <source>Clean History</source>
         <translation>清除历史菜单</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="271"/>
+        <location filename="mainwindow.ui" line="275"/>
         <source>Close Project</source>
         <translation>关闭工程</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="276"/>
+        <location filename="mainwindow.ui" line="280"/>
         <source>撤销</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="281"/>
+        <location filename="mainwindow.ui" line="285"/>
         <source>恢复</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="286"/>
+        <location filename="mainwindow.ui" line="290"/>
         <source>构建项目</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="291"/>
+        <location filename="mainwindow.ui" line="295"/>
         <source>重新构建</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="296"/>
+        <location filename="mainwindow.ui" line="300"/>
         <source>清理项目</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="301"/>
+        <location filename="mainwindow.ui" line="305"/>
         <source>格式验证</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="306"/>
+        <location filename="mainwindow.ui" line="310"/>
         <source>命名空间验证</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="311"/>
+        <location filename="mainwindow.ui" line="315"/>
         <source>模型映射验证</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="316"/>
+        <location filename="mainwindow.ui" line="320"/>
         <source>PythonEditor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="321"/>
+        <location filename="mainwindow.ui" line="325"/>
         <source>XML Editor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="326"/>
+        <location filename="mainwindow.ui" line="330"/>
         <source>进入全屏模式</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="331"/>
+        <location filename="mainwindow.ui" line="335"/>
         <source>输出窗口</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="336"/>
+        <location filename="mainwindow.ui" line="340"/>
         <source>帮助文件</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="341"/>
+        <location filename="mainwindow.ui" line="345"/>
         <source>帮助提示</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="346"/>
+        <location filename="mainwindow.ui" line="350"/>
         <source>关于本软件</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="351"/>
+        <location filename="mainwindow.ui" line="355"/>
         <source>Report bug</source>
         <translation>向开发者提交Bug</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="356"/>
+        <location filename="mainwindow.ui" line="360"/>
         <source>Quit Modeltools</source>
         <translation>退出 Modeling Tools</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="361"/>
+        <location filename="mainwindow.ui" line="365"/>
         <source>dumpProject</source>
         <translation>保存工程状态</translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="366"/>
+        <location filename="mainwindow.ui" line="370"/>
         <source>RestoreProject</source>
         <translation>载入工程状态</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="58"/>
+        <location filename="mainwindow.ui" line="375"/>
+        <source>enlarge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="380"/>
+        <source>besmall</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="385"/>
+        <source>ClearProject</source>
+        <translation>清理项目</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.cpp" line="67"/>
         <source>Output Window</source>
         <translation>建模工具输出窗口</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="75"/>
+        <location filename="mainwindow.cpp" line="96"/>
         <source>Open Model Directory</source>
         <translation>打开模型所在目录</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="87"/>
-        <location filename="mainwindow.cpp" line="95"/>
+        <location filename="mainwindow.cpp" line="108"/>
+        <location filename="mainwindow.cpp" line="116"/>
         <source>model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="92"/>
+        <location filename="mainwindow.cpp" line="113"/>
         <source>Dir&lt;span style=&quot;color:#ee0e0e;font-weight:bold&quot;&gt;[%1]&lt;/span&gt; is not a valid model folder.&lt;p&gt;Tips: Dir should be &lt;b&gt;[.../%2]&lt;/b&gt;&lt;/p&gt;</source>
         <translation>路径&lt;span style=&quot;color:#ee0e0e;font-weight:bold&quot;&gt;[%1]&lt;/span&gt;不是有效的模型路径&lt;p&gt;提示:路径应该以 &lt;b&gt;[.../%2]&lt;/b&gt;结尾。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="mainwindow.cpp" line="99"/>
-        <location filename="mainwindow.cpp" line="372"/>
+        <location filename="mainwindow.cpp" line="120"/>
+        <location filename="mainwindow.cpp" line="459"/>
         <source>%1 - [Opening Model] %2</source>
         <translation>%1 - [打开模型] %2</translation>
     </message>
@@ -380,34 +389,34 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="outputwindow.cpp" line="22"/>
+        <location filename="outputwindow.cpp" line="24"/>
         <source>Project</source>
         <translation>元模型</translation>
     </message>
     <message>
-        <location filename="outputwindow.cpp" line="23"/>
+        <location filename="outputwindow.cpp" line="25"/>
         <source>Data Structure</source>
         <translation>数据结构</translation>
     </message>
     <message>
-        <location filename="outputwindow.cpp" line="24"/>
-        <location filename="outputwindow.cpp" line="57"/>
+        <location filename="outputwindow.cpp" line="26"/>
+        <location filename="outputwindow.cpp" line="62"/>
         <source>Model Description</source>
         <translation>模型描述</translation>
     </message>
     <message>
-        <location filename="outputwindow.cpp" line="25"/>
-        <location filename="outputwindow.cpp" line="65"/>
+        <location filename="outputwindow.cpp" line="27"/>
+        <location filename="outputwindow.cpp" line="70"/>
         <source>Model Code</source>
         <translation>模型代码</translation>
     </message>
     <message>
-        <location filename="outputwindow.cpp" line="41"/>
+        <location filename="outputwindow.cpp" line="46"/>
         <source>Model Excel File</source>
         <translation>模型Excel元模型</translation>
     </message>
     <message>
-        <location filename="outputwindow.cpp" line="49"/>
+        <location filename="outputwindow.cpp" line="54"/>
         <source>Model Data Structure</source>
         <translation>模型数据结构</translation>
     </message>

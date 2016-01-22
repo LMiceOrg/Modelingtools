@@ -95,7 +95,8 @@ css/*.css \
     autotools/builder/qt5builder.py \
     autotools/modelparser/excelmodeldeclarationparser.py \
     autotools/modelparser/excelmodelperfparser.py \
-    autotools/builder/inimodelperfbuilder.py
+    autotools/builder/inimodelperfbuilder.py \
+    autotools/builder/baseitem.py
 
 PRECOMPILED_HEADER += stdafx.h
 

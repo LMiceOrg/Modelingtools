@@ -322,6 +322,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         if type in (u"String", u'Wstring'):
             return False
         return True
+
     def CheckGrainItem(self, item):
         """ 规则: 复合数据结构中的多粒度参数解析 在列（粒度）的值为(1+), 其粒度数量是上一个字段
             其类型为string
@@ -393,9 +394,10 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             it_type, it_ns = self.RefineNamespace(it_type, it_ns)
 
             if self.CheckGrainItem(item):
+                it_grain="Array<%s::%s>" % (it_ns, it_type)
                 it_type = "String"
                 it_ns = basebuilder.g_ns_name #Global namespace name
-                it_grain="Array<%s::%s>" % (it_ns, it_type)
+
             if it_ns != basebuilder.g_ns_name: #Global namespace name
                 if it_type[:5] == "Enum_":
                     pass

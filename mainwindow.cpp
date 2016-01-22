@@ -60,19 +60,20 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
     ep = new EmbedPython(this);
+    onCheckOutputMessage(ep->errorMessage());
+
     connect(ep, SIGNAL(errorTrigger(QString)), this, SLOT(onCheckOutputMessage(QString)) );
 
-    onCheckOutputMessage(ep->errorMessage());
 
     ui->tabWidget->setTabText(0, tr("Output Window"));
 
     QPixmap px(":/flatastic2");
     int px_width = 112, px_height = 112;
-    ui->actionNameSpace->setIcon(QIcon(px.copy(0*px_width,2*px_height,  px_width,px_height)));
-    ui->actionReloadmodel->setIcon(QIcon(px.copy(4*px_width,5*px_height,  px_width,px_height)));
-    ui->actionDumpProject->setIcon(QIcon(px.copy(3*px_width,0*px_height,  px_width,px_height)));
-    ui->actionRestoreProject->setIcon(QIcon(px.copy(3*px_width,4*px_height,  px_width,px_height)));
-
+    ui->actionNameSpace->setIcon(QIcon(px.copy(     0*px_width,2*px_height,     px_width,px_height)));
+    ui->actionReloadmodel->setIcon(QIcon(px.copy(   4*px_width,5*px_height,     px_width,px_height)));
+    ui->actionDumpProject->setIcon(QIcon(px.copy(   3*px_width,0*px_height,     px_width,px_height)));
+    ui->actionRestoreProject->setIcon(QIcon(px.copy(3*px_width,4*px_height,     px_width,px_height)));
+    ui->actionClearProject->setIcon(QIcon(px.copy(  1*px_width,1*px_height,     px_width,px_height)));
     ui->mainToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     ui->mainToolBar->setIconSize(QSize(16,16));
 

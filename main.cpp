@@ -9,17 +9,19 @@
 
 #endif
 
-#include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/NTSim.h"
+#include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/common/include/NTSim.h"
 NTSim_Jam::JamBeamPara_T o;
 NTSim_Global::PlatDAdjConPara_T o2;
 
 int main(int argc, char *argv[])
 {
 
-    qDebug()<<o.size();
+    //qDebug()<<o.size();
+    printf("size %d\n", o.size());
     o.clear();
     o.data();
-    qDebug()<<o2.size();
+    //qDebug()<<o2.size();
+    printf("size %d\n", o2.size());
 //    o2.clear();
     //qDebug()<<o2.size();
 
