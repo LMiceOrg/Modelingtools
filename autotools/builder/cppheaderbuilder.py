@@ -6,17 +6,23 @@ CPP头文件建造者
 """
 
 import basebuilder
+import autotools
+import baseitem
 
 import time
 import os
 import re
 import xml.etree.cElementTree as xmllib
 import xml.dom.minidom as minidom
+import web.template
+
+render = web.template.render(os.path.split(os.path.realpath(__file__))[0],
+globals={'type':type,"hasattr":hasattr})
 
 #Array<Char,32>
 adt_parser = re.compile("\s*(\w+)\s*[<]\s*(\w+)\s*[,]\s*([0-9]+)\s*[>]")
 
-ad_header_name ="%s_Typedef" % basebuilder.l_ns_name
+ad_header_name ="%s_Typedef" % autotools.l_ns_name
 
 version_template = u"""/****************************************************************************
 **
@@ -33,11 +39,21 @@ ad_template=version_template + u"""
 #define {H_NAME}_TYPEDEFS_H_
 
 #include <string>
-#include <cstdint>
+#include <vector>
+#include <map>
+//#include <cstdint>
 #include <string.h>
 
 /** 全局类型别名 */
-{globaltypedefs}
+//globaltypedefs
+/*
+namespace AppSim {{
+template<class T, int n>
+struct Array {{
+    T data[n];
+}};
+}}
+*/
 
 /** 数组类型与别名 */
 {arraylist}
@@ -55,6 +71,8 @@ ad_template=version_template + u"""
 
 namespace LMice {{
 
+
+
 //enum value is_pod
 template<class _Tp, _Tp __v> struct cv {{
     enum{{ value =       __v}};
@@ -65,6 +83,44 @@ template<class _Tp, _Tp __v> struct cv {{
 // Default pod is 0
 template<class T> struct is_pod: public LMice::cv<int, 0> {{}};
 template<> struct is_pod<int>: public LMice::cv<int, 1>{{}};
+template<> struct is_pod<int64_t>: public LMice::cv<int, 1>{{}};
+template<> struct is_pod<double>: public LMice::cv<int, 1>{{}};
+template<> struct is_pod<float>: public LMice::cv<int, 1>{{}};
+template<> struct is_pod<bool>: public LMice::cv<int, 1>{{}};
+
+template <class TSubClass>
+struct LMVector
+{{
+    int size() const {{
+        if(LMice::is_pod<TSubClass>::value) {{
+            return m_vec.size()*sizeof(TSubClass);
+        }}
+        return 0;
+    }}
+
+    int pack(char* buffer, int buffer_size) const {{
+        int ret = -1;
+        int pos = 0;
+        if(size() <= buffer_size) {{
+            ret = 0;
+            if(LMice::is_pod<TSubClass>::value) {{
+                memcpy(buffer, &m_vec[0], sizeof(TSubClass)*m_vec.size() );
+            }}
+        }}
+        return ret;
+    }}
+
+    int unpack(const char* buffer, int buffer_size) {{
+        return 0;
+    }}
+
+    void clear() {{
+        m_vec.clear();
+    }}
+
+
+    std::vector<TSubClass> m_vec;
+}};
 
 template <class TSubClass>
 struct LMBaseClass
@@ -236,7 +292,9 @@ arraylist_template=u"""
 * 构建自 {src_path}
 *
 */
-typedef {ad_type} {ad_name}[{ad_num}];"""
+
+typedef {it_ns}::Array<{it_ns}::{it_type},{it_num}> {ad_name};
+"""
 
 struct_template=u"""
 /**
@@ -248,8 +306,12 @@ struct_template=u"""
 */
 struct {cd_name}:public LMice::LMBaseClass< {cd_name} > {{
     {cd_items}
+
+    /* Auto generated functions */
+{cd_funcs}
 }};
 """
+
 
 structitem_template=u"""
     /**
@@ -283,6 +345,8 @@ local_header_template=version_template + u"""
 //有依赖顺序的结构体
 #include "{local_ns_name}_Depends.h"
 
+//模型消息与事件结构体
+#include "{local_ns_name}_Model.h"
 
 #pragma pack()
 
@@ -292,6 +356,8 @@ local_header_template=version_template + u"""
 depends_template=version_template + u"""
 #ifndef {H_NAME}_ENUMDATA_H_
 #define {H_NAME}_ENUMDATA_H_
+
+#include "{local_ns_name}_Typedef.h"
 
 /** 顺序依赖结构体定义 */
 {deplist}
@@ -305,6 +371,40 @@ namespace LMice {{
 
 """
 
+msg_struct_template=u"""
+namespace {cd_ns} {{
+/**
+*@brief {cd_ns}::{cd_name} {cd_desc}
+* 枚举类型定义
+* 构建自 {part_name}
+* 元模型自 {src_path}
+*
+*/
+struct {cd_name}:public LMice::LMBaseClass< {cd_name} > {{
+    {cd_items}
+
+    /* Auto generated functions */
+{cd_funcs}
+}};
+
+}}
+"""
+
+model_template=version_template + u"""
+#ifndef {H_NAME}_MESSANGE_AND_EVENT_H_
+#define {H_NAME}_MESSANGE_AND_EVENT_H_
+
+
+/** 模型消息与事件结构体定义 */
+{msg_struct}
+
+/** LMice::is_pod 模版特化 */
+namespace LMice {{
+{msg_pod}
+}}
+
+#endif //{H_NAME}_MESSANGE_AND_EVENT_H_
+"""
 
 class CPPHeaderBuilder(basebuilder.BaseBuilder):
     def __init__(self, datamodel, folder):
@@ -318,8 +418,10 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         self.props={}   
         self.outfiles = []
         
+
+
     def IsPod(self, type):
-        if type in (u"String", u'Wstring'):
+        if type in (u"String", u'Wstring') or type[:8] == 'LMVector':
             return False
         return True
 
@@ -332,6 +434,89 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             return True
 
         return False
+
+    def CreateModelEventCPPHeader(self, item):
+        """ 生成模型Event头文件"""
+        is_pod = 1
+        it_list = []
+
+        pps = baseitem.BaseItem(['cd_name', 'cd_ns', 'cd_cname', 'cd_io', 'cd_desc', 'cd_var', 'cps'], item.item_val)
+        pps.cd_name += "_T"
+        pps.append(src_path=item.source, part_name=item.part_name)
+
+        for cp in pps.cps:
+            it = baseitem.BaseItem(['it_name', 'it_ns', 'it_cname', 'it_type', 'it_grain', 'it_unit',
+                'it_default', 'it_min', 'it_max', 'it_desc', 'it_asign'], cp)
+
+            if it.it_name == "":
+                return
+
+            #refinement namespace
+            it.it_type, it.it_ns = self.RefineNamespace(it.it_type, it.it_ns)
+
+            dp_val = "%s::%s" % (it.it_ns, it.it_type)
+            if self.CheckGrainItem(item):
+                it.or_ns = it.it_ns
+                it.or_type = it.it_type
+                it.is_array = True
+                it.it_grain="LMVector<%s::%s>" % (it.it_ns, it.it_type)
+                it.it_type = "LMVector<%s::%s>" % (it.it_ns, it.it_type)
+                it.it_ns = "LMice"#autotools.g_ns_name #Global namespace name
+            if not self.IsPod(it.it_type):
+                is_pod = 0
+            it_list.append(structitem_template.format( **it.dict() ) )
+
+        pps.cd_items = u"\n".join(it_list)
+        pps.cd_funcs = ""
+
+        ctx = msg_struct_template.format(**pps.dict() )
+        dp_key = "%s::%s" % (pps.cd_ns, pps.cd_name)
+
+        self.props["msg_struct"] += ctx
+        self.props['msg_pod'] += 'template<> struct is_pod<%s>:public LMice::cv<int, %d>{};\n' % (dp_key, is_pod)
+
+
+    def CreateModelMessageCPPHeader(self, item):
+        """ 生成模型消息头文件"""
+        is_pod = 1
+        it_list = []
+
+        pps = baseitem.BaseItem(['cd_name', 'cd_ns', 'cd_cname', 'cd_io', 'cd_desc', 'cd_var', 'cps'], item.item_val)
+        pps.cd_name += "_T"
+
+        pps.append(src_path=item.source, part_name=item.part_name)
+
+        for cp in pps.cps:
+            it = baseitem.BaseItem(['it_name', 'it_ns', 'it_cname', 'it_type', 'it_grain', 'it_unit',
+                'it_default', 'it_min', 'it_max', 'it_desc', 'it_asign'], cp)
+
+            if it.it_name == "":
+                return
+
+            #refinement namespace
+            it.it_type, it.it_ns = self.RefineNamespace(it.it_type, it.it_ns)
+
+            dp_val = "%s::%s" % (it.it_ns, it.it_type)
+            if self.CheckGrainItem(item):
+                it.or_ns = it.it_ns
+                it.or_type = it.it_type
+                it.is_array = True
+                it.it_grain="LMVector<%s::%s>" % (it.it_ns, it.it_type)
+                it.it_type = "LMVector<%s::%s>" % (it.it_ns, it.it_type)
+                it.it_ns = "LMice"#autotools.g_ns_name #Global namespace name
+            if not self.IsPod(it.it_type):
+                is_pod = 0
+            it_list.append(structitem_template.format( **it.dict() ) )
+
+        pps.cd_items = u"\n".join(it_list)
+        pps.cd_funcs = ""
+
+        ctx = msg_struct_template.format(**pps.dict() )
+        dp_key = "%s::%s" % (pps.cd_ns, pps.cd_name)
+
+        self.props["msg_struct"] += ctx
+        self.props['msg_pod'] += 'template<> struct is_pod<%s>:public LMice::cv<int, %d>{};\n' % (dp_key, is_pod)
+
 
     def CreateEnumCPPHeader(self, item):
         """ 生成枚举类型头文件的prop """
@@ -361,17 +546,25 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
     def CreateArrayCPPHeader(self, item):
         """ 生成数组类型头文件的prop name<num>"""
         ctx = item.item_val
-        ad_name, ad_desc, ad_type, ad_dim = ctx[:4]
-        listprop={"ad_ns":item.item_ns, "src_path":item.source}
-        listprop['ad_desc'] = ad_desc
-        listprop["ad_name"] = ad_name
-        ad_val = adt_parser.findall(ad_type)
-        if len(ad_val) == 1:
-            it_type, it_name, it_num = ad_val[0]
-            listprop["ad_type"] =it_name.lower()
-            listprop["ad_num"] = it_num
-            ctx = arraylist_template.format(** listprop)
-            self.props["arraylist"] = self.props["arraylist"]+ctx
+        ad = baseitem.BaseItem(['ad_name', 'it_ns', 'it_type', 'it_num', 'it_unit', 'ad_desc'], ctx[:6])
+        ad.append(['ad_ns', 'src_path'],[item.item_ns, item.source])
+        ad.it_type, ad.it_ns = self.RefineNamespace(ad.it_type, ad.it_ns)
+
+        #ad_name, ad_desc, ad_type, ad_dim = ctx[:4]
+        #listprop={"ad_ns":item.item_ns, "src_path":item.source}
+        #listprop['ad_desc'] = ad_desc
+        #listprop["ad_name"] = ad_name
+        #ad_val = adt_parser.findall(ad.ad_type)
+        #if len(ad_val) == 1:
+        #ad.append(['ad_name', 'it_ns', 'it_name', 'it_num', 'it_unit', 'ad_desc'], ad_val[0])
+        #it_type, it_name, it_num = ad_val[0]
+
+        #listprop["ad_type"] =it_name.lower()
+        #listprop["ad_num"] = it_num
+        #ad.append(it_num=it_num, it_type=it_name, it_ns=it_ns)
+        #print ad
+        ctx = arraylist_template.format(** ad.dict())
+        self.props["arraylist"] = self.props["arraylist"]+ctx
 
     def CreateCompCPPHeader(self,item):
         """ 生成复合结构体类型头文件的prop """
@@ -386,25 +579,36 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         #Set default pod value
         is_pod = True
 
+        cd = baseitem.BaseItem(['its', 'is_pod', 'size'], [[], True, ''])
+        cd.append(pack='', unpack='', clear='')
+
         dp_key = "%s::%s" % (cd_ns, cd_name)
         has_depends = False
         for  item in cd_items:
-            it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = item[:10]
+            it = baseitem.BaseItem(['it_name', 'it_ns', 'it_cname', 'it_type', 'it_grain', 'it_unit', 'it_default', 'it_min', 'it_max', 'it_desc'], item[:10])
+            #it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = item[:10]
             #refinement namespace
-            it_type, it_ns = self.RefineNamespace(it_type, it_ns)
+            it.it_type, it.it_ns = self.RefineNamespace(it.it_type, it.it_ns)
 
+            dp_val = "%s::%s" % (it.it_ns, it.it_type)
+            pre_decl = "namespace %s { struct %s; }\n" % (it.it_ns, it.it_type)
+            otp, ons = it.it_type, it.it_ns
             if self.CheckGrainItem(item):
-                it_grain="Array<%s::%s>" % (it_ns, it_type)
-                it_type = "String"
-                it_ns = basebuilder.g_ns_name #Global namespace name
+                it.or_ns = it.it_ns
+                it.or_type = it.it_type
+                it.is_array = True
+                it.it_grain="LMVector<%s::%s>" % (it.it_ns, it.it_type)
+                it.it_type = "LMVector<%s::%s>" % (it.it_ns, it.it_type)
+                it.it_ns = "LMice"#autotools.g_ns_name #Global namespace name
 
-            if it_ns != basebuilder.g_ns_name: #Global namespace name
-                if it_type[:5] == "Enum_":
+
+            if ons.strip() != autotools.g_ns_name: #Global namespace name
+                if otp[:5] == "Enum_":
                     pass
-                elif basebuilder.dt_mapping.values().count( (it_type, it_ns)) == 0:
-                    self.props["predeclare"].add("namespace %s { struct %s; }\n" % (it_ns, it_type) )
+                elif autotools.dt_mapping.values().count( (otp, ons)) == 0:
+                    self.props["predeclare"].add(pre_decl)
 
-                    dp_val = "%s::%s" % (it_ns, it_type)
+
                     if self.depends.has_key(dp_key):
                         if self.depends[dp_key].count(dp_val) > 0:
                             pass
@@ -414,13 +618,33 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
                         self.depends[dp_key] = [ dp_val ]
 
                     has_depends = True
-            if not self.IsPod(it_type):
+            if not self.IsPod(it.it_type):
                 is_pod = False
+                cd.is_pod = is_pod
+                cd.size += "%s.size() +" % it.it_name
+                if it.it_type != "String":
+                    cd.pack += "        %s.pack(buffer+pos, buffer_size-pos);\n        pos += %s.size();\n" % ((it.it_name,)*2)
+                    cd.unpack += "        %s.unpack(buffer+pos, buffer_size-pos);\n        pos += %s.size();\n" % ((it.it_name,)*2)
+                cd.clear += "        %s.clear();\n" % it.it_name
+            else:
+                cd.size += "sizeof(%s) +" % it.it_name
+                cd.pack += "        memcpy(buffer+pos, &%s, sizeof(%s));\n        pos += sizeof(%s);\n" % ((it.it_name,)*3)
+                cd.unpack +="        memcpy(&%s, buffer+pos, sizeof(%s));\n        pos+= sizeof(%s);\n" % ((it.it_name,)*3)
+                cd.clear += "        memset(&%s, 0, sizeof(%s));\n" % ((it.it_name,)*2)
 
-            it_list.append( structitem_template.format(it_name=it_name, it_ns=it_ns, it_cname=it_cname, it_type=it_type, it_grain=it_grain, it_unit=it_unit, it_default=it_default, it_min=it_min, it_max=it_max, it_desc=it_desc) )
+            it.is_pod = is_pod
 
+            #it_list.append( structitem_template.format(it_name=it_name, it_ns=it_ns, it_cname=it_cname, it_type=it_type, it_grain=it_grain, it_unit=it_unit, it_default=it_default, it_min=it_min, it_max=it_max, it_desc=it_desc) )
+            #print it
+            cd.its.append(it)
+
+            it_list.append(structitem_template.format( **it.dict() ) )
+
+        cd.size = cd.size[:-1]
         self.dep_pod[dp_key] =[dp_key, is_pod]
         listprop["cd_items"] = u"\n".join(it_list)
+        #print cd
+        listprop["cd_funcs"] = render.cd_funcs_tmpl(cd)
         ctx = struct_template.format(**listprop)
         if has_depends:
             self.depvalue[dp_key] ="namespace %s {\n%s\n}\n" % (cd_ns, ctx)
@@ -433,14 +657,16 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
     def writeCPPHeaderFile(self):
         """ 写头文件 """
         ctx = h_template.format(** self.props)
-        name = os.path.join(self.props["pj_path"], "common", "include", "%s.h" % self.props["h_name"])
+        ctx = self.RefineContext(ctx)
+        name = os.path.join(self.props["pj_path"], "%s.h" % self.props["h_name"].lower())
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
         self.outfiles.append(name)
 
         ctx = eh_template.format(** self.props)
-        name = os.path.join(self.props["pj_path"], "common", "include", "%s_Enum.h" % self.props["h_name"])
+        ctx = self.RefineContext(ctx)
+        name = os.path.join(self.props["pj_path"], "%s_Enum.h" % self.props["h_name"].lower())
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
@@ -448,9 +674,9 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
      
     def WriteArrayHeaderFile(self):
         """ 枚举类型 数组类型与别名 """
-        #print basebuilder.gen_g_ns_type
-        gns="namespace %s {\n\n" % basebuilder.g_ns_name
-        tps = basebuilder.gen_g_ns_type()
+        #print autotools.gen_g_ns_type
+        gns="namespace %s {\n\n" % autotools.g_ns_name
+        tps = autotools.gen_g_ns_type()
         for key in tps:
             gns = gns + "typedef %s %s;\n" % (tps[key], key[0])
         gns = gns + "}\n"
@@ -458,11 +684,12 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
 
         self.props['enumlist']= ''
         for ns in self.GetNamespaces():
-            self.props['enumlist'] += '#include "%s_Enum.h"\n' % ns
-        name = os.path.join(self.props["pj_path"], "common", "include", "%s.h" % ad_header_name)
+            self.props['enumlist'] += '#include "%s_Enum.h"\n' % ns.lower()
+        name = os.path.join(self.props["pj_path"], "%s.h" % ad_header_name.lower())
         self.props["H_NAME"] = ad_header_name.upper()
-        ctx = ad_template.format(**self.props)
 
+        ctx = ad_template.format(**self.props)
+        ctx = self.RefineContext(ctx)
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
@@ -495,25 +722,40 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
 
     def WriteLocalHeaderFile(self):
         """ 模型开发入口 头文件 """
-        name = os.path.join(self.props["pj_path"], "common", "include", "%s.h" % basebuilder.l_ns_name)
-        self.props["h_name"] =basebuilder.l_ns_name
-        self.props["H_NAME"] = basebuilder.l_ns_name.upper()
+        name = os.path.join(self.props["pj_path"], "%s.h" % autotools.l_ns_name)
+        self.props["h_name"] =autotools.l_ns_name.lower()
+        self.props["H_NAME"] = autotools.l_ns_name.upper()
         self.props['deplist'] = self.deplist
         self.props['headers']=''
         for ns in self.GetNamespaces():
-            self.props['headers'] += '#include "%s.h"\n\n' % ns
+            self.props['headers'] += '#include "%s.h"\n\n' % ns.lower()
 
         ctx = local_header_template.format(**self.props)
+        ctx = self.RefineContext(ctx)
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
         self.outfiles.append(name)
 
-        name = os.path.join(self.props["pj_path"], "common", "include", "%s_Depends.h" % basebuilder.l_ns_name)
-        self.props["h_name"] =basebuilder.l_ns_name+ "_Depends"
+        name = os.path.join(self.props["pj_path"], "%s_Depends.h" % autotools.l_ns_name.lower())
+        self.props["h_name"] =autotools.l_ns_name.lower()+ "_Depends"
         self.props["H_NAME"] =self.props["h_name"].upper()
 
         ctx = depends_template.format(**self.props)
+        ctx = self.RefineContext(ctx)
+        f=open(name, "w")
+        f.write( ctx.encode('utf-8') )
+        f.close()
+        self.outfiles.append(name)
+
+    def WriteModelHeaderFile(self):
+        """ 模型 消息与事件头文件 """
+        name = os.path.join(self.props["pj_path"], "%s_Model.h" % autotools.l_ns_name.lower())
+        self.props["h_name"] =autotools.l_ns_name.lower()+ "_Model"
+        self.props["H_NAME"] =self.props["h_name"].upper()
+
+        ctx = model_template.format(**self.props)
+        ctx = self.RefineContext(ctx)
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )
         f.close()
@@ -530,9 +772,6 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         #append default XML namespace
     def Build(self):
         """开始构建 为每一个Namespace创建一个CPP头文件 """
-        cipath = os.path.join(self.folder, "common", "include")
-        if not os.path.exists(cipath):
-            os.makedirs(cipath)
 
         #print self.GetNamespaces()
         self.depends={} #struct --> {struct}
@@ -541,13 +780,17 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         self.dep_pod = {} #id --> 1/0
 
         self.props = {}
-        self.props['local_ns_name'] = basebuilder.l_ns_name
+        self.props['local_ns_name'] = autotools.l_ns_name
         self.props['l_typedef'] = ad_header_name
         self.props["user_name"] = "LMiced Org"
         self.props['user_dept'] = 'Tsinghua'
         self.props["tm_now"] =time.strftime("%Y-%m-%d %H:%M:%S")
         self.props["pj_path"] =self.folder
         self.props["arraylist"]=''
+        #model message and event
+        self.props["msg_struct"] = ''
+        self.props["msg_pod"] = ''
+
         #创建Namespace element
         for ns in self.GetNamespaces():#namespace表示各种不同的类，平台类、传感器器类，
 
@@ -569,11 +812,15 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
                     self.CreateEnumCPPHeader(item)#在头文件中加入值
                 elif item.item_type == "ArrayData":   #数组类型
                     #print "array"
-                    #print "Array"
                     self.CreateArrayCPPHeader(item)
                 elif item.item_type == "CompData":    #复合结构
                     #print "Comp data"
                     self.CreateCompCPPHeader(item)
+                elif item.item_type == "ModelMessage":    #模型消息
+                    self.CreateModelMessageCPPHeader(item)
+                elif item.item_type == "ModelEvent":    #模型事件
+                    self.CreateModelEventCPPHeader(item)
+
             self.props["predeclare"] = "\n".join(self.props["predeclare"])
             if len(self.props["arraylist"]) > 0:
                 self.props["arraylist"] = "%snamespace %s {\n\n%s\n\n} /* namespace %s */\n" % (last_ad_str, ns, self.props["arraylist"], ns)
@@ -584,6 +831,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
         #Clean is_pod
         self.props['is_pod'] = ''
         self.CreateDependsHeaderFile()
+        self.WriteModelHeaderFile()
 
         self.WriteLocalHeaderFile()
 

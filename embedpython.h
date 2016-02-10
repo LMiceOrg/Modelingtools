@@ -17,6 +17,7 @@ public:
     void reload();
 
     int callModel(const char *method, const char *format = NULL, ...);
+    int reloadModel(const char* model);
     const char* returnType() const;
     PyObject* returnObject() const;
     QString errorMessage() const;

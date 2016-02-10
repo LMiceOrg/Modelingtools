@@ -32,6 +32,7 @@ private slots:
 
     void on_actionNameSpace_triggered();
 
+
     void on_listWidget_doubleClicked(const QModelIndex &index);
 
     void on_pushButton_3_clicked();
@@ -41,10 +42,17 @@ private slots:
     void editModelDataStruct(const QString& name);
     void editModelCodeFile(const QString& name);
 
+    /// 生成动态菜单项
+    void menuInit();
+    /// 触发菜单
+    void fileEdit(QAction*act);
+    void recursiveAddMenu(QMenu*, QActionGroup*, const QString& path, const QString& folder);
+
     void on_actionReloadmodel_triggered();
 
     //Timer Interval to check output message
     void onCheckOutputMessage(const QString& emsg);
+    void onInformationMessage(const QString& emsg);
     void on_pushButton_4_clicked();
 
     void on_actionQuit_Modeltools_triggered();
@@ -68,6 +76,18 @@ private slots:
 
     void on_actionClearProject_triggered();
 
+    void on_modelParam_Buttopn_clicked();
+
+    void on_pushButton_7_clicked();
+
+    void on_actionSelectModel_triggered();
+
+    void on_actionCreateCode_triggered();
+
+    void on_actionModelParam_triggered();
+
+    void ReadExcelList(const QString& folder);
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);
@@ -76,6 +96,7 @@ signals:
     void modelDataStructListChanged(const QStringList&);
     void modelModelDescListChanged(const QStringList&);
     void outputMessage(const QStringList&);
+    void outputInformation(const QString&);
     void modelCodeFileListChanged(const QStringList&);
 private:
     Ui::MainWindow *ui;

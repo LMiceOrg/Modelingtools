@@ -32,6 +32,10 @@ class ExcelSheetParser:
         if self.dt_mapping.has_key(name):
             ns = self.dt_mapping[name][1]
             name = self.dt_mapping[name][0]
+            #目前将定长字符串 映射为 Wstring255
+            if name in ('String32', 'String64', 'String128', 'String256'):
+                name = 'Wstring255'
+                ns = 'AppSim'
         elif ns == '' or ns == None:
             ns = self.default_ns
         return ns,name

@@ -22,7 +22,8 @@ cname={md_cname}
 count={md_count}
 """
 key_template=u"""
-[perf{it_id}]
+#Order:{it_id}
+[perf]
 """
 param_template=u"""
 #name:{it_ns} {it_cname}
@@ -53,28 +54,34 @@ class IniModelPerfBuilder(basebuilder.BaseBuilder):
         md_name, md_ns, md_cname, md_desc, md_items = item.item_val[:5]
         #print item.source.encode('utf-8')
         md_count = len(md_items)
-        ctx=md_template.format(md_name=md_name, md_ns=md_ns, md_cname=md_cname, tm_now = time.ctime(), md_count=md_count)
-
+        #ctx=md_template.format(md_name=md_name, md_ns=md_ns, md_cname=md_cname, tm_now = time.ctime(), md_count=md_count)
+        if md_name[0]=='S':
+            return
         for i in range(len(md_items)):
             #generate key
+            ctx=md_template.format(md_name=md_name, md_ns=md_ns, md_cname=md_cname, tm_now = time.ctime(), md_count=md_count)
             ctx += key_template.format(it_id=i)
+            name = md_items[i][1]
+            if name == "":
+                name = "%s-%d" % (md_cname, i+1)
             #print len(md_items), len(md_items[i]), len(md_desc)
             for j in range(len(md_items[i])):
-                #print len(md_desc[j]), str(md_desc[j])
-                it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = md_desc[j][:10]
+                try:
+                    #print len(md_desc[j]), str(md_desc[j])
+                    it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc = md_desc[j][:10]
+                except:
+                    #print item.source.encode('gbk'),  len(md_items), len(md_items[i]), j
+                    raise
                 #generate item
                 ctx += param_template.format(it_name=it_name, it_ns=it_ns, it_cname=it_cname, it_type=it_type, it_grain=it_grain, it_unit=it_unit, it_default=it_default, it_min=it_min, it_max=it_max, it_desc=it_desc, it_val=md_items[i][j] )
+            self.WriteToFile(md_name, name, ctx)
 
+    def WriteToFile(self, md_name, name, ctx):
         #write to file
-        #!Sxxx without Sx_ header in M3
-        if md_name[0]=='S':
-            pos = md_name.find('_')
-            md_name = md_name[pos+1:]
-            #print md_name.encode('utf-8')
-        folder = os.path.join(self.folder, "code", md_name)
+        folder = os.path.join(self.folder, md_name, "extend")
         if not os.path.exists(folder):
             os.makedirs(folder)
-        name = os.path.join(folder, "%s.ini" %  md_name)
+        name = os.path.join(folder, "%s.ini" %  name)
         #print name.encode('utf-8')
         f=open(name, "w")
         f.write( ctx.encode('utf-8') )

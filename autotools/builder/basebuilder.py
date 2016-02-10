@@ -6,8 +6,8 @@
 """
 
 import xml.etree.cElementTree as xmllib
-from autotools.__init__ import *
-
+#from autotools.__init__ import *
+import autotools
 import os
 import hashlib as md5
 
@@ -16,8 +16,15 @@ class BaseBuilder(object):
         self.dt = dt #DataModel
         self.name = ""
         self.types = {} #namespace ->{ name --> {key --> value} }
-        if os.path.isfile(simapp_dtfile):
-            self.ImportXMLType(simapp_dtfile)
+        if os.path.isfile(autotools.simapp_dtfile):
+            self.ImportXMLType(autotools.simapp_dtfile)
+
+    def RefineContext(self, x):
+        """ 根据配置的命名空间映射关系，调整输出的内容 """
+        refines=autotools.namespace_refine_mapping
+        for ns in refines.keys():
+            x = x.replace(ns, refines[ns])
+        return x
 
     def PrettifyName(self, name):
         """ Convert name to string type and strip <return> in content """
@@ -38,15 +45,15 @@ class BaseBuilder(object):
             #raise ValueError("name is empty")
             name = 'long'
         if ns == '':
-            ns = g_ns_name #Global namespace name
-        if dt_mapping.has_key(name):
-            ns = dt_mapping[name][1]
-            name = dt_mapping[name][0]
-        if ns == g_ns_name:#Global namespace name
+            ns = autotools.g_ns_name #Global namespace name
+        if autotools.dt_mapping.has_key(name):
+            ns = autotools.dt_mapping[name][1]
+            name = autotools.dt_mapping[name][0]
+        if ns == autotools.g_ns_name:#Global namespace name
             if self.types.has_key(ns) and self.types[ns].has_key(name):
                 pass
             else:
-                ns = default_ns_name
+                ns = autotools.default_ns_name
         return name,ns
 
     def GetTypeUuid(self, name, ns=''):
@@ -55,10 +62,10 @@ class BaseBuilder(object):
             #raise ValueError("name is empty")
             name = 'long'
         if ns == '':
-            ns = g_ns_name #Global namespace name
-        if dt_mapping.has_key(name):
-            ns = dt_mapping[name][1]
-            name = dt_mapping[name][0]
+            ns = autotools.g_ns_name #Global namespace name
+        if autotools.dt_mapping.has_key(name):
+            ns = autotools.dt_mapping[name][1]
+            name = autotools.dt_mapping[name][0]
         try:
             if self.types.has_key(ns) and self.types[ns].has_key(name):
                 return self.types[ns][name]['Uuid']
@@ -80,7 +87,7 @@ class BaseBuilder(object):
             #add namespace
             ns = inode.attrib['Name']
             if ns == 'AppSim':
-                ns = g_ns_name
+                ns = autotools.g_ns_name
             if not self.types.has_key( ns ):
                 self.types[ns] = {}
             for tnode in inode.findall("./Type"):

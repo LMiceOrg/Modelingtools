@@ -56,7 +56,7 @@ class BaseContext(dict):
         if self.has_key(lkey):
             return self[lkey]
         else:
-            print "Missing key[%s]." % key
+            #print "Missing key[%s]." % key
             return ""
 
 class DSCFileGenerator:
@@ -488,7 +488,7 @@ def GenerateDataStruct(args):
                 #Loop each sheet by sheet index
                 for isheet in ctx:
                     sheet_name, sheet_ctx = ctx[isheet]
-                    print "Call GenerateEnumType"
+                    #print "Call GenerateEnumType"
                     generator.GeneratePublicEnumDataType(sheet_name, sheet_ctx)
                     #GenerateEnumType(sheet_name.encode('utf-8'), sheet_ctx)
             elif xlfile.find('CompDataType') >= 0:
@@ -497,7 +497,7 @@ def GenerateDataStruct(args):
                 #Loop each sheet by sheet index
                 for isheet in ctx:
                     sheet_name, sheet_ctx = ctx[isheet]
-                    print "Call GenerateCompDataType"
+                    #print "Call GenerateCompDataType"
                     generator.GeneratePublicCompDataType(sheet_name, sheet_ctx)
                     #GenerateCompDataType(sheet_name.encode('utf-8'), sheet_ctx)
             elif xlfile.find('ArrayDataType') >= 0:

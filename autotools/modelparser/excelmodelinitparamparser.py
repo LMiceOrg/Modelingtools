@@ -30,6 +30,7 @@ class ExcelModelInitParamParser(excelsheetparser.ExcelSheetParser):
             if last_mp_name == "":
                 last_mp_name = mp_name
                 last_mp_cname = mp_cname
+            it_ns, it_type= self.VerifyNsName(it_ns, it_type)
             mp_items.append([it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc])
         model.AppendItem(xl_name, sh_idx, sh_name, self.ns, "ModelInitParam", (last_mp_name, last_mp_cname, mp_items))
     

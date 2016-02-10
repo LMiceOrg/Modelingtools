@@ -25,7 +25,8 @@ HEADERS  += mainwindow.h \
     dialognamespace.h \
     stdafx.h \
     outputwindow.h \
-    embedpython.h
+    embedpython.h \
+    autotools/builder/cd_funcs_tmpl.h
 
 FORMS    += mainwindow.ui \
     dialognamespace.ui \
@@ -46,9 +47,32 @@ message($$pysrc.path)
 }
 
 win32-g++ {
-INCLUDEPATH += $$[QT_INSTALL_HEADERS]"/python2.7"
-LIBS += -lpython2.7.dll
+message("mkspecs=win32-g++")
+pysrc.path=$$OUT_PWD/release/Lib/site-packages/autotools
 
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]"/python2.7"
+
+INCLUDEPATH += C:/Python27/include
+LIBS += -LC:/Python27/libs
+LIBS += -lpython27
+
+trans.path = $$OUT_PWD/release
+trans.files = *.qm
+INSTALLS += trans
+message("translation files:" $$OUT_PWD/release)
+QMAKE_CXXFLAGS += -std=c++03
+QMAKE_CXXFLAGS += -march=native  -Wall -Wextra -Wpedantic
+
+trunk.path = $$PWD/../../tool/$$TARGET
+trunk.files = *.qm
+trunk.files += $$OUT_PWD/release/*.exe
+INSTALLS += trunk
+
+trunk2.path =  $$PWD/../../tool/$$TARGET/Lib/site-packages/autotools
+trunk2.files = autotools/*
+INSTALLS += trunk2
+
+message($$trunk2.path)
 }
 macx-clang {
 
@@ -88,15 +112,13 @@ OTHER_FILES += autotools/*.py \
 autotools/modelparser/*.py \
 autotools/datamodel/*.py \
 autotools/builder/*.py \
-css/*.css \
-    autotools/builder/msvc2008builder.py \
-    autotools/builder/msvc2008solutionbuilder.py \
-    autotools/builder/msvc2008projectbuilder.py \
-    autotools/builder/qt5builder.py \
-    autotools/modelparser/excelmodeldeclarationparser.py \
-    autotools/modelparser/excelmodelperfparser.py \
-    autotools/builder/inimodelperfbuilder.py \
-    autotools/builder/baseitem.py
+css/*.css   \
+*.ts
+
+win32 {
+RC_FILE += modelingtools.rc
+#RC_ICONS = css/vcsolution.ico
+}
 
 PRECOMPILED_HEADER += stdafx.h
 

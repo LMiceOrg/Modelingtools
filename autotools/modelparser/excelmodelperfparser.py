@@ -30,12 +30,16 @@ class ExcelModelPerfParser(excelsheetparser.ExcelSheetParser):
         if len(sh_ctx[2]) <13:
             return
         cols = len(sh_ctx[2]) - 12
-        md_items=[[]]*cols
+        md_items = []
+        for i in range(cols):
+            md_items.append([])
         md_desc = []
+
 
         for row in range(2, len(sh_ctx)):
             it_val =''
             md_name, md_cname, it_name, it_ns, it_cname, it_type, it_grain, it_unit, it_default, it_min, it_max, it_desc=sh_ctx[row][:12]
+            it_ns, it_type= self.VerifyNsName(it_ns, it_type)
             #print cols, len(sh_ctx[row])
             for col in range(cols):
                 #print col
@@ -48,4 +52,5 @@ class ExcelModelPerfParser(excelsheetparser.ExcelSheetParser):
 
         #store
         model.AppendItem(xl_name, sh_idx, sh_name, self.ns, "ModelPerformance", (last_md_name, self.ns, last_md_cname, md_desc, md_items))
-
+        #if xl_name.find('F2') >= 0:
+        #    print len(sh_ctx), len(md_desc), str(md_items)

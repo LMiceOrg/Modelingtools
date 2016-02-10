@@ -22,7 +22,7 @@ class BaseContext(dict):
         if self.has_key(lkey):
             return self[lkey]
         else:
-            print "Missing key[%s]." % key
+            #print "Missing key[%s]." % key
             return ""
 
 class DataType(BaseContext):

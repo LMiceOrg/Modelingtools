@@ -22,10 +22,13 @@ class ExcelModelEventParser(excelsheetparser.ExcelSheetParser):
         last_cp_io=""
         last_cp_var=""
         last_cp = []
-        
+        #if xl_name.find("B9") >= 0:
+        #    print "B9", sh_name.encode('gbk')
+
         for i in range(2, len(sh_ctx)):
             if len(sh_ctx[i]) == 15:
-                raise TypeError("ExcelFile(%s) Sheet[%s] is old style(15 cols)!" %(xl_name, sh_name.encode('utf-8')))
+                #print type(xl_name), type(sh_name)
+                raise TypeError("ExcelFile(%s) Sheet[%s] is old style(15 cols)!" %(xl_name.encode('utf-8'), sh_name.encode('utf-8')) )
             if len(sh_ctx[i]) <17:
                 continue
             #cp_io :输入输出类型  cp_var:是否可变长
@@ -41,6 +44,8 @@ class ExcelModelEventParser(excelsheetparser.ExcelSheetParser):
             cp_ns, cp_name = self.VerifyNsName(cp_ns, cp_name)
             #print "Original:", it_ns, it_type
             it_ns, it_type= self.VerifyNsName(it_ns, it_type)
+            #if xl_name.find("B9") >= 0:
+            #    print cp_name
             # if got new compdata name
             if cp_name != "":
                 # if has already got compdata ctx

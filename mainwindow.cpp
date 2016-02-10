@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    menuInit();
+
     xmlparser = new QsciLexerXML(this);
     cppparser = new QsciLexerCPP(this);
 
@@ -57,13 +59,31 @@ MainWindow::MainWindow(QWidget *parent) :
 #if __APPLE__
     //Debug purpose
     ui->lineEdit->setText("/Users/hehao/work/doc/modelingtools/res20160109/model");
+#elif _WIN32
+    //ui->lineEdit->setText("i:/dist3/20151229/model");
+    ui->lineEdit->setText("E:/model");
 #endif
 
     ep = new EmbedPython(this);
+    //修改默认路径
+    {
+        ep->callModel("GetModelFolder");
+        //qDebug()<<"call";
+        PyObject* o = ep->returnObject();
+        //qDebug()<<"call0";
+        if( o && PyString_Check(o)) {
+            //qDebug()<<"call1";
+            QString s = QString( PyString_AsString(o) );
+            ui->lineEdit->setText(s);
+        }
+        //qDebug()<<"call2";
+    }
     onCheckOutputMessage(ep->errorMessage());
 
     connect(ep, SIGNAL(errorTrigger(QString)), this, SLOT(onCheckOutputMessage(QString)) );
 
+    connect(this, SIGNAL(outputInformation(QString)),
+            this, SLOT(onInformationMessage(QString)));
 
     ui->tabWidget->setTabText(0, tr("Output Window"));
 
@@ -74,8 +94,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->actionDumpProject->setIcon(QIcon(px.copy(   3*px_width,0*px_height,     px_width,px_height)));
     ui->actionRestoreProject->setIcon(QIcon(px.copy(3*px_width,4*px_height,     px_width,px_height)));
     ui->actionClearProject->setIcon(QIcon(px.copy(  1*px_width,1*px_height,     px_width,px_height)));
+    ui->actionSelectModel->setIcon(QIcon(px.copy(   0*px_width,4*px_height,     px_width,px_height)));
+    ui->actionCreateCode->setIcon(QIcon(px.copy(    2*px_width,4*px_height,     px_width,px_height)));
+    ui->actionModelParam->setIcon(QIcon(px.copy(    2*px_width,5*px_height,     px_width,px_height)));
     ui->mainToolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     ui->mainToolBar->setIconSize(QSize(16,16));
+
+    //隐藏按钮
+    ui->pushButton_7->setVisible(false);
+    ui->modelParam_Buttopn->setVisible(false);
+
 
 
     showMaximized();
@@ -104,6 +132,10 @@ void MainWindow::on_pushButton_clicked()
     }
 
     ui->lineEdit->setText(folder);
+    ReadExcelList(folder);
+}
+void MainWindow::ReadExcelList(const QString& folder)
+{
     QDir dir(folder);
     if( !dir.exists() ||
             dir.dirName().compare(tr("model"), Qt::CaseInsensitive) != 0) {
@@ -120,7 +152,7 @@ void MainWindow::on_pushButton_clicked()
     }
     setWindowTitle( tr("%1 - [Opening Model] %2").arg(title).arg(folder) );
     emit modelNameChanged(folder);
-
+    emit outputInformation(tr("Parsing: %1").arg(folder));
     isLoading = true;
 
     ep->callModel("GetFileList", "s", folder.toUtf8().data());
@@ -143,6 +175,7 @@ void MainWindow::on_pushButton_clicked()
     }
 
     isLoading = false;
+    emit outputInformation(tr("Parse... Done"));
 
 }
 
@@ -153,6 +186,7 @@ void MainWindow::on_pushButton_2_clicked()
     QStringList xlModels;
     QListWidgetItem * item;
     QFont font;
+    emit outputInformation(tr("Checking Excel"));
     for(int i=0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
 
@@ -220,21 +254,12 @@ void MainWindow::on_pushButton_2_clicked()
     }
 
     emit modelExcelModelChanged(xlModels);
+    emit outputInformation(tr("Check... Done"));
 }
 
 void MainWindow::on_actionNameSpace_triggered()
 {
-//    nslist.push_back(std::pair<std::string, std::string>("Global", "NTSim_Global"));
-#if __APPLE__
-    QDir dir(qApp->applicationDirPath());
-    dir.cdUp();
-    dir.cd("Resources");
-    dir.cd("autotools");
-    QString cfgfile = dir.filePath("__init__.py");
-
-    DialogNamespace dlg(cfgfile);
-    dlg.exec();
-#endif
+    ui->actionNameSpace->menu()->popup(QCursor::pos());
 }
 
 void MainWindow::on_listWidget_itemChanged(QListWidgetItem *item)
@@ -306,7 +331,7 @@ void MainWindow::on_listWidget_doubleClicked(const QModelIndex &index)
 //生成数据定义XML
 void MainWindow::on_pushButton_3_clicked()
 {
-
+    emit outputInformation(tr("Generating datastruct"));
     ep->callModel("SaveDataStruct", NULL);
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
@@ -316,7 +341,7 @@ void MainWindow::on_pushButton_3_clicked()
         }
         emit modelDataStructListChanged(dsfiles);
     }
-
+    emit outputInformation(tr("Generating datastruct... Done"));
 
 }
 
@@ -376,7 +401,107 @@ void MainWindow::editModelCodeFile(const QString &name)
 //    fnt.setPointSize(16);
 //    fnt.setItalic(true);
 //    //ui->textEdit->setFont(fnt);
-//    xml->setFont(fnt, QsciLexerXML::HTMLDoubleQuotedString);
+    //    xml->setFont(fnt, QsciLexerXML::HTMLDoubleQuotedString);
+}
+
+void MainWindow::menuInit()
+{
+    QStringList sl;
+    QStringList filters;
+    filters << "*.cpp" << "*.cxx" << "*.cc"<<"*.hpp"
+            <<"*.h"<<"*.c"
+           <<"*.py"<<"*.xml"
+          <<"*.ini";
+    QActionGroup *grp = new QActionGroup(this);
+    connect(grp, SIGNAL(triggered(QAction*)), this, SLOT(fileEdit(QAction*)));
+    QAction* act = ui->actionNameSpace;
+    QMenu* menu = act->menu();
+    if(!menu) {
+        act->setMenu(new QMenu("Python code"));
+        menu = act->menu();
+    }
+#if _WIN32
+    QDir dir(qApp->applicationDirPath());
+    dir.cd("Lib");
+    dir.cd("site-packages");
+    dir.cd("autotools");
+#endif
+    // folder
+    sl = dir.entryList(QDir::AllDirs|QDir::NoDotAndDotDot);
+    for(int i=0; i< sl.size(); ++i) {
+        QMenu *m = menu->addMenu(sl.at(i));
+        recursiveAddMenu(m, grp, dir.absolutePath(), sl.at(i));
+    }
+    sl = dir.entryList(filters, QDir::Files);
+    for(int i=0; i< sl.size(); ++i) {
+        QString file = dir.absolutePath() + QDir::separator() + sl.at(i);
+        act = new QAction(sl.at(i), grp);
+        act->setData( file );
+        //connect(act, SIGNAL(triggered()), this, SLOT(on_actionNameSpace123_triggered()) );
+
+        menu->addAction(act);
+        //m->setActiveAction(act);
+    }
+}
+
+void MainWindow::fileEdit(QAction * act)
+{
+    QString cfgfile = act->data().toString();
+    if(! cfgfile.isEmpty()) {
+#if __APPLE__
+//    QDir dir(qApp->applicationDirPath());
+//    dir.cdUp();
+//    dir.cd("Resources");
+//    dir.cd("autotools");
+//    QString cfgfile = dir.filePath("__init__.py");
+
+    DialogNamespace dlg(cfgfile, ep);
+    dlg.exec();
+#elif _WIN32
+//    QDir dir(qApp->applicationDirPath());
+//    //dir.cdUp();
+//    dir.cd("Lib");
+//    dir.cd("site-packages");
+//    dir.cd("autotools");
+//    QString cfgfile = dir.filePath("__init__.py");
+
+    DialogNamespace dlg(cfgfile, ep);
+    dlg.exec();
+
+#endif
+    }
+}
+
+void MainWindow::recursiveAddMenu(QMenu * menu, QActionGroup * grp, const QString &path, const QString &folder)
+{
+    QAction* act;
+    QStringList sl;
+    QStringList filters;
+    filters << "*.cpp" << "*.cxx" << "*.cc"<<"*.hpp"
+            <<"*.h"<<"*.c"
+           <<"*.py"<<"*.xml"
+          <<"*.ini";
+
+    QDir dir(path);
+    dir.cd(folder);
+
+    // folder
+    sl = dir.entryList(QDir::AllDirs|QDir::NoDotAndDotDot);
+    for(int i=0; i< sl.size(); ++i) {
+        QMenu *m = menu->addMenu(sl.at(i));
+        recursiveAddMenu(m, grp, dir.absolutePath(), sl.at(i));
+    }
+    sl = dir.entryList(filters, QDir::Files);
+    for(int i=0; i< sl.size(); ++i) {
+        QString file = dir.absolutePath() + QDir::separator() + sl.at(i);
+        act = new QAction(sl.at(i), grp);
+        act->setData( file );
+        //connect(act, SIGNAL(triggered()), this, SLOT(on_actionNameSpace123_triggered()) );
+
+        menu->addAction(act);
+        //m->setActiveAction(act);
+    }
+
 }
 
 void MainWindow::on_actionReloadmodel_triggered()
@@ -402,9 +527,28 @@ void MainWindow::onCheckOutputMessage(const QString &emsg)
 
 }
 
+void MainWindow::onInformationMessage(const QString &emsg)
+{
+    if (!emsg.isEmpty()) {
+        QStringList sl = emsg.split("\n");
+        if (sl.size() > 0) {
+            emit outputMessage(sl);
+            ui->errListWidget->addItem(
+                        new QListWidgetItem(style()->standardIcon(QStyle::SP_MessageBoxInformation),
+                                            sl.at(0),
+                                            ui->errListWidget));
+            sl.pop_front();
+            if (sl.size() > 0) {
+                ui->errListWidget->addItems(sl);
+            }
+        }
+    }
+}
+
 // Generate Dsc File
 void MainWindow::on_pushButton_4_clicked()
 {
+    emit outputInformation(tr("Generating model desc..."));
     ep->callModel("SaveModelDesc");
     QStringList dsfiles;
     PyObject* ret = ep->returnObject();
@@ -414,6 +558,7 @@ void MainWindow::on_pushButton_4_clicked()
         }
         emit modelModelDescListChanged(dsfiles);
     }
+    emit outputInformation(tr("Generating model desc... Done"));
 }
 
 void MainWindow::on_actionQuit_Modeltools_triggered()
@@ -425,6 +570,7 @@ void MainWindow::on_actionQuit_Modeltools_triggered()
 void MainWindow::on_pushButton_5_clicked()
 {
     QStringList dsfiles;
+    emit outputInformation(tr("Generating model code..."));
     ep->callModel("SaveCppProject", NULL);
     PyObject* ret = ep->returnObject();
     if(ret && PyList_Check(ret)) {
@@ -438,6 +584,7 @@ void MainWindow::on_pushButton_5_clicked()
         //qDebug()<<files;
         emit modelCodeFileListChanged(dsfiles);
     }
+    emit outputInformation(tr("Generating model code... Done"));
 }
 
 void MainWindow::on_actionDumpProject_triggered()
@@ -500,6 +647,8 @@ void MainWindow::on_pushButton_6_clicked()
 //    QMultiMap<QString, QStringList> mp;
     QListWidgetItem * item;
     QString param2;
+
+    emit outputInformation(tr("Parsing Excel files..."));
     for(int i=0; i < ui->listWidget->count(); ++i) {
         item = ui->listWidget->item(i);
         if(item->checkState() == Qt::Checked) {
@@ -513,6 +662,7 @@ void MainWindow::on_pushButton_6_clicked()
     }
     ep->callModel("ParseSources", "s", param2.toUtf8().data());
 
+    emit outputInformation(tr("Parsing Excel files... Done"));
 
 //    QList<QString> keys = mp.uniqueKeys();
 //    for(int k=0; k< keys.size(); ++k) {
@@ -548,4 +698,38 @@ void MainWindow::on_actionBesmall_triggered()
 void MainWindow::on_actionClearProject_triggered()
 {
     ep->callModel("ClearProject");
+    ui->errListWidget->clear();
+}
+
+void MainWindow::on_modelParam_Buttopn_clicked()
+{
+    emit outputInformation(tr("Creating model params..."));
+    ep->callModel("SaveModelParam");
+    emit outputInformation(tr("Creating model params... Done"));
+}
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    on_actionClearProject_triggered();
+    on_pushButton_6_clicked();
+    on_pushButton_3_clicked();
+    on_pushButton_4_clicked();
+    on_pushButton_5_clicked();
+
+}
+
+void MainWindow::on_actionSelectModel_triggered()
+{
+    ReadExcelList(ui->lineEdit->text());
+    on_pushButton_2_clicked();
+}
+
+void MainWindow::on_actionCreateCode_triggered()
+{
+    on_pushButton_7_clicked();
+}
+
+void MainWindow::on_actionModelParam_triggered()
+{
+    on_modelParam_Buttopn_clicked();
 }

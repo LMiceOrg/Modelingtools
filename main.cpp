@@ -2,26 +2,37 @@
 #include "mainwindow.h"
 
 #include <QTranslator>
+#include <stdint.h>
 
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
-#elif WIN32
-
-#endif
 
 #include "../build-qautotools-Desktop_Qt_5_3_clang_64bit-Release/modelingtools.app/Contents/MacOS/common/include/NTSim.h"
 NTSim_Jam::JamBeamPara_T o;
 NTSim_Global::PlatDAdjConPara_T o2;
 
+
+#elif defined(WIN32)
+//#include "../build-qautotools-Desktop_Qt_5_3_MinGW_w64_32bit_MSYS2-Release/common/include/NTSim.h"
+#endif
+
+
 int main(int argc, char *argv[])
 {
+    //IEEE754
+    double dbl = 1;
+    if(isnan(dbl)) {
+        qDebug()<<"wu xiao";
+    }
+    dbl += 1000;
+    qDebug()<<dbl;
 
-    //qDebug()<<o.size();
-    printf("size %d\n", o.size());
-    o.clear();
-    o.data();
-    //qDebug()<<o2.size();
-    printf("size %d\n", o2.size());
+//    //qDebug()<<o.size();
+//    printf("size %d\n", o.size());
+//    o.clear();
+//    o.data();
+//    //qDebug()<<o2.size();
+//    printf("size %d\n", o2.size());
 //    o2.clear();
     //qDebug()<<o2.size();
 

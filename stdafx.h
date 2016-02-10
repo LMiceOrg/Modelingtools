@@ -16,7 +16,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QByteArray>
-
+#include <QActionGroup>
 #include <QFileIconProvider>
 
 #include <QMutexLocker>
@@ -27,7 +27,9 @@
 #include <string>
 
 //Platform specs
-#ifdef __WIN32
+#ifdef _WIN32
+#define WIN32_MEAN_AND_LEAN
+#include <windows.h>
 #include <Shellapi.h>
 #pragma comment(lib, "Shell32.lib")
 #endif

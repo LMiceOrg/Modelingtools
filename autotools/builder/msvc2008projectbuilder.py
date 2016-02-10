@@ -17,9 +17,19 @@ h_userdata_template = u"""#ifndef {PJ_NAME}_USERDATATYPE_H_
 using namespace AppSim;
 
 // NTSim global type definition
-#include "../../common/NTSim.h"
+#include "../../../common/include/NTSim.h"
 
 // {pj_name} private type definition
+
+using namespace NTSim;
+
+#include <map>
+#include <string>
+#include <vector>
+using std::string;
+using std::vector;
+using std::map;
+
 
 #endif /** {PJ_NAME}_USERDATATYPE_H_ */
 
@@ -57,7 +67,7 @@ h_template=u"""
 #include <ModelComponent.h>
 #include "{PJ_NAME}Export.h"
 #include "{PJ_NAME}UserDataType.h"
-#include "/Users/hehao/work/modelingtools/modelinitparser.h"
+//#include "/Users/hehao/work/modelingtools/modelinitparser.h"
 
 using namespace AppSimCEE;
 using namespace AppSimCEE::Model;
@@ -67,7 +77,7 @@ using namespace AppSimCEE::Model;
 * 模型构建自 {src_path}
 *
 */
-class {PJ_NAME}_API {pj_name} : public IModelComponent, public ModelInitParserT<{pj_name}>
+class {PJ_NAME}_API {pj_name} : public IModelComponent
 {{
         AppSimCEE::Logger m_Logger;
 public:
@@ -571,6 +581,17 @@ void {pj_name}::exitSimulation()
 """
 
 class Msvc2008ProjectBuilder(object):
+    def __init__(self):
+        self.outfiles = []
+    def BuildUserDataHeaderFile(self, props = None):
+        if props == None:
+            props = self.props
+        ctx = h_userdata_template.format(** props)
+        name = os.path.join(props["pj_path"], "%suserdatatype.h" % props["so_folder"])
+        f=open(name, "w")
+        f.write( ctx.encode('utf-8') )
+        f.close()
+        self.outfiles.append(name)
 
     def BuildHeaderFile(self):
         self.props["pj_initparam"]=""
@@ -581,12 +602,7 @@ class Msvc2008ProjectBuilder(object):
         f.close()
         self.outfiles.append(name)
 
-        ctx = h_userdata_template.format(** self.props)
-        name = os.path.join(self.props["pj_path"], "%suserdatatype.h" % self.props["pj_name"])
-        f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
-        f.close()
-        self.outfiles.append(name)
+        self.BuildUserDataHeaderFile()
 
         ctx = h_export_template.format(** self.props)
         name = os.path.join(self.props["pj_path"], "%sexport.h" % self.props["pj_name"])

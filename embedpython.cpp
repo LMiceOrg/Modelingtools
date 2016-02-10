@@ -174,6 +174,24 @@ int EmbedPython::callModel(const char *method, const char *format, ...)
     return 0;
 }
 
+int EmbedPython::reloadModel(const char *model)
+{
+    if(initialized) {
+        PyObject* newmodel = NULL;
+        newmodel = PyImport_ImportModule(model);
+        checkError();
+        if(newmodel) {
+            PyObject* model3 = PyImport_ReloadModule(newmodel);
+            checkError();
+            Py_XDECREF(model3);
+        }
+        Py_XDECREF(newmodel);
+
+    }
+    reload();
+    return 0;
+}
+
 const char *EmbedPython::returnType() const
 {
     if(!retobj)
@@ -275,8 +293,11 @@ void EmbedPython::checkError()
 
             //qDebug()<<"Error Value: emsg.c_str():"<<pv->ob_type->tp_name;
         } else if(pv && PyUnicode_Check(pv)) {
-            emsg += tr("  Error Value:%1\n")
-                    .arg( tr("Unicode error") );
+            PyObject* spv = PyUnicode_AsUTF8String(pv);
+
+            emsg += tr("  Error Unicode Value:%1\n")
+                    .arg( tr( PyString_AsString(spv) ) );
+            Py_XDECREF(spv);
 
         }else if(pv && PyTuple_Check(pv)) {
 //            qDebug()<<"2.3"<<pv->ob_type->tp_name;

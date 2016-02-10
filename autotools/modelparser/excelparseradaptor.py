@@ -33,7 +33,11 @@ class ExcelParserAdaptor(object):
         ctx = {}
         #if type(name) != unicode:
         #raise TypeError("name must be unicode")
-        book = xlrd.open_workbook(name)
+        try:
+            book = xlrd.open_workbook(name)
+            #print "open excel, ", name.encode('gbk')
+        except:
+            raise ValueError("Open name[%s] failed." % name.encode('utf-8') )
         if book == None:
             raise "Open Excel(%s) failed!" % name.encode('utf-8')
         for i in range(book.nsheets):
@@ -117,7 +121,7 @@ class ExcelParserAdaptor(object):
             else: #模型的数据结构定义文件 (初始化参数，输入输出消息，发送接收事件，性能属性)
                 #for i in range(len(ctx)):
                 #    print i, ctx[i][0].encode('utf-8')
-                if len(ctx) >= 5:
+                if len(ctx) >= 4:
                     #model init param
                     sh_idx = 0
                     sh_name, sh_ctx = ctx[sh_idx]
@@ -127,11 +131,11 @@ class ExcelParserAdaptor(object):
                     sh_name, sh_ctx = ctx[sh_idx]
                     self.mmparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
                     #model event
-                    sh_idx = 3
+                    sh_idx = 2
                     sh_name, sh_ctx = ctx[sh_idx]
                     self.meparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)
                     #model performance property
-                    sh_idx = 4
+                    sh_idx = 3
                     sh_name, sh_ctx = ctx[sh_idx]
 
                     self.mperfparser.ParseExcelSheet(dt, xl_name, sh_ctx, sh_idx, sh_name)

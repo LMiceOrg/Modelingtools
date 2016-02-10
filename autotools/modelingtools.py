@@ -11,6 +11,10 @@ gen = datamodelgenerator.XLDataModelGenerator()
 def Init():
     gen = datamodelgenerator.XLDataModelGenerator()
 
+# 偏好设置  增加默认model路径
+def GetModelFolder(*args, **kw):
+    return gen.GetModelFolder(*args, **kw)
+
 def GetFileList(*args, **kw):
     return gen.GetFileList(*args, **kw)
 
@@ -22,13 +26,16 @@ def ParseSources(*args, **kw):
     return gen.Parse(*args, **kw)
 
 def SaveDataStruct(*args, **kw):
-    return gen.BuildDataStruct(".")
+    return gen.BuildDataStruct("code/common/datatype")
 
 def SaveModelDesc(*args, **kw):
-    return gen.BuildModelDesc('.')
+    return gen.BuildModelDesc('code/common/modeldesc')
 
 def SaveCppProject(*args, **kw):
-    return gen.BuildMsvc2008Solution('.')
+    return gen.BuildMsvc2008Solution('code/common/include', 'code/model_update')
+
+def SaveModelParam(*argc, **kw):
+    return gen.BuildModelParam('code/model_update')
 
 def CheckFistParamAsFile(fn,*args, **kw):
     def wrapped(*args, **kw):

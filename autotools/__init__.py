@@ -6,6 +6,9 @@
 """
 import os
 
+#默认工程路径
+default_model_folder = 'e:/model'
+
 #本地模型命名空间
 l_ns_name = 'NTSim'
 default_ns_key = '0_'
@@ -24,25 +27,44 @@ nslist ={
 'D_':["指挥控制与数据处理设备类","NTSim_CCDP", None]
 }
 
+
+
+#外部代码生成工具
+external_model_code_tools = '"C:/Program Files (x86)/appsoft/DWK/V32/SimDevStudio/ComponentDev/AppSimFom.exe" {model_folder} {model_folder}/../common/modeldesc/{so_folder}.xml 0 DWK false'
+
+#命名空间映射关系
+#在正式输出前根据映射关系进行替换
+#将key命名空间替换为value命名空间
+#此表为空则表示不作替换
+namespace_refine_mapping ={"NTSim_Global":l_ns_name,
+"NTSim_Platform":l_ns_name,
+"NTSim_Sensor":l_ns_name,
+"NTSim_Comm":l_ns_name,
+"NTSim_Jam":l_ns_name,
+"NTSim_Weapon":l_ns_name,
+"NTSim_CCDP":l_ns_name
+
+}
+
 #生成的数据描述XML命名空间
 l_xmlns_datastructs={
-'xmlns:Types':"http://rtl.tsinghua.edu.cn/Core/Types",
+'xmlns:Types':"http://www.appsoft.com.cn/Core/Types",
 "xmlns:xlink":"http://www.w3.org/1999/xlink",
-"xsi:schemaLocation":"http://rtl.tsinghua.edu.cn/Core/Catalogue Core/Catalogue.xsd",
-"xmlns:Catalogue":"http://rtl.tsinghua.edu.cn/Core/Catalogue",
+"xsi:schemaLocation":"http://www.appsoft.com.cn/Core/Catalogue Core/Catalogue.xsd",
+"xmlns:Catalogue":"http://www.appsoft.com.cn/Core/Catalogue",
 "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance",
 }
 
 l_xmlns_modeldescs={
-"xmlns:Types":"http://rtl.tsinghua.edu.cn/Core/Types",
-"xsi:schemaLocation":"http://rtl.tsinghua.edu.cn/Component ../Component.xsd",
-"xmlns:Component":"http://rtl.tsinghua.edu.cn/Component",
+"xmlns:Types":"http://www.appsoft.com.cn/Core/Types",
+"xsi:schemaLocation":"http://www.appsoft.com.cn/Component ../Component.xsd",
+"xmlns:Component":"http://www.appsoft.com.cn/Component",
 "xmlns:xlink":"http://www.w3.org/1999/xlink",
 "xmlns:xsi":"http://www.w3.org/2001/XMLSchema-instance"
 }
 
 #全局类型命名空间
-g_ns_name = "RealTimeLibrary"
+g_ns_name = "AppSim"
 g_ns_type_mapping = {
 'double':('Float64', g_ns_name),
 'float':('Float32',g_ns_name),
@@ -101,5 +123,17 @@ def gen_g_ns_type():
     return s
 
 
+
 simapp_dtfile = os.path.split(os.path.abspath(__file__))[0]+"/builder/AppSim_Types.xml"
-__all__=['default_ns_key', 'default_ns_name', 'dt_mapping', 'nslist', 'g_ns_name', 'gen_g_ns_type', 'simapp_dtfile', 'l_ns_name', 'model_decl_key', 'l_xmlns_datastructs', 'l_xmlns_modeldescs']
+
+#生成文件的encoding设置
+file_encode_default='utf-8'
+file_encode_mapping_={
+".xml":"utf-8",
+".dsc":"utf-8",
+".h":"gbk",
+".cpp":'gbk',
+'.ini':'utf-8'
+}
+
+__all__=['default_ns_key', 'default_ns_name', 'dt_mapping', 'nslist', 'g_ns_name', 'gen_g_ns_type', 'simapp_dtfile', 'l_ns_name', 'model_decl_key', 'l_xmlns_datastructs', 'l_xmlns_modeldescs', 'external_model_code_tools', 'namespace_refine_mapping', 'default_model_folder']

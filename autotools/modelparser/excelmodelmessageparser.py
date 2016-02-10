@@ -27,8 +27,8 @@ class ExcelModelMessageParser(excelsheetparser.ExcelSheetParser):
         
         for i in range(2, len(sh_ctx)):
             if len(sh_ctx[i]) == 15:
-                print type(sh_name)
-                raise TypeError("ExcelFile(%s) Sheet[%s] is old style(15 cols)!" %(xl_name.decode('gbk'), sh_name))
+                #print len(sh_ctx), len(sh_ctx[i])
+                raise TypeError("ExcelFile(%s) Sheet[%s] is old style(15 cols)!" %(xl_name.encode('utf-8'), sh_name.encode('utf-8')))
             if len(sh_ctx[i]) <17:
                 continue
             #cp_io :输入输出类型  cp_var:是否可变长

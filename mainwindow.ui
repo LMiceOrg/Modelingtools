@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>911</width>
-    <height>569</height>
+    <width>993</width>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,6 +29,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_2">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>23</height>
+         </size>
+        </property>
         <property name="text">
          <string>Valid Excel Files</string>
         </property>
@@ -36,6 +42,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_6">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>23</height>
+         </size>
+        </property>
         <property name="text">
          <string>Parse Excel Files</string>
         </property>
@@ -43,6 +55,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_3">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>23</height>
+         </size>
+        </property>
         <property name="text">
          <string>Generate Data XML</string>
         </property>
@@ -50,6 +68,12 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_4">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>23</height>
+         </size>
+        </property>
         <property name="text">
          <string>Generate Dsc File</string>
         </property>
@@ -57,8 +81,52 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_5">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>23</height>
+         </size>
+        </property>
         <property name="text">
          <string>Generate Cpp Project</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_7">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Create</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="modelParam_Buttopn">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>150</width>
+          <height>23</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Model Param</string>
         </property>
        </widget>
       </item>
@@ -135,8 +203,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>911</width>
-     <height>22</height>
+     <width>993</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -234,6 +302,10 @@
    <addaction name="separator"/>
    <addaction name="separator"/>
    <addaction name="actionClearProject"/>
+   <addaction name="separator"/>
+   <addaction name="actionSelectModel"/>
+   <addaction name="actionCreateCode"/>
+   <addaction name="actionModelParam"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNameSpace">
@@ -383,6 +455,24 @@
   <action name="actionClearProject">
    <property name="text">
     <string>ClearProject</string>
+   </property>
+  </action>
+  <action name="actionSelectModel">
+   <property name="text">
+    <string>SelectModel</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionCreateCode">
+   <property name="text">
+    <string>CreateCode</string>
+   </property>
+  </action>
+  <action name="actionModelParam">
+   <property name="text">
+    <string>ModelParam</string>
    </property>
   </action>
  </widget>

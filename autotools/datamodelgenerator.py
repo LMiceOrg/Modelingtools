@@ -6,11 +6,13 @@ XLDataModelGenerator
 
 驱动modelparser工作
 """
-from __init__ import *
+#from __init__ import *
+import autotools
+#print __init__.l_ns_name
 import datamodel.exceldatamodel
 import modelparser.excelparseradaptor
-from builder.xmldatastructbuilder import XMLDataStructBuilder
-from builder.xmlmodeldescbuilder import XMLModelDescBuilder
+import builder.xmldatastructbuilder
+import builder.xmlmodeldescbuilder
 
 import builder.msvc2008builder
 import builder.inimodelperfbuilder
@@ -28,12 +30,15 @@ class XLDataModelGenerator(object):
         self.proj_root = ""
         self.datastructs={}
 
+    def GetModelFolder(self):
+        return autotools.default_model_folder.encode('utf-8')
+
     def FindFileBySurfix(self, flist, folder, surfix, pattern):
         files = os.listdir(folder)
         for fi in files:
             #decode filename from gbk to unicode codeset
             if type(fi) == str:
-                fi = fi.decode(dcs)
+                fi = fi.decode('gbk')
             name = folder + os.path.sep + fi
             if os.path.isdir(name):
                 #recursion call
@@ -41,6 +46,12 @@ class XLDataModelGenerator(object):
             elif os.path.isfile(name):
                 #match pattern
                 if len(re.findall(pattern, fi)) == 0:
+                    continue
+                if len(re.findall('[0-9A-Za-z][_]', name)) == 0:
+                    continue
+                if name.find(u'参考') >= 0:
+                    continue
+                if name.find(u'CM') >= 0:
                     continue
                 #match surfix
                 for sfix in surfix:
@@ -76,9 +87,9 @@ class XLDataModelGenerator(object):
         h ,t = os.path.split(folder)
         #Namespace
         ns_key = t[:2]
-        if ns_key == default_ns_key:
+        if ns_key == autotools.default_ns_key:
             #Global namespace
-            ns=nslist[ns_key]
+            ns=autotools.nslist[ns_key]
             ret.append(ns[1])
             #File type
             lv = pglobal.findall(name)
@@ -86,9 +97,9 @@ class XLDataModelGenerator(object):
                 ret.append( lv[0] )
                 ret.append( lv[0] )
                 ret.append( lv[0] )
-        elif nslist.has_key(ns_key):
+        elif autotools.nslist.has_key(ns_key):
             #Other namespace
-            ns=nslist[ns_key]
+            ns=autotools.nslist[ns_key]
             ret.append(ns[1])
             #File type
             lv = pother.findall(name)
@@ -96,17 +107,17 @@ class XLDataModelGenerator(object):
                 ret.append(lv[0][0])
                 ret.append(lv[0][1])
                 ret.append(lv[0][2])
-        elif model_decl_key == name[:len(model_decl_key)]:
+        elif autotools.model_decl_key == name[:len(autotools.model_decl_key)]:
             #模型描述Excel
-            ns = default_ns_name
+            ns = autotools.default_ns_name
             ret.append(ns)
             #File type
-            ret.append(model_decl_key)
+            ret.append(autotools.model_decl_key)
             ret.append("ModelDeclaration")
             ret.append("ModelDeclaration")
         else:
             #default namespace
-            ns = nslist[default_ns_key]
+            ns = autotools.nslist[autotools.default_ns_key]
             ret.append(ns[1])
             #File type
             lv = pother.findall(name)
@@ -119,39 +130,58 @@ class XLDataModelGenerator(object):
             return ret
 
     def Parse(self, files):
-        xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(nslist, dt_mapping, default_ns_name)
+        xlparser = modelparser.excelparseradaptor.ExcelParserAdaptor(autotools.nslist, autotools.dt_mapping, autotools.default_ns_name)
         xlparser.Parse(files, self.dt)
 
     #Build XML-style data struct
     def BuildDataStruct(self, tofolder):
-        builder = XMLDataStructBuilder(self.dt, tofolder)
-        builder.BuildBegin()
-        builder.Build()
-        builder.BuildEnd()
+        p = os.path.join(self.proj_root, tofolder)
+        if not os.path.exists(p):
+            os.makedirs(p)
+        bd = builder.xmldatastructbuilder.XMLDataStructBuilder(self.dt, p)
+        bd.BuildBegin()
+        bd.Build()
+        bd.BuildEnd()
         #cache datastructs
-        self.datastructs = dict( builder.datastructs)
-        return builder.GetFiles()
+        self.datastructs = dict( bd.datastructs)
+        return bd.GetFiles()
 
     #Build XML-style model description
     def BuildModelDesc(self, tofolder):
-        t1 = time.time()
-        builder = XMLModelDescBuilder(self.dt, tofolder)
-        #set datastructs
-        builder.datastructs = self.datastructs
-
-        builder.BuildBegin()
-        t3 = time.time()
-        builder.Build()
-        t4=time.time()
-        builder.BuildEnd()
-        t2 = time.time()
-        print "Build Model Desc", t2-t1,t3-t1, t4-t3, t2-t4
-        return builder.GetFiles()
-
-    #Build MSVC2008 project
-    def BuildMsvc2008Solution(self, tofolder):
         #t1 = time.time()
-        bd = builder.msvc2008builder.Msvc2008Builder(self.dt, tofolder)
+        p = os.path.join(self.proj_root, tofolder)
+        if not os.path.exists(p):
+            os.makedirs(p)
+        bd = builder.xmlmodeldescbuilder.XMLModelDescBuilder(self.dt, p)
+        #set datastructs
+        bd.datastructs = self.datastructs
+
+        bd.BuildBegin()
+        #t3 = time.time()
+        bd.Build()
+        #t4=time.time()
+        bd.BuildEnd()
+        #t2 = time.time()
+        #print "Build Model Desc", t2-t1,t3-t1, t4-t3, t2-t4
+        return bd.GetFiles()
+
+    ##Build MSVC2008 project
+    def BuildMsvc2008Solution(self, hfolder, mfolder):
+
+        ##1.检查路径
+        ph = os.path.join(self.proj_root, hfolder)
+        if not os.path.exists(ph):
+            os.makedirs(ph)
+        pm = os.path.join( self.proj_root, mfolder)
+        if not os.path.exists(pm):
+            os.makedirs( pm )
+        #t1 = time.time()
+
+        ##2.生成C++代码
+        bd = builder.msvc2008builder.Msvc2008Builder(self.dt, ph)
+        bd.model_folder=pm
+        if autotools.external_model_code_tools != "":
+            bd.buildtools=autotools.external_model_code_tools
         #set datastructs
         bd.datastructs = self.datastructs
 
@@ -160,13 +190,28 @@ class XLDataModelGenerator(object):
         bd.BuildEnd()
         #t2 = time.time()
         #print "Build 2008 solution:", t2-t1
-        perfbd = builder.inimodelperfbuilder.IniModelPerfBuilder(self.dt, tofolder)
+
+        ##3.模型参数配置文件
+        f = self.BuildModelParam(mfolder)
+
+        flist = bd.GetFiles()
+        return flist+f
+
+    ## Build all models .ini configuration files
+    def BuildModelParam(self, folder):
+        """ 生成模型性能参数的配置文件 """
+        ##1.检查路径
+        pm = os.path.join( self.proj_root, folder)
+        if not os.path.exists(pm):
+            os.makedirs( pm )
+        ##2.生成配置文件
+        perfbd = builder.inimodelperfbuilder.IniModelPerfBuilder(self.dt, pm)
         perfbd.BuildBegin()
         perfbd.Build()
         perfbd.BuildEnd()
-        f = perfbd.GetFiles()
-        flist = bd.GetFiles()
-        return flist+f
+        ##3.返回配置文件
+        flist = perfbd.GetFiles()
+        return flist
 
     def GetDataModel(self):
         return self.dt
