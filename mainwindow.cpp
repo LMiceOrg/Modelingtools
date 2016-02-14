@@ -56,15 +56,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     title = windowTitle();
 
+    ep = new EmbedPython(this);
+
 #if __APPLE__
     //Debug purpose
     ui->lineEdit->setText("/Users/hehao/work/doc/modelingtools/res20160109/model");
 #elif _WIN32
     //ui->lineEdit->setText("i:/dist3/20151229/model");
     ui->lineEdit->setText("E:/model");
-#endif
 
-    ep = new EmbedPython(this);
+
+
     //修改默认路径
     {
         ep->callModel("GetModelFolder");
@@ -78,6 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
         }
         //qDebug()<<"call2";
     }
+#endif
     onCheckOutputMessage(ep->errorMessage());
 
     connect(ep, SIGNAL(errorTrigger(QString)), this, SLOT(onCheckOutputMessage(QString)) );
@@ -424,6 +427,11 @@ void MainWindow::menuInit()
     QDir dir(qApp->applicationDirPath());
     dir.cd("Lib");
     dir.cd("site-packages");
+    dir.cd("autotools");
+#elif __APPLE__
+    QDir dir(qApp->applicationDirPath());
+    dir.cdUp();
+    dir.cd("Resources");
     dir.cd("autotools");
 #endif
     // folder

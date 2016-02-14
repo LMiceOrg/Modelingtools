@@ -26,7 +26,7 @@ HEADERS  += mainwindow.h \
     stdafx.h \
     outputwindow.h \
     embedpython.h \
-    autotools/builder/cd_funcs_tmpl.h
+    autotools/builder/ep_hpp_tmpl.h
 
 FORMS    += mainwindow.ui \
     dialognamespace.ui \
@@ -112,12 +112,19 @@ OTHER_FILES += autotools/*.py \
 autotools/modelparser/*.py \
 autotools/datamodel/*.py \
 autotools/builder/*.py \
+autotools/builder/*.cpp \
+autotools/builder/*.h \
 css/*.css   \
-*.ts
+*.ts \
+    autotools/builder/template/msvc2008_sln_tmpl.sln
 
 win32 {
 RC_FILE += modelingtools.rc
 #RC_ICONS = css/vcsolution.ico
+
+INCLUDEPATH += "C:/Program Files (x86)/appsoft/DWK/V32/SimCEE/include"
+DEFINES += _APPSIM_ENUM_DEFINED
+DEFINES += __BOOL_DEFINED
 }
 
 PRECOMPILED_HEADER += stdafx.h

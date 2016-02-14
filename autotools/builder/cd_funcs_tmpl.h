@@ -9,7 +9,7 @@ $if not ctx.is_pod :
             int ret = -1;
             int pos = 0;
             if(size() <= buffer_size ) {
-                $ctx.pack;
+    $ctx.pack
                 ret = 0;
             }
             return ret;
@@ -19,7 +19,7 @@ $if not ctx.is_pod :
             int ret = -1;
             int pos = 0;
             if(size() <= buffer_size) {
-                $ctx.unpack;
+    $ctx.unpack
                 ret = 0;
             }
 
@@ -27,7 +27,7 @@ $if not ctx.is_pod :
         }
 
         void OnClear() {
-            $ctx.clear;
+    $ctx.clear
         }
 
 $else:

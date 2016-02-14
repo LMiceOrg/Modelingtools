@@ -9,6 +9,11 @@
 import os
 import xml.etree.cElementTree as xmllib
 import xml.dom.minidom as minidom
+import web.template
+import basebuilder
+
+render = web.template.render(os.path.split(os.path.realpath(__file__))[0],
+globals={'type':type,"hasattr":hasattr})
 
 
 h_userdata_template = u"""#ifndef {PJ_NAME}_USERDATATYPE_H_
@@ -586,10 +591,68 @@ class Msvc2008ProjectBuilder(object):
     def BuildUserDataHeaderFile(self, props = None):
         if props == None:
             props = self.props
-        ctx = h_userdata_template.format(** props)
+        bd = basebuilder.BaseBuilder(None)
+        render._add_global(bd.RefineContext, 'RefineContext')
+        #Update 接口类h
+        name = os.path.join(props["pj_path"], "%s.h" % props["so_folder"])
+        if os.path.isfile(name):
+            f = open(name, 'r')
+            ctx = f.read()
+            f.close()
+            #print ctx.find('private:')
+            new_item = u"""private:
+    //在接口类添加实现类的成员变量
+    friend class C%sImpl;
+    C%sImpl* pmodel;
+                """ % (props['pj_name'], props['pj_name'])
+            ctx = ctx.replace('private:',  new_item.encode('gbk'))
+            f = open(name, 'w')
+            f.write(ctx)
+            f.close()
+
+        #Update 接口类cpp
+        name = os.path.join(props["pj_path"], "%s.cpp" % props["so_folder"])
+        if os.path.isfile(name):
+            f = open(name, 'r')
+            ctx = f.read()
+            f.close()
+
+            #ctx = '#include "%sImpl.h"\n' % props['pj_name'].encode('gbk') + ctx
+            new_item = u"""#include "%sImpl.h"
+%s::%s(void)
+{
+    pmodel = new C%sImpl(this);""" % (props['pj_name'], props["so_folder"], props["so_folder"], props['pj_name'])
+            ctx = ctx.replace('%s::%s(void)\n{' % (props["so_folder"].encode('gbk') , props["so_folder"].encode('gbk')) , new_item.encode('gbk'))
+            f = open(name, 'w')
+            f.write(ctx)
+            f.close()
+
+        #UserDefine hpp
+        ctx = render.ud_hpp_tmpl(props)
+        ctx = str(ctx)
+        #ctx = h_userdata_template.format(** props)
         name = os.path.join(props["pj_path"], "%suserdatatype.h" % props["so_folder"])
         f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
+        #f.write( ctx.encode('utf-8') )
+        f.write(ctx)
+        f.close()
+        self.outfiles.append(name)
+
+        ctx = render.impl_hpp_tmpl(props)
+        ctx = str(ctx)
+        name = os.path.join(props["pj_path"], "%sImpl.h" % props["pj_name"])
+        f=open(name, "w")
+        f.write(ctx)
+        f.close()
+        self.outfiles.append(name)
+
+        ctx = render.impl_cpp_tmpl(props)
+        ctx = str(ctx)
+        name = os.path.join(props["pj_path"], "%sImpl.cpp" % props["pj_name"])
+        f=open(name, "w")
+        #Utf-8 BOM
+        f.write('\xef\xbb\xbf')
+        f.write(ctx)
         f.close()
         self.outfiles.append(name)
 

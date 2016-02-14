@@ -329,15 +329,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
 
     def ParseItemSource(self, item):
         #Get pj_name from xlfile
-        pj_num = ""
-        pj_name = ""
-        pj_cname = ""
-        xlfile = os.path.split(item.source)[1]
-        lv = pother.findall(xlfile)
-        if len(lv) ==1 and len(lv[0]) == 3:
-            pj_num = lv[0][0]
-            pj_name = lv[0][1]
-            pj_cname = lv[0][2]
+        pj_num, pj_name, pj_cname = self.SourceToProject(item)
         #store project properties
         self.projects[pj_name] = [item.source, pj_num, pj_name, pj_cname]
         self.cur_proj=self.projects[pj_name]

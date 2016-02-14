@@ -41,6 +41,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
         cpp_file = self.cppbuilder.GetFiles()
         for f in cpp_file:
             self.outfiles.append(f.encode('utf-8'))
+
         i = 0
         for pj_name in self.elements:
             self.cur_proj = self.projects[pj_name]
@@ -57,7 +58,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             props["root"] = self.folder
             props["model_folder"] = os.path.abspath( self.model_folder)
             props["so_name"] = pj_name + "Solution"
-            props["pj_name"] = pj_name
+            props["pj_name"] = props["so_folder"]
             props["tp_name"] = "Test" + pj_name
             props["PJ_NAME"] = pj_name.upper()
 
@@ -68,8 +69,20 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             props["so_path"] = os.path.join(props["model_folder"], props["so_folder"])
             props["pj_path"]=  os.path.join( props["so_path"], props["pj_folder"])
             props["tp_path"] = os.path.join( props["so_path"], props["tp_folder"])
+            if self.cppbuilder.modelperf.has_key( props["so_folder"] ):
+                props["perf_def"] = self.cppbuilder.modelperf[ props["so_folder"] ]
+            else:
+                props["perf_def"] = []
+            if self.cppbuilder.modelevts.has_key( props["so_folder"] ):
+                props["evts_def"] = self.cppbuilder.modelevts[ props["so_folder"] ]
+            else:
+                props["evts_def"] = []
+            if self.cppbuilder.modelinfo.has_key( props["so_folder"] ):
+                props["info_def"] = self.cppbuilder.modelinfo[ props["so_folder"] ]
+            else:
+                props["info_def"] = []
 
-            if self.buildtools != "":
+            if self.buildtools != "" and os.path.isfile(self.buildtools):
                 #print props["so_folder"]
                 if len( re.findall( "^[A-Z][0-9]+[_](\w+)", props["so_folder"]) ) == 0:
                     continue
@@ -87,6 +100,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
                 #create solution node
                 so_file = self.sobuilder.BuildSolution(props)
                 self.outfiles.append(so_file.encode('utf-8'))
+                #return
                 #if pj_name == 'DirIntConsole':
                 #    print md_item.item_val[6], so_file.encode('utf-8')
 

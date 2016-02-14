@@ -66,33 +66,33 @@ l_xmlns_modeldescs={
 #全局类型命名空间
 g_ns_name = "AppSim"
 g_ns_type_mapping = {
-'double':('Float64', g_ns_name),
-'float':('Float32',g_ns_name),
+'double':('Float64', g_ns_name,'0'),
+'float':('Float32',g_ns_name,'0'),
 
-'wchar_t':('Wchar', g_ns_name),
-'char':('Char', g_ns_name),
-'unsigned char':('UChar', g_ns_name),
+'wchar_t':('Wchar', g_ns_name,"'\\0'"),
+'char':('Char', g_ns_name ,"'\\0'"),
+'unsigned char':('UChar', g_ns_name ,"'\\0'"),
 
-'std::string':('String', g_ns_name),
-'std::wstring':('Wstring', g_ns_name),
+'std::string':('String', g_ns_name ,None),
+'std::wstring':('Wstring', g_ns_name ,None),
 
-'bool':('Bool',g_ns_name),
+'bool':('Bool',g_ns_name, 'false'),
 
-'int8_t':('Int8',g_ns_name),
-'int16_t':('Int16',g_ns_name),
-'int32_t':('Int32',g_ns_name),
-'int64_t':('Int64',g_ns_name),
-'short':('Int16',g_ns_name),
-'int':('Int32',g_ns_name),
+'int8_t':('Int8',g_ns_name, '0'),
+'int16_t':('Int16',g_ns_name, '0'),
+'int32_t':('Int32',g_ns_name, '0'),
+'int64_t':('Int64',g_ns_name, '0'),
+'short':('Int16',g_ns_name, '0'),
+'int':('Int32',g_ns_name, '0'),
 
 
 
-'uint8_t':('UInt8',g_ns_name),
-'uint16_t':('UInt16',g_ns_name),
-'uint32_t':('UInt32',g_ns_name),
-'uint64_t':('UInt64',g_ns_name),
-'unsigned short':('UInt16',g_ns_name),
-'unsigned int':('UInt32',g_ns_name)
+'uint8_t':('UInt8',g_ns_name, '0'),
+'uint16_t':('UInt16',g_ns_name, '0'),
+'uint32_t':('UInt32',g_ns_name, '0'),
+'uint64_t':('UInt64',g_ns_name, '0'),
+'unsigned short':('UInt16',g_ns_name, '0'),
+'unsigned int':('UInt32',g_ns_name, '0')
 
 
 }
@@ -103,16 +103,17 @@ dt_mapping['doubel'] = g_ns_type_mapping['double']
 dt_mapping['string'] = g_ns_type_mapping['std::string']
 dt_mapping['wstring'] = g_ns_type_mapping['std::wstring']
 
-dt_mapping['char[256]'] = ('String256', 'NTSim_Global')
-dt_mapping['char[128]'] = ('String128', 'NTSim_Global')
-dt_mapping['char[32]'] = ('String32', 'NTSim_Global')
-dt_mapping['char[24]'] = ('String24', 'NTSim_Global')
+dt_mapping['char[256]'] = ('String256', 'NTSim_Global', None)
+dt_mapping['char[128]'] = ('String128', 'NTSim_Global', None)
+dt_mapping['char[64]'] = ('String64', 'NTSim_Global', None)
+dt_mapping['char[32]'] = ('String32', 'NTSim_Global', None)
+dt_mapping['char[24]'] = ('String24', 'NTSim_Global', None)
 
-dt_mapping['long long'] = ('Int64',g_ns_name)
-dt_mapping['unsigned long long'] =('UInt64',g_ns_name)
-dt_mapping['signed char'] = ('Char', g_ns_name)
-dt_mapping['unsigned long'] = ('UInt64',g_ns_name)
-dt_mapping['long'] = ('Int64', g_ns_name)
+dt_mapping['long long'] = ('Int64',g_ns_name, '0')
+dt_mapping['unsigned long long'] =('UInt64',g_ns_name, '0')
+dt_mapping['signed char'] = ('Char', g_ns_name, '0')
+dt_mapping['unsigned long'] = ('UInt64',g_ns_name, '0')
+dt_mapping['long'] = ('Int64', g_ns_name, '0')
 
 def gen_g_ns_type():
     s = {}

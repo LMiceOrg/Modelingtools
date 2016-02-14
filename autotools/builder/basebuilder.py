@@ -9,7 +9,10 @@ import xml.etree.cElementTree as xmllib
 #from autotools.__init__ import *
 import autotools
 import os
+import re
 import hashlib as md5
+
+pother = re.compile(r'^([^_]+)[_]([^_]+)[_]([^.]+)[.]xls\w*')
 
 class BaseBuilder(object):
     def __init__(self, dt):
@@ -18,6 +21,19 @@ class BaseBuilder(object):
         self.types = {} #namespace ->{ name --> {key --> value} }
         if os.path.isfile(autotools.simapp_dtfile):
             self.ImportXMLType(autotools.simapp_dtfile)
+
+    def SourceToProject(self, item):
+        #Get pj_name from xlfile
+        pj_num = ""
+        pj_name = ""
+        pj_cname = ""
+        xlfile = os.path.split(item.source)[1]
+        lv = pother.findall(xlfile)
+        if len(lv) ==1 and len(lv[0]) == 3:
+            pj_num = lv[0][0]
+            pj_name = lv[0][1]
+            pj_cname = lv[0][2]
+        return pj_num, pj_name, pj_cname
 
     def RefineContext(self, x):
         """ 根据配置的命名空间映射关系，调整输出的内容 """
@@ -44,6 +60,8 @@ class BaseBuilder(object):
             #debug
             #raise ValueError("name is empty")
             name = 'long'
+        name = name.strip()
+        ns = ns.strip()
         if ns == '':
             ns = autotools.g_ns_name #Global namespace name
         if autotools.dt_mapping.has_key(name):

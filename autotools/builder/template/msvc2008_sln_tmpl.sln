@@ -1,0 +1,30 @@
+$def with(ctx)
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+
+Project("{$ctx['so_uuid']}") = "$ctx['pj_name']", "$ctx['pj_folder']$'\\'$ctx['pj_name']$'.vcproj'", "{$ctx['pj_uuid']}"
+EndProject
+Project("{$ctx['so_uuid']}") = "$ctx['tp_name']", "$ctx['tp_folder']$'\\'$ctx['tp_name']$'.vcproj'", "{$ctx['tp_uuid']}"
+        ProjectSection(ProjectDependencies) = postProject
+                {$ctx['pj_uuid']} = {$ctx['pj_uuid']}
+        EndProjectSection
+EndProject
+Global
+        GlobalSection(SolutionConfigurationPlatforms) = preSolution
+                Debug|Win32 = Debug|Win32
+                Release|Win32 = Release|Win32
+        EndGlobalSection
+        GlobalSection(ProjectConfigurationPlatforms) = postSolution
+                {$ctx['pj_uuid']}$'.'Debug|Win32.ActiveCfg = Debug|Win32
+                {$ctx['pj_uuid']}$'.'Debug|Win32.Build.0 = Debug|Win32
+                {$ctx['pj_uuid']}$'.'Release|Win32.ActiveCfg = Release|Win32
+                {$ctx['pj_uuid']}$'.'Release|Win32.Build.0 = Release|Win32
+                {$ctx['tp_uuid']}$'.'Debug|Win32.ActiveCfg = Debug|Win32
+                {$ctx['tp_uuid']}$'.'Debug|Win32.Build.0 = Debug|Win32
+                {$ctx['tp_uuid']}$'.'Release|Win32.ActiveCfg = Release|Win32
+                {$ctx['tp_uuid']}$'.'Release|Win32.Build.0 = Release|Win32
+        EndGlobalSection
+        GlobalSection(SolutionProperties) = preSolution
+                HideSolutionNode = FALSE
+        EndGlobalSection
+EndGlobal
