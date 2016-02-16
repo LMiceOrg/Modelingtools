@@ -618,10 +618,10 @@ class Msvc2008ProjectBuilder(object):
             f.close()
 
             #ctx = '#include "%sImpl.h"\n' % props['pj_name'].encode('gbk') + ctx
-            new_item = u"""#include "%sImpl.h"
-%s::%s(void)
+            ctx = ctx.replace('#include <Windows.h>\n', '#include <Windows.h>\n\n#include "%sImpl.h"\n\n' % props['pj_name'].encode('gbk') )
+            new_item = u"""%s::%s(void)
 {
-    pmodel = new C%sImpl(this);""" % (props['pj_name'], props["so_folder"], props["so_folder"], props['pj_name'])
+    pmodel = new C%sImpl(this);""" % (props["so_folder"], props["so_folder"], props['pj_name'])
             ctx = ctx.replace('%s::%s(void)\n{' % (props["so_folder"].encode('gbk') , props["so_folder"].encode('gbk')) , new_item.encode('gbk'))
             f = open(name, 'w')
             f.write(ctx)

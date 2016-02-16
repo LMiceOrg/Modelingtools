@@ -115,8 +115,7 @@ autotools/builder/*.py \
 autotools/builder/*.cpp \
 autotools/builder/*.h \
 css/*.css   \
-*.ts \
-    autotools/builder/template/msvc2008_sln_tmpl.sln
+*.ts
 
 win32 {
 RC_FILE += modelingtools.rc

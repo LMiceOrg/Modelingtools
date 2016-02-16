@@ -88,6 +88,9 @@ private slots:
 
     void ReadExcelList(const QString& folder);
 
+    //Update model folder
+    void updateModelFolder();
+
 signals:
     void modelNameChanged(const QString&);
     void modelExcelModelChanged(const QStringList&);

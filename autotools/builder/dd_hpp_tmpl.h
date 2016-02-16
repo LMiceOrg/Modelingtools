@@ -19,16 +19,18 @@
 #define NTSIM_Data_Define_Include_H
 
 #include <limits.h>
+#include <float.h>
 
 //定义字符串的空值
 #define NTSTRING_EMPTY 	""
 
 //定义double类型变量的无效值 
 #define NTDOUBLE_EMPTY 	NAN
-
-//定义double类型的无穷大
-#define NTDOUBLE_INF 	INFINITY
-
+#if _MSC_VER
+#define ISDOUBLE_NOEMPTY(d) (_isnan(d) == 0)
+#else
+#define ISDOUBLE_NOEMPTY(d) (isnan(d) == 0)
+#endif
 //定义long类型变量的无效值
 #define NTLONG_EMPTY 	LONG_MAX
 

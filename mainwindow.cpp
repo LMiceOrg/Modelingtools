@@ -56,32 +56,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     title = windowTitle();
 
-    ep = new EmbedPython(this);
-
 #if __APPLE__
     //Debug purpose
     ui->lineEdit->setText("/Users/hehao/work/doc/modelingtools/res20160109/model");
 #elif _WIN32
     //ui->lineEdit->setText("i:/dist3/20151229/model");
     ui->lineEdit->setText("E:/model");
+#endif
 
-
+    ep = new EmbedPython(this);
 
     //修改默认路径
-    {
-        ep->callModel("GetModelFolder");
-        //qDebug()<<"call";
-        PyObject* o = ep->returnObject();
-        //qDebug()<<"call0";
-        if( o && PyString_Check(o)) {
-            //qDebug()<<"call1";
-            QString s = QString( PyString_AsString(o) );
-            ui->lineEdit->setText(s);
-        }
-        //qDebug()<<"call2";
-    }
-#endif
-    onCheckOutputMessage(ep->errorMessage());
+    updateModelFolder();
+
 
     connect(ep, SIGNAL(errorTrigger(QString)), this, SLOT(onCheckOutputMessage(QString)) );
 
@@ -180,6 +167,24 @@ void MainWindow::ReadExcelList(const QString& folder)
     isLoading = false;
     emit outputInformation(tr("Parse... Done"));
 
+}
+
+void MainWindow::updateModelFolder()
+{
+    //修改默认路径
+    {
+        ep->callModel("GetModelFolder");
+        //qDebug()<<"call";
+        PyObject* o = ep->returnObject();
+        //qDebug()<<"call0";
+        if( o && PyString_Check(o)) {
+            //qDebug()<<"call1";
+            QString s = QString( PyString_AsString(o) );
+            ui->lineEdit->setText(s);
+        }
+        //qDebug()<<"call2";
+    }
+    onCheckOutputMessage(ep->errorMessage());
 }
 
 //Validate Excel files
@@ -477,6 +482,11 @@ void MainWindow::fileEdit(QAction * act)
     dlg.exec();
 
 #endif
+    if(cfgfile.endsWith(tr("autotools%1__init__.py")
+                        .arg(QDir::separator())
+                        )) {
+        updateModelFolder();
+    }
     }
 }
 

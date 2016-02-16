@@ -18,10 +18,27 @@
 //#include "../../common/include/NTSim.h"
 #endif
 
+//#include <istream>
+//#include <sstream>
 
 int main(int argc, char *argv[])
 {
+//    wchar_t s[] =L"40,235,45,6000,20;";
+//    std::wstringstream is(s);
 
+//    double d;
+//    while(!is.eof()) {
+//        is>>d;
+//       is.get();
+//       if(is.eof())
+//           break;
+//        qDebug()<<d;
+//    }
+
+
+//    double dbl = NAN;
+//    bool t = isnan(dbl) ;
+//    qDebug()<< t;
 //    //IEEE754
 //    double dbl = 1;
 //    if(isnan(dbl)) {

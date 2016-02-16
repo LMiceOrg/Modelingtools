@@ -2,10 +2,7 @@
 $ clsname = ''.join(('C', ctx['pj_name'], 'Impl') )
 
 $ header = ''.join(('#include"', ctx["so_folder"], '.h"\n#include"', ctx['pj_name'], 'Impl.h"'))
-
-
 $header
-
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
@@ -46,6 +43,11 @@ inline bool operator ==( const AppSim::Wstring255& w1, const AppSim::Wstring255&
     return wcscmp(w1.value, w2.value) == 0;
 }
 
+inline AppSim::Wstring255& operator<<(AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
+    memcpy(w1.value, w2.value, sizeof(w1));
+    return w1;
+}
+
 /**********************
  * 性能参数读取函数
 *********************/
@@ -66,7 +68,8 @@ static void GetPerfWString(const wchar_t* file, const wchar_t* name, std::wstrin
     value = buff;
 }
 
-static void GetPerfDouble(const wchar_t* file, const wchar_t* name, double& value) {
+template<class T>
+static void GetPerfDouble(const wchar_t* file, const wchar_t* name, T& value) {
     wchar_t buff[512];
     memset(buff, 0, sizeof(buff));
     value = 0;
@@ -74,17 +77,57 @@ static void GetPerfDouble(const wchar_t* file, const wchar_t* name, double& valu
     std::wstringstream ss;
     ss<<buff;
     ss>>value;
-    //value = _wtof(buff);
 }
 
-static void GetPerfInt(const wchar_t* file, const wchar_t* name, int& value) {
+template<class T>
+static void GetPerfInt(const wchar_t* file, const wchar_t* name, T& value) {
     value = 0;
     value = GetPrivateProfileIntW(_T("perf"), name, 0, file );
 }
 
+
 static void GetPerfBool(const wchar_t* file, const wchar_t* name, bool& value) {
     value = false;
     value = GetPrivateProfileIntW(_T("perf"), name, 0, file );
+}
+
+template< class T>
+static void GetPerfVector(const wchar_t* file, const wchar_t* name, std::vector<T>& value) {
+    wchar_t buff[512];
+    memset(buff, 0, sizeof(buff));
+    value.clear();
+    GetPrivateProfileStringW(_T("perf"), name, 0, buff, 511, file );
+    std::wstringstream ss(buff);
+
+    T d;
+    while(!ss.eof()) {
+        ss>>d;
+        ss.get();
+        if(ss.eof())
+           break;
+        value.push_back(d);
+    }
+}
+
+//枚举数组类型
+template< class T>
+static void GetPerfVectorEnum(const wchar_t* file, const wchar_t* name, std::vector<T>& value) {
+    wchar_t buff[512];
+    memset(buff, 0, sizeof(buff));
+    value.clear();
+    GetPrivateProfileStringW(_T("perf"), name, 0, buff, 511, file );
+    std::wstringstream ss(buff);
+
+    T d;
+    int val;
+    while(!ss.eof()) {
+        ss>>val;
+        ss.get();
+        if(ss.eof())
+           break;
+        d=(T)val;
+        value.push_back(d);
+    }
 }
 
 /**********************
@@ -98,13 +141,13 @@ pCalc_Distance3 Calc_Distance3 = NULL;
 pCalc_Distance2 Calc_Distance2 = NULL;
 pCalc_IsBeamCover Calc_IsBeamCover = NULL;
 pCalc_GeoVisionDis Calc_GeoVisionDis = NULL;
-pCalc_TargetElevation3 Calc_TargetElevation3 =NULL;
-pCalc_TargetElevation Calc_TargetElevation =NULL;
+pCalc_TargetElevation3 Calc_TargetElevation3 = NULL;
+pCalc_TargetElevation Calc_TargetElevation = NULL;
 pCalc_TargetRelCourse Calc_TargetRelCourse = NULL;
 pCalc_TargetRelSpeed Calc_TargetRelSpeed = NULL;
 pCalc_DbmWToWatt Calc_DbmWToWatt = NULL;
-pCalc_WattToDbmW Calc_WattToDbmW =NULL;
-pCalc_WaveTransLoss Calc_WaveTransLoss =NULL;
+pCalc_WattToDbmW Calc_WattToDbmW = NULL;
+pCalc_WaveTransLoss Calc_WaveTransLoss = NULL;
 
 //typedef void  (*pBLHtoXYZ) ( double B,double L,double H, double &X,double &Y,double &Z);
 //typedef void  (*pXYZtoBLH) ( double X, double Y, double Z, double &B, double &L,double &H );
@@ -205,17 +248,31 @@ $for item in ctx['perf_def']:
             GetPerfInt(file.c_str(), L"$item.it_name", m_$item.it_name);
             loginfo(pobj->m_Logger, L"$item.it_name = "<<m_$item.it_name);
 
-    $elif item.it_type in ['Wstring255']:
+    $elif item.it_type in ['Wstring255', 'Wstring']:
             GetPerfWString(file.c_str(), L"$item.it_name", m_$item.it_name);
             loginfo(pobj->m_Logger, L"$item.it_name = "<<toTString(m_$item.it_name) );
 
-    $elif item.it_type in ['Float64']:
+    $elif item.it_type in ['Float64', 'Float32']:
             GetPerfDouble(file.c_str(), L"$item.it_name", m_$item.it_name);
             loginfo(pobj->m_Logger, L"$item.it_name = "<<m_$item.it_name);
 
     $elif item.it_type in ['Bool']:
             GetPerfBool(file.c_str(), L"$item.it_name", m_$item.it_name);
             loginfo(pobj->m_Logger, L"$item.it_name = "<<m_$item.it_name);
+
+    $elif item.it_type[:6] in ['vector'] and item.or_type[:5] not in ['Enum_']:
+            GetPerfVector(file.c_str(), L"$item.it_name", m_$item.it_name);
+            loginfo(pobj->m_Logger, L"$item.it_name size = "<<m_$item.it_name$'.size()');
+            //for(size_t i=0; i < m_$item.it_name$'.size()'; ++i) {
+            //    loginfo(pobj->m_Logger, L"$item.it_name$'["<<i<<L"]="<<'m_$item.it_name$'[i]');
+            //}
+
+    $elif item.it_type[:6] in ['vector'] and item.or_type[:5] in ['Enum_']:
+            GetPerfVectorEnum(file.c_str(), L"$item.it_name", m_$item.it_name);
+            loginfo(pobj->m_Logger, L"$item.it_name size = "<<m_$item.it_name$'.size()');
+            //for(size_t i=0; i < m_$item.it_name$'.size()'; ++i) {
+            //    loginfo(pobj->m_Logger, L"$item.it_name$'["<<i<<L"]='"<<(int)m_$item.it_name$'[i]');
+            //}
 
     $else:
             GetPerfInt(file.c_str(), L"$item.it_name", enumValue);

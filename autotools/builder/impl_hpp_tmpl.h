@@ -127,51 +127,56 @@ private:
     /**************************** 性能参数列表 ****************************/
 
 $for item in ctx['perf_def']:
+    $ item_tp = '::'.join((item.it_ns, item.it_type))
         /* name:$item.it_cname
          * desc:$item.it_desc
          */
-        $RefineContext(item.it_ns)::$item.it_type m_$item.it_name;
+        $RefineContext(item_tp) m_$item.it_name;
 
 $#
     /**************************** 发送Info列表 ****************************/
 
 $for item in ctx['info_def']:
+    $ item_tp = 'std::vector<' + '::'.join((item.cd_ns, item.cd_type)) + '>'
     $if item.cd_io == u'输出':
             /** name: $item.cd_cname
              *  desc: $item.cd_desc
             */
-            std::vector< $RefineContext(item.cd_ns)::$item.cd_type > m_output_$item.cd_name;
+            $RefineContext(item_tp) m_output_$item.cd_name;
 
 $#
     /**************************** 接收Info列表 **************************/
 
 $for item in ctx['info_def']:
+    $ item_tp = 'std::vector<' + '::'.join((item.cd_ns, item.cd_type)) + '>'
     $if item.cd_io != u'输出':
             /** name: $item.cd_cname
              *  desc: $item.cd_desc
             */
-            std::vector< $RefineContext(item.cd_ns)::$item.cd_type > m_input_$item.cd_name;
+             $RefineContext(item_tp) m_input_$item.cd_name;
 
 $#
     /**************************** 发送Event列表 ****************************/
 
 $for item in ctx['evts_def']:
+    $ item_tp = 'std::vector<' + '::'.join((item.cd_ns, item.cd_type)) + '>'
     $if item.cd_io == u'输出':
             /** name: $item.cd_cname
              *  desc: $item.cd_desc
             */
-            std::vector< $RefineContext(item.cd_ns)::$item.cd_type > m_send_$item.cd_name;
+            $RefineContext(item_tp) m_send_$item.cd_name;
 
 $#
 
     /**************************** 接收Event列表 ****************************/
 
 $for item in ctx['evts_def']:
+    $ item_tp = 'std::vector<' + '::'.join((item.cd_ns, item.cd_type)) + '>'
     $if item.cd_io != u'输出':
             /** name: $item.cd_cname
              *  desc: $item.cd_desc
             */
-            std::vector< $RefineContext(item.cd_ns)::$item.cd_type > m_receive_$item.cd_name;
+            $RefineContext(item_tp) m_receive_$item.cd_name;
 
 $#
 
