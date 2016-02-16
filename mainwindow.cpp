@@ -437,6 +437,7 @@ void MainWindow::menuInit()
     QDir dir(qApp->applicationDirPath());
     dir.cdUp();
     dir.cd("Resources");
+    dir.cd("site-packages");
     dir.cd("autotools");
 #endif
     // folder

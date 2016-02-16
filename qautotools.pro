@@ -83,7 +83,7 @@ QMAKE_LFLAGS += -F/opt/local/Library/Frameworks
 INCLUDEPATH += /opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
 LIBS += -framework Python
 
-pysrc.path = $$OUT_PWD/modelingtools.app/Contents/Resources/autotools
+pysrc.path = $$OUT_PWD/modelingtools.app/Contents/Resources/site-packages/autotools
 
 #qscintilla2
 qsci.path = $$OUT_PWD/modelingtools.app/Contents/MacOS

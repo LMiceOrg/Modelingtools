@@ -33,6 +33,7 @@ bool EmbedPython::init()
 #if __APPLE__
     dir.cdUp();
     dir.cd("Resources");
+    dir.cd("site-packages");
 #endif
 
     p = dir.absolutePath();// + dir.separator() + QString("embed");
@@ -260,7 +261,7 @@ void EmbedPython::checkError()
     // Print error stack
     if(PyErr_Occurred()) {
         emsg.clear();
-//        PyErr_Print();
+        PyErr_Print();
 //        qDebug()<<"1";
         PyObject *ptp = NULL, *pv = NULL, *ptb = NULL;
         PyErr_Fetch(&ptp, &pv, &ptb);

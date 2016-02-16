@@ -68,5 +68,6 @@ void DialogNamespace::on_buttonBox_accepted()
     }
     //QString model = fileName.replace(qApp->applicationDirPath(), "").replace(QDir::separator(), ".");
     //QMessageBox::information(this, qApp->applicationDirPath(), model);
+    qDebug()<<model;
     ep->reloadModel(model.toUtf8().data());
 }
