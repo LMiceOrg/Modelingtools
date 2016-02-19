@@ -50,11 +50,14 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
                 for inode in self.elements[ns].findall("./Namespace"):
                     for tnode in inode.findall("./Type"):
                         nsnode.append(tnode)
+        if root == None:
+            return
         doc = minidom.parseString( xmllib.tostring(root, 'utf-8') )
         x = doc.toprettyxml(encoding="utf-8")
         x = self.RefineContext(x)
         name = os.path.join(self.folder, u"%s.xml" % autotools.l_ns_name)
-
+        if self.outfiles.count(name.encode('utf-8') ) >0 :
+            return
         f = open(name, "w")
         f.write(x)
         f.close()

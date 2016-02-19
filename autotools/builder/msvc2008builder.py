@@ -82,15 +82,21 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             else:
                 props["info_def"] = []
 
-            if self.buildtools != "" and os.path.isfile(self.buildtools):
-                #print props["so_folder"]
-                if len( re.findall( "^[A-Z][0-9]+[_](\w+)", props["so_folder"]) ) == 0:
-                    continue
-                #print "call cmd"
+            args = []
+            if self.buildtools != "":
                 cmd = self.buildtools.format(**props)
                 cmd = cmd.replace("\\", "/")
                 #print cmd.encode('utf-8')
                 args = shlex.split(cmd)
+                if props['so_folder'][0] == 'H':
+                    args[3] = '2'
+
+            if len(args) > 0 and os.path.isfile(args[0]):
+                #print props["so_folder"]
+                if len( re.findall( "^[A-Z][0-9]+[_](\w+)", props["so_folder"]) ) == 0:
+                    continue
+                #print "call cmd"
+
                 #print args
                 pcs=subprocess.Popen(args)
                 pcs.wait()

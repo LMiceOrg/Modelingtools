@@ -33,9 +33,13 @@ FORMS    += mainwindow.ui \
     outputwindow.ui
 
 #install python script
-pysrc.path=$$OUT_PWD/release/Lib/python2.7/site-packages/autotools
 pysrc.files=autotools/*
 INSTALLS += pysrc
+
+#install translation
+trans.files = *.qm
+trans.path = $$OUT_PWD/release
+INSTALLS += trans
 
 win32-msvc2012 {
 message("msvc")
@@ -48,21 +52,16 @@ message($$pysrc.path)
 
 win32-g++ {
 message("mkspecs=win32-g++")
-pysrc.path=$$OUT_PWD/release/Lib/site-packages/autotools
-
-INCLUDEPATH += $$[QT_INSTALL_HEADERS]"/python2.7"
-
+SYS_TYPE = $$find(QMAKE_QMAKE, msys)
+isEmpty(SYS_TYPE) {
+message("Mingw build")
 INCLUDEPATH += C:/Python27/include
 LIBS += -LC:/Python27/libs
 LIBS += -lpython27
 
-trans.path = $$OUT_PWD/release
-trans.files = *.qm
-INSTALLS += trans
-message("translation files:" $$OUT_PWD/release)
-QMAKE_CXXFLAGS += -std=c++03
-QMAKE_CXXFLAGS += -march=native  -Wall -Wextra -Wpedantic
+pysrc.path=$$OUT_PWD/release/Lib/site-packages/autotools
 
+#copy dist to trunk
 trunk.path = $$PWD/../../tool/$$TARGET
 trunk.files = *.qm
 trunk.files += $$OUT_PWD/release/*.exe
@@ -72,7 +71,19 @@ trunk2.path =  $$PWD/../../tool/$$TARGET/Lib/site-packages/autotools
 trunk2.files = autotools/*
 INSTALLS += trunk2
 
-message($$trunk2.path)
+}
+!isEmpty(SYS_TYPE) {
+message("Msys build")
+
+INCLUDEPATH += $$[QT_INSTALL_HEADERS]"/python2.7"
+LIBS += -lpython2.7
+
+pysrc.path=$$OUT_PWD/release/Lib/python2.7/site-packages/autotools
+}
+
+QMAKE_CXXFLAGS += -std=c++03
+QMAKE_CXXFLAGS += -march=native  -Wall -Wextra -Wpedantic
+
 }
 macx-clang {
 

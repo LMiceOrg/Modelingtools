@@ -618,7 +618,7 @@ class Msvc2008ProjectBuilder(object):
             f.close()
 
             #ctx = '#include "%sImpl.h"\n' % props['pj_name'].encode('gbk') + ctx
-            ctx = ctx.replace('#include <Windows.h>\n', '#include <Windows.h>\n\n#include "%sImpl.h"\n\n' % props['pj_name'].encode('gbk') )
+            ctx = ctx.replace('#include "PublicInterface.h"\n', '#include "PublicInterface.h"\n\n#include "%sImpl.h"\n\n' % props['pj_name'].encode('gbk') )
             new_item = u"""%s::%s(void)
 {
     pmodel = new C%sImpl(this);""" % (props["so_folder"], props["so_folder"], props['pj_name'])

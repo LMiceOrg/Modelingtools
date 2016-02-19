@@ -13,7 +13,7 @@
 
 
 #elif defined(WIN32)
-#include <AppSimKernel.h>
+//#include <AppSimKernel.h>
 
 //#include "../../common/include/NTSim.h"
 #endif

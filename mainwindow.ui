@@ -14,14 +14,27 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="lineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Browse...</string>
         </property>
@@ -29,10 +42,16 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_2">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>23</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
@@ -42,10 +61,16 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_6">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>23</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
@@ -55,10 +80,16 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_3">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>23</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
@@ -68,10 +99,16 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_4">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>23</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
@@ -81,10 +118,16 @@
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_5">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
-          <height>23</height>
+          <width>150</width>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
@@ -97,13 +140,13 @@
         <property name="minimumSize">
          <size>
           <width>150</width>
-          <height>23</height>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
           <width>150</width>
-          <height>23</height>
+          <height>32</height>
          </size>
         </property>
         <property name="text">
@@ -116,7 +159,7 @@
         <property name="minimumSize">
          <size>
           <width>150</width>
-          <height>23</height>
+          <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -132,7 +175,7 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="1" column="0">
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QLabel" name="label">
@@ -204,7 +247,7 @@
      <x>0</x>
      <y>0</y>
      <width>993</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
