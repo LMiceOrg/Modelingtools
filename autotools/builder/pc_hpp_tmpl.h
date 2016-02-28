@@ -1,20 +1,22 @@
 ﻿$def with (ctx)
-/******************************************************************************************************************************
-*                                        Parameter_Checker.h                                                                                     *
-*     Function: Providing examples on how to give checks on  parameters                                                                                     *
-*                                                                                                                             *
-*     Input paramters: 1. parameter: it is the parameter to check
-*                      2. minimum: the minimal value of parameter
-*                      3. maximum: the maximal value of parameter                                                        *                                                                *
-*      
-*     Output parameters:
-*                                                                                                                             *
-*     Return values: true: means the  parameter in within reasonable extent
-*                    false: means the  parameter in unreasonable                                                                                                                       *
-*                                                                                                                                                                                                    *
-*                                                                                                                             *
-*                                                                                                                             *
-********************************************************************************************************************************/
+/****************************************************************************
+**
+**  开发单位：$ctx['user_dept']
+**  开发者：$ctx['user_name']
+**  创建时间：$ctx['tm_now']
+$if ctx.has_key('version'):
+    **  版本号：$ctx['version']
+$else:
+    **  版本号：V1.0
+$if ctx.has_key('h_name'):
+    **  描述信息：$ctx['h_name']
+$else:
+    **  描述信息：$ctx['H_NAME']
+**  返回值: true: means the  parameter in within reasonable extent
+           false: means the  parameter in unreasonable
+****************************************************************************/
+
+
 #ifndef NTSIM_Parameter_Checker_Include_H
 #define NTSIM_Parameter_Checker_Include_H
 

@@ -31,15 +31,15 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
     def SaveNamespaceFile(self, ns, root):
         doc = minidom.parseString( xmllib.tostring(root, 'utf-8') )
         x = doc.toprettyxml(encoding="utf-8")
-        x = self.RefineContext(x)
         name = os.path.join(self.folder, u"%s.xml" % ns)
-
-        f = open(name, "w")
-        f.write(x)
-        f.close()
-        self.outfiles.append(name.encode('utf-8'))
+        self.SaveFile(x, name)
 
     def SaveInAll(self):
+
+        name = os.path.join(self.folder, u"%s.xml" % autotools.l_ns_name)
+        if self.outfiles.count(name) >0 :
+            return
+
         root = None
         nsnode = None
         for ns in self.elements:
@@ -52,16 +52,11 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
                         nsnode.append(tnode)
         if root == None:
             return
+
         doc = minidom.parseString( xmllib.tostring(root, 'utf-8') )
         x = doc.toprettyxml(encoding="utf-8")
-        x = self.RefineContext(x)
-        name = os.path.join(self.folder, u"%s.xml" % autotools.l_ns_name)
-        if self.outfiles.count(name.encode('utf-8') ) >0 :
-            return
-        f = open(name, "w")
-        f.write(x)
-        f.close()
-        self.outfiles.append(name.encode('utf-8'))
+
+        self.SaveFile(x, name)
 
     def CreateNamespaceNode(self, root, ns):
         """ 命名空间接点对象, 如果不存在则新建"""
@@ -265,5 +260,9 @@ class XMLDataStructBuilder(basebuilder.BaseBuilder):
             root = self.elements[ns]
             self.SaveNamespaceFile(ns, root)
         self.SaveInAll()
+
     def GetFiles(self):
-        return self.outfiles
+        outfiles = []
+        for f in self.outfiles:
+            outfiles.append( f.encode('utf-8') )
+        return outfiles

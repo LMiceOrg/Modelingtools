@@ -18,14 +18,14 @@
 #ifndef NTSIM_Data_Define_Include_H
 #define NTSIM_Data_Define_Include_H
 
-#include <limits.h>
+#include <limits>
 #include <float.h>
 
 //定义字符串的空值
 #define NTSTRING_EMPTY 	""
 
 //定义double类型变量的无效值 
-#define NTDOUBLE_EMPTY 	NAN
+#define NTDOUBLE_EMPTY 	std::numeric_limits<double>::quiet_NaN()
 #if _MSC_VER
 #define ISDOUBLE_NOEMPTY(d) (_isnan(d) == 0)
 #else

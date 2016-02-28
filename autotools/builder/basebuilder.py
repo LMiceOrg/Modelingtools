@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """ basebuilder
-建造者基类
+All build's base class
 """
 
 import xml.etree.cElementTree as xmllib
-#from autotools.__init__ import *
 import autotools
 import os
 import re
@@ -18,9 +17,38 @@ class BaseBuilder(object):
     def __init__(self, dt):
         self.dt = dt #DataModel
         self.name = ""
+        self.outfiles = [] #the generated file list
         self.types = {} #namespace ->{ name --> {key --> value} }
         if os.path.isfile(autotools.simapp_dtfile):
             self.ImportXMLType(autotools.simapp_dtfile)
+
+    def SaveFile(self, ctx, name, refine=True):
+        #Make sure path is valid, or makedir
+        path, nm = os.path.split( os.path.abspath(name) )
+        if not os.path.exists( path ):
+            os.makedirs(path)
+
+        #Convert file name to lower
+        name = os.path.join(path, nm.lower() )
+
+        ctx = str(ctx)
+        #Refinement content (utf-8 encoding)
+        if refine:
+            ctx = self.RefineContext(ctx)
+
+        #Convert to unicode
+        ctx = ctx.decode('utf-8')
+
+
+
+        #Write to file with default encoding and bom
+        f=open(name, "wb")
+        f.write( autotools.default_bom )
+        f.write( ctx.encode(autotools.default_encoding) )
+        f.close()
+
+        #append file name to outfiles
+        self.outfiles.append(name)
 
     def SourceToProject(self, item):
         #Get pj_name from xlfile

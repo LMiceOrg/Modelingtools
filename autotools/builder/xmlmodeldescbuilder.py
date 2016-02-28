@@ -316,16 +316,10 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         x = xmllib.tostring(root, 'utf-8')
         # 将Excel中换行符替换为 空格
         x = x.replace('&#xd;', ' ').replace('\n', ' ')
-        x = self.RefineContext(x)
-        #doc = minidom.parseString( x )
         data = '<?xml version="1.0" encoding="utf-8"?>'+x
-        #data = doc.toprettyxml(encoding="utf-8")
         name = os.path.join(self.folder, u"%s.xml" % md_item.item_val[6])
 
-        f = open(name, "w")
-        f.write(data)
-        f.close()
-        self.outfiles.append(name.encode('utf-8'))
+        self.SaveFile(data, name)
 
     def ParseItemSource(self, item):
         #Get pj_name from xlfile
@@ -563,7 +557,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                     node_id =           self.ValidateName(ad_name, ad_ns)
                     it_type, it_ns =    self.RefineNamespace(it_type, it_ns)
                     dp_id =             self.ValidateName(it_type, it_ns)
-                    print ad_id, dp_id
+                    #print ad_id, dp_id
                     if not self.depends.has_key(node_id):
                         self.depends[node_id] = []
                     self.depends[node_id].append(dp_id)
@@ -651,4 +645,7 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
                 self.SaveDscFile(pj_name, root)
 
     def GetFiles(self):
-        return self.outfiles
+        outfiles = []
+        for f in self.outfiles:
+            outfiles.append( f.encode('utf-8') )
+        return outfiles

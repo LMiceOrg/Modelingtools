@@ -26,7 +26,12 @@ HEADERS  += mainwindow.h \
     stdafx.h \
     outputwindow.h \
     embedpython.h \
-    autotools/builder/ep_hpp_tmpl.h
+    autotools/builder/ep_hpp_tmpl.h \
+    autotools/builder/ed_hpp_tmpl.h \
+    autotools/builder/cd_hpp_tmpl.h \
+    autotools/builder/pj_hpp_tmpl.h \
+    autotools/builder/dp_hpp_tmpl.h \
+    autotools/builder/md_hpp_tmpl.h
 
 FORMS    += mainwindow.ui \
     dialognamespace.ui \
@@ -126,7 +131,8 @@ autotools/builder/*.py \
 autotools/builder/*.cpp \
 autotools/builder/*.h \
 css/*.css   \
-*.ts
+*.ts \
+    autotools/builder/pf_ini_tmpl.ini
 
 win32 {
 RC_FILE += modelingtools.rc

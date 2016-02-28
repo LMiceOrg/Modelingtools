@@ -17,6 +17,7 @@ class BaseItem(object):
     def dict(self):
         return self.__dict__
     def append(self, *arg, **kw):
+        # append name list
         if len(arg) >= 1 and type(arg[0]) in (tuple, list):
             nm_size = len(arg[0])
             #self.name_list += arg[0][:]
@@ -41,6 +42,11 @@ class BaseItem(object):
                     key = arg[0][i]
                     val = ''
                     self.__dict__[key]=val
+        # append a unnamed dict
+        if len(arg) >= 1 and type(arg[0]) in (dict, set):
+            for key in arg[0]:
+                val = arg[0][key]
+                self.__dict__[key] = val
         if kw.has_key('name_list') and type(kw['name_list']) in (tuple, list):
             nm_size = len(kw['name_list'])
             #self.name_list += kw['name_list'][:]

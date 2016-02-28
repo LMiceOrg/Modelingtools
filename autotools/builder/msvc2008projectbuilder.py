@@ -11,6 +11,7 @@ import xml.etree.cElementTree as xmllib
 import xml.dom.minidom as minidom
 import web.template
 import basebuilder
+import autotools
 
 render = web.template.render(os.path.split(os.path.realpath(__file__))[0],
 globals={'type':type,"hasattr":hasattr})
@@ -585,12 +586,16 @@ void {pj_name}::exitSimulation()
 
 """
 
-class Msvc2008ProjectBuilder(object):
+class Msvc2008ProjectBuilder(basebuilder.BaseBuilder):
     def __init__(self):
+        super(Msvc2008ProjectBuilder, self).__init__([])
         self.outfiles = []
     def BuildUserDataHeaderFile(self, props = None):
         if props == None:
             props = self.props
+
+        props['autotools'] = autotools
+
         bd = basebuilder.BaseBuilder(None)
         render._add_global(bd.RefineContext, 'RefineContext')
         #Update 接口类h
@@ -629,32 +634,18 @@ class Msvc2008ProjectBuilder(object):
 
         #UserDefine hpp
         ctx = render.ud_hpp_tmpl(props)
-        ctx = str(ctx)
-        #ctx = h_userdata_template.format(** props)
         name = os.path.join(props["pj_path"], "%suserdatatype.h" % props["so_folder"])
-        f=open(name, "w")
-        #f.write( ctx.encode('utf-8') )
-        f.write(ctx)
-        f.close()
-        self.outfiles.append(name)
+        self.SaveFile(ctx, name)
 
+        #Entity Impl hpp
         ctx = render.impl_hpp_tmpl(props)
-        ctx = str(ctx)
         name = os.path.join(props["pj_path"], "%sImpl.h" % props["pj_name"])
-        f=open(name, "w")
-        f.write(ctx)
-        f.close()
-        self.outfiles.append(name)
+        self.SaveFile(ctx, name)
 
+        #Entity Impl cpp
         ctx = render.impl_cpp_tmpl(props)
-        ctx = str(ctx)
         name = os.path.join(props["pj_path"], "%sImpl.cpp" % props["pj_name"])
-        f=open(name, "w")
-        #Utf-8 BOM
-        f.write('\xef\xbb\xbf')
-        f.write(ctx)
-        f.close()
-        self.outfiles.append(name)
+        self.SaveFile(ctx, name)
 
     def BuildHeaderFile(self):
         self.props["pj_initparam"]=""

@@ -1,15 +1,14 @@
 $def with (ctx)
+
 #ifndef $ctx['PJ_NAME']_USERDATATYPE_H_
 #define $ctx['PJ_NAME']_USERDATATYPE_H_
+
 #include <AppSimKernel.h>
 using namespace AppSim;
 
 // NTSim global type definition
-#include "../../../common/include/NTSim.h"
-
-// $ctx['pj_name'] private type definition
-
-using namespace NTSim;
+#include "../../../common/include/$ctx['autotools'].l_ns_name.lower()$'.h'"
+using namespace $ctx['autotools'].l_ns_name;
 
 #include <map>
 #include <string>

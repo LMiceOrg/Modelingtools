@@ -27,6 +27,10 @@ nslist ={
 'D_':["指挥控制与数据处理设备类","NTSim_CCDP", None]
 }
 
+#代码生成编码
+default_encoding='utf-8'
+#Utf-8 BOM
+default_bom='\xef\xbb\xbf'
 
 
 #外部代码生成工具
@@ -137,4 +141,8 @@ file_encode_mapping_={
 '.ini':'utf-8'
 }
 
-__all__=['default_ns_key', 'default_ns_name', 'dt_mapping', 'nslist', 'g_ns_name', 'gen_g_ns_type', 'simapp_dtfile', 'l_ns_name', 'model_decl_key', 'l_xmlns_datastructs', 'l_xmlns_modeldescs', 'external_model_code_tools', 'namespace_refine_mapping', 'default_model_folder']
+__all__=['default_ns_key', 'default_ns_name', 'dt_mapping', 'nslist', 'g_ns_name', 'gen_g_ns_type',
+'simapp_dtfile', 'l_ns_name', 'model_decl_key', 'l_xmlns_datastructs', 'l_xmlns_modeldescs',
+'external_model_code_tools', 'namespace_refine_mapping', 'default_model_folder',
+'default_encoding', 'default_bom']
+

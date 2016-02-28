@@ -1,11 +1,17 @@
 $def with (ctx)
 /****************************************************************************
 **
-**	开发单位：$ctx['user_dept']
-**	开发者：$ctx['user_name']
-**	创建时间：$ctx['tm_now']
-**	版本号：V1.0
-**	描述信息：$ctx['h_name']
+**  开发单位：$ctx['user_dept']
+**  开发者：$ctx['user_name']
+**  创建时间：$ctx['tm_now']
+$if ctx.has_key('version'):
+    **  版本号：$ctx['version']
+$else:
+    **  版本号：V1.0
+$if ctx.has_key('h_name'):
+    **  描述信息：$ctx['h_name']
+$else:
+    **  描述信息：$ctx['H_NAME']
 ****************************************************************************/
 
 
@@ -19,18 +25,35 @@ $def with (ctx)
 
 /** 全局类型别名 */
 $if ctx.has_key('globaltypedefs'):
-  $ctx['globaltypedefs']
+    namespace $ctx['autotools'].g_ns_name {
 
+
+    $for key in ctx['globaltypedefs']:
+        $#
+        /** type: $key[0]
+         * default: $key[2]
+         */
+        typedef $ctx['globaltypedefs'][key] $key[0];
+
+    $# endfor
+    } /* end of namespace $ctx['autotools'].g_ns_name */
+
+$# endif global typedefs
 
 /** 数组类型与别名 */
 $if ctx.has_key('arraylist'):
     $ctx['arraylist']
+$# endif arraylist
 
 /** 各命名空间的枚举类型定义 */
 $if ctx.has_key('enumlist'):
-    $ctx['enumlist']
+    $for key in ctx['enumlist']:
+        #include "$key.lower()$'_enum.h'"
 
+    $# endfor enumlist
+$# endif enumlist
 
+/** 全局宏定义 */
 #define LMICE_STATIC_ASSERT(COND,MSG)       typedef char Error_##MSG[(!!(COND))*2-1]
 #define LMICE_COMPILE_TIME_ASSERT4(X, W)    LMICE_STATIC_ASSERT(X,static_assertion_##W )
 #define LMICE_COMPILE_TIME_ASSERT3(X, FUNC, LN) LMICE_COMPILE_TIME_ASSERT4(X, User_Must_Implement_##FUNC##_function_at_line_##LN)
@@ -39,8 +62,6 @@ $if ctx.has_key('enumlist'):
 
 
 namespace LMice {
-
-
 
 //enum value is_pod
 template<class _Tp, _Tp __v> struct cv {
@@ -155,13 +176,18 @@ struct LMPVector<TSubClass, true> {
     }
 
     int unpack(const char* buffer, int buffer_size) {
-        int sz = *(const int*)buffer;
-        int pos = sizeof(int);
+        int sz = 0;
+        int pos = sizeof(int)*2;
         int i;
-        int cnt = *(const int*)(buffer+pos);
-        pos += sizeof(int);
+        int cnt = 0;
 
         m_vec.clear();
+
+        if(buffer_size < pos)
+            return -1;
+
+        sz = *(const int*)buffer;
+        cnt = *(const int*)(buffer+sizeof(int));
 
         if(sz < buffer_size) {
             return -1;
@@ -241,23 +267,28 @@ struct LMPVector<TSubClass, false>{
     }
 
     int unpack(const char* buffer, int buffer_size) {
-        int sz = *(const int*)buffer;
-        int pos = sizeof(int);
+        int sz = 0;
+        int pos = sizeof(int)*2;
         int i;
-        int cnt = *(const int*)(buffer+pos);
-        pos += sizeof(int);
+        int cnt = 0;
 
         m_vec.clear();
+
+        if(buffer_size < pos)
+            return -1;
+
+        sz = *(const int*)buffer;
+        cnt = *(const int*)(buffer+sizeof(int));
 
         if(sz < buffer_size) {
             return -1;
         }
-
+        sz -= pos;
         for(i=0; i<cnt; ++i) {
             TSubClass p;
             p.unpack(buffer+pos, sz);
             pos += p.size();
-            sz -= pos;
+            sz -= p.size();
             if(sz < 0) {
                 return -1;
             }

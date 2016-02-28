@@ -24,253 +24,6 @@ adt_parser = re.compile("\s*(\w+)\s*[<]\s*(\w+)\s*[,]\s*([0-9]+)\s*[>]")
 
 ad_header_name ="%s_Typedef" % autotools.l_ns_name
 
-declare_vec_template = u"""
-    /* name:{it_cname}
-     * desc: {it_desc}
-     */
-    std::vector< {it_ns}::{it_type}> m_{it_name};
-"""
-
-version_template = u"""/****************************************************************************
-**
-**	开发单位：{user_dept}
-**	开发者：{user_name}
-**	创建时间：{tm_now}
-**	版本号：V1.0
-**	描述信息：{h_name}
-****************************************************************************/
-"""
-
-ad_template=version_template + u"""
-#ifndef {H_NAME}_TYPEDEFS_H_
-#define {H_NAME}_TYPEDEFS_H_
-
-#include <string>
-#include <vector>
-#include <map>
-//#include <cstdint>
-#include <string.h>
-
-/** 全局类型别名 */
-//globaltypedefs
-/*
-namespace AppSim {{
-template<class T, int n>
-struct Array {{
-    T data[n];
-}};
-}}
-*/
-
-/** 数组类型与别名 */
-{arraylist}
-
-/** 各命名空间的枚举类型定义 */
-{enumlist}
-
-
-#define LMICE_STATIC_ASSERT(COND,MSG)       typedef char Error_##MSG[(!!(COND))*2-1]
-#define LMICE_COMPILE_TIME_ASSERT4(X, W)    LMICE_STATIC_ASSERT(X,static_assertion_##W )
-#define LMICE_COMPILE_TIME_ASSERT3(X, FUNC, LN) LMICE_COMPILE_TIME_ASSERT4(X, User_Must_Implement_##FUNC##_function_at_line_##LN)
-#define LMICE_COMPILE_TIME_ASSERT2(X, f, l) LMICE_COMPILE_TIME_ASSERT3(X, f, l)
-#define lmice_static_assert(X, func)        LMICE_COMPILE_TIME_ASSERT2(X, func, __LINE__)
-
-
-namespace LMice {{
-
-
-
-//enum value is_pod
-template<class _Tp, _Tp __v> struct cv {{
-    enum{{ value =       __v}};
-    typedef _Tp         value_type;
-    typedef cv          type;
-}};
-
-// Default pod is 0
-template<class T> struct is_pod: public LMice::cv<int, 0> {{}};
-template<> struct is_pod<int>: public LMice::cv<int, 1>{{}};
-template<> struct is_pod<int64_t>: public LMice::cv<int, 1>{{}};
-template<> struct is_pod<double>: public LMice::cv<int, 1>{{}};
-template<> struct is_pod<float>: public LMice::cv<int, 1>{{}};
-template<> struct is_pod<bool>: public LMice::cv<int, 1>{{}};
-
-template <class TSubClass>
-struct LMVector
-{{
-    int size() const {{
-        if(LMice::is_pod<TSubClass>::value) {{
-            return m_vec.size()*sizeof(TSubClass);
-        }}
-        return 0;
-    }}
-
-    int pack(char* buffer, int buffer_size) const {{
-        int ret = -1;
-        int pos = 0;
-        if(size() <= buffer_size) {{
-            ret = 0;
-            if(LMice::is_pod<TSubClass>::value) {{
-                memcpy(buffer, &m_vec[0], sizeof(TSubClass)*m_vec.size() );
-            }}
-        }}
-        return ret;
-    }}
-
-    int unpack(const char* buffer, int buffer_size) {{
-        return 0;
-    }}
-
-    void clear() {{
-        m_vec.clear();
-    }}
-
-
-    std::vector<TSubClass> m_vec;
-}};
-
-template <class TSubClass>
-struct LMBaseClass
-{{
-    typedef LMBaseClass<TSubClass>  this_type;
-
-    inline int size() const {{
-        const TSubClass* p = static_cast<const TSubClass*>(this);
-        return p->OnSize();
-    }}
-
-    int OnSize() const {{
-        // 总是 返回 类型的大小
-        //如果是可变长度类型，需要用户重载此函数
-        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnSize);
-        return sizeof(TSubClass);
-    }}
-
-    inline void swap(this_type& x) const {{
-        this_type c(x);
-        x = *this;
-        *this = c;
-    }}
-
-    inline const char* data() const {{
-        // 只提供 POD类型时的访问
-        lmice_static_assert(LMice::is_pod<TSubClass>::value, data);
-        return reinterpret_cast<const char*>(this);
-
-    }}
-
-    inline int pack(char* buffer, int buffer_size) const {{
-        TSubClass* p = static_cast<TSubClass*>(this);
-        return p->OnPack(buffer, buffer_size);
-    }}
-
-    int OnPack(char* buffer, int buffer_size) const {{
-        int ret = -1;
-        // 非POD类型，以及buffer太小情况的pack处理，由用户实现处理
-        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnPack);
-        if(size() <= buffer_size) {{
-            memcpy(buffer, (char*)this, size());
-            ret = 0;
-        }}
-        return ret;
-    }}
-
-    inline int unpack(const char* buffer, int buffer_size) {{
-        TSubClass* p = static_cast<TSubClass*>(this);
-        return p->OnUnpack(buffer, buffer_size);
-    }}
-
-    int OnUnpack(const char* buffer, int buffer_size) {{
-        int ret = -1;
-        // 非POD类型，以及buffer_size太小情况的unpack处理，由用户实现处理
-        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnUnpack);
-        if(size() <= buffer_size) {{
-            memcpy((char*)this, buffer, size());
-            ret = 0;
-        }}
-
-        return ret;
-    }}
-
-
-    inline bool is_pod() const {{
-        return LMice::is_pod<TSubClass>::value;
-    }}
-
-    inline void clear() {{
-        TSubClass* p = static_cast<TSubClass*>(this);
-        p->OnClear();
-    }}
-
-    void OnClear() {{
-        //在POD类型时，调用memset初始化
-        //非POD类型，用户重载此函数
-        lmice_static_assert(LMice::is_pod<TSubClass>::value, OnClear);
-        memset(this, 0, size());
-
-    }}
-
-
-
-#if __cplusplus >= 199711L
-    // c++0x 标准扩展
-#endif
-
-#if __cplusplus >= 201103L
-    // c++11 标准扩展
-protected:
-    // 不允许直接实例化基类
-    LMBaseClass() = default;
-#endif
-
-}};
-
-}} /* end namespace LMice */
-
-#endif // {H_NAME}_TYPEDEFS_H_
-
-"""
-eh_template=version_template + u"""
-#ifndef {H_NAME}_ENUMDATA_H_
-#define {H_NAME}_ENUMDATA_H_
-
-namespace {h_name}
-{{
-
-/** 枚举类型 */
-{enumlist}
-
-}} /* end of namespace {h_name} */
-
-#endif //{H_NAME}_ENUMDATA_H_
-
-"""
-h_template=version_template + u"""
-#ifndef {H_NAME}_COMPDATA_H_
-#define {H_NAME}_COMPDATA_H_
-
-#include "{l_typedef}.h"
-
-/** 引用类型声明 */
-{predeclare}
-
-//namespace {h_name}
-//{{
-
-/** 复合结构体类型 */
-{structlist}
-
-//}} /* end of namespace {h_name} */
-
-/** LMice::is_pod 模版特化 */
-namespace LMice {{
-//is_pod
-}}
-
-
-#endif //{H_NAME}COMPDATA__H_
-
-"""
 
 enumlist_template=u"""
 /**
@@ -341,45 +94,6 @@ structdummy_template=u"""
     LMBaseClass< {it_ns}::{it_type} > {it_name};
 """
 
-#建模开发头文件
-local_header_template=version_template + u"""
-#ifndef LOCAL_{H_NAME}_H_
-#define LOCAL_{H_NAME}_H_
-
-#include "{local_ns_name}_Typedef.h"
-
-#pragma pack(1)
-
-{headers}
-
-//有依赖顺序的结构体
-#include "{local_ns_name}_Depends.h"
-
-//模型消息与事件结构体
-#include "{local_ns_name}_Model.h"
-
-#pragma pack()
-
-#endif //LOCAL_{H_NAME}_H_
-"""
-
-depends_template=version_template + u"""
-#ifndef {H_NAME}_ENUMDATA_H_
-#define {H_NAME}_ENUMDATA_H_
-
-#include "{local_ns_name}_Typedef.h"
-
-/** 顺序依赖结构体定义 */
-{deplist}
-
-/** LMice::is_pod 模版特化 */
-namespace LMice {{
-//is_pod
-}}
-
-#endif //{H_NAME}_ENUMDATA_H_
-
-"""
 
 msg_struct_template=u"""
 namespace {cd_ns} {{
@@ -398,22 +112,6 @@ struct {cd_type}:public LMice::LMBaseClass< {cd_type} > {{
 }};
 
 }}
-"""
-
-model_template=version_template + u"""
-#ifndef {H_NAME}_MESSANGE_AND_EVENT_H_
-#define {H_NAME}_MESSANGE_AND_EVENT_H_
-
-
-/** 模型消息与事件结构体定义 */
-{msg_struct}
-
-/** LMice::is_pod 模版特化 */
-namespace LMice {{
-//msg_pod
-}}
-
-#endif //{H_NAME}_MESSANGE_AND_EVENT_H_
 """
 
 class CPPHeaderBuilder(basebuilder.BaseBuilder):
@@ -708,64 +406,47 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             self.props['is_pod'] += 'template<> struct is_pod<%s>:public LMice::cv<int, %d>{};\n' % (dp_key, int(is_pod) )
             #print dp_key
         
-    def writeCPPHeaderFile(self):
-        """ 写头文件 """
-        ctx = h_template.format(** self.props)
-        ctx = self.RefineContext(ctx)
-        name = os.path.join(self.props["pj_path"], "%s.h" % self.props["h_name"])
-        f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
-        f.close()
-        self.outfiles.append(name)
 
-        ctx = eh_template.format(** self.props)
-        ctx = self.RefineContext(ctx)
+
+    def writeCPPHeaderFile(self):
+        """ Write C++ header files """
+
+        # CompData hpp
+        ctx = render.cd_hpp_tmpl(self.props)
+        name = os.path.join(self.props["pj_path"], "%s.h" % self.props["h_name"])
+        self.SaveFile(ctx, name)
+
+        # EnumData hpp
+        ctx = render.ed_hpp_tmpl(self.props)
         name = os.path.join(self.props["pj_path"], "%s_Enum.h" % self.props["h_name"])
-        f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
-        f.close()
-        self.outfiles.append(name)
+        self.SaveFile(ctx, name)
      
     def WriteArrayHeaderFile(self):
         """ 枚举类型 数组类型与别名 """
         #print autotools.gen_g_ns_type
-        gns="namespace %s {\n\n" % autotools.g_ns_name
-        tps = autotools.gen_g_ns_type()
-        for key in tps:
-            gns = gns + "typedef %s %s;\n" % (tps[key], key[0])
-        gns = gns + "}\n"
-        self.props["globaltypedefs"]=gns
+        self.props['autotools'] = autotools
+        self.props["globaltypedefs"]=autotools.gen_g_ns_type()
 
         self.props['enumlist']= ''
         for ns in self.GetNamespaces():
             self.props['enumlist'] += '#include "%s_Enum.h"\n' % ns.lower()
-        name = os.path.join(self.props["pj_path"], "%s.h" % ad_header_name)
+        self.props['enumlist'] = self.GetNamespaces()
         self.props["H_NAME"] = ad_header_name.upper()
-        ctx =render.ad_hpp_tmpl(self.props)# ad_template.format(**self.props)
-        ctx = str(ctx)
-        ctx = self.RefineContext(ctx)
-        f=open(name, "w")
-        f.write( ctx )
-        f.close()
-        self.outfiles.append(name)
 
+        # ArrayData hpp
+        name = os.path.join(self.props["pj_path"], "%s.h" % ad_header_name)
+        ctx =render.ad_hpp_tmpl(self.props)
+        self.SaveFile(ctx, name)
+
+        # DataDefile hpp
         name = os.path.join(self.props["pj_path"], "DataDefine.h" )
         ctx = render.dd_hpp_tmpl(self.props)
-        ctx = str(ctx)
-        ctx = self.RefineContext(ctx)
-        f=open(name, "w")
-        f.write( ctx )
-        f.close()
-        self.outfiles.append(name)
+        self.SaveFile(ctx, name)
 
+        # Param Check hpp
         name = os.path.join(self.props["pj_path"], "ParameterCheck.h" )
         ctx = render.pc_hpp_tmpl(self.props)
-        ctx = str(ctx)
-        ctx = self.RefineContext(ctx)
-        f=open(name, "w")
-        f.write( ctx )
-        f.close()
-        self.outfiles.append(name)
+        self.SaveFile(ctx, name)
 
     def CreateModelPerformanceHeader(self, item):
         md_name, ns, md_cname, md_desc, md_items = item.item_val
@@ -812,45 +493,31 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
 
     def WriteLocalHeaderFile(self):
         """ 模型开发入口 头文件 """
-        name = os.path.join(self.props["pj_path"], "%s.h" % autotools.l_ns_name)
+
         self.props["h_name"] =autotools.l_ns_name.lower()
         self.props["H_NAME"] = autotools.l_ns_name.upper()
         self.props['deplist'] = self.deplist
-        self.props['headers']=''
-        for ns in self.GetNamespaces():
-            self.props['headers'] += '#include "%s.h"\n\n' % ns.lower()
-        self.props['headers'] += '#include "DataDefine.h"\n#include "ParameterCheck.h"\n\n'
+        self.props['headers'] = self.GetNamespaces()
 
-        ctx = local_header_template.format(**self.props)
-        ctx = self.RefineContext(ctx)
-        f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
-        f.close()
-        self.outfiles.append(name)
+        name = os.path.join(self.props["pj_path"], "%s.h" % autotools.l_ns_name)
+        ctx = render.pj_hpp_tmpl(self.props)
+        self.SaveFile(ctx, name)
 
-        name = os.path.join(self.props["pj_path"], "%s_Depends.h" % autotools.l_ns_name)
         self.props["h_name"] =autotools.l_ns_name.lower()+ "_Depends"
         self.props["H_NAME"] =self.props["h_name"].upper()
-
-        ctx = depends_template.format(**self.props)
-        ctx = self.RefineContext(ctx)
-        f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
-        f.close()
-        self.outfiles.append(name)
+        name = os.path.join(self.props["pj_path"], "%s_Depends.h" % autotools.l_ns_name)
+        ctx = render.dp_hpp_tmpl(self.props)
+        self.SaveFile(ctx, name)
 
     def WriteModelHeaderFile(self):
         """ 模型 消息与事件头文件 """
-        name = os.path.join(self.props["pj_path"], "%s_Model.h" % autotools.l_ns_name)
         self.props["h_name"] =autotools.l_ns_name.lower()+ "_Model"
         self.props["H_NAME"] =self.props["h_name"].upper()
 
-        ctx = model_template.format(**self.props)
-        ctx = self.RefineContext(ctx)
-        f=open(name, "w")
-        f.write( ctx.encode('utf-8') )
-        f.close()
-        self.outfiles.append(name)
+        name = os.path.join(self.props["pj_path"], "%s_Model.h" % autotools.l_ns_name)
+        ctx = render.md_hpp_tmpl(self.props)
+        self.SaveFile(ctx, name)
+
 
     def BuildBegin(self):
         """ 构建准备，检查构建条件以及初始化 """
@@ -939,4 +606,7 @@ class CPPHeaderBuilder(basebuilder.BaseBuilder):
             self.SaveNamespaceFile(ns, root)'''
 
     def GetFiles(self):
-        return self.outfiles
+        outfiles = []
+        for f in self.outfiles:
+            outfiles.append( f.encode('utf-8') )
+        return outfiles
