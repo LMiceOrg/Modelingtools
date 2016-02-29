@@ -101,45 +101,45 @@ template<> struct is_pod<AppSim::Wstring255>:public LMice::cv<int, 1>{};
 template <class TSubClass, bool t>
 struct LMPVector{
 
-    int count() const {
-        return count<t>();
+    inline int count() const {
+        return count();
     }
 
     inline bool is_pod() const {
-        return is_pod<t>();
+        return is_pod();
     }
 
-    int size() const {
-        return size<t>();
+    inline int size() const {
+        return size();
     }
 
-    int pack(char* buffer, int buffer_size) const {
-        return pack<t>(buffer, buffer_size);
+    inline int pack(char* buffer, int buffer_size) const {
+        return pack(buffer, buffer_size);
     }
 
-    int unpack(const char* buffer, int buffer_size) {
-        return unpack<t>(buffer, buffer_size);
+    inline int unpack(const char* buffer, int buffer_size) {
+        return unpack(buffer, buffer_size);
     }
 
-    void clear() {
-        clear<t>();
+    inline void clear() {
+        clear();
     }
 
-    void push_back(const TSubClass& o) {
-        push_back<t>(o);
+    inline void push_back(const TSubClass& o) {
+        push_back(o);
     }
 
-    const TSubClass& operator[](size_t pos) const {
-        return operator[]<t>(pos);
+    inline const TSubClass& operator[](size_t pos) const {
+        return operator[](pos);
     }
-    TSubClass& operator[](size_t pos) {
-        return operator[]<t>(pos);
+    inline TSubClass& operator[](size_t pos) {
+        return operator[](pos);
     }
 };
 
 template<class TSubClass>
 struct LMPVector<TSubClass, true> {
-    int count() const {
+    inline int count() const {
         return m_vec.size();
     }
 
@@ -147,12 +147,12 @@ struct LMPVector<TSubClass, true> {
         return true;
     }
 
-    int size() const {
+    inline int size() const {
         return sizeof(TSubClass)*m_vec.size() + sizeof(int)*2;
     }
 
     ///<[字节数] [数量] [数据项1],...[数据项n]
-    int pack(char* buffer, int buffer_size) const {
+    inline int pack(char* buffer, int buffer_size) const {
         int ret = -1;
         int pos = 0;
         int sz = size();
@@ -175,7 +175,7 @@ struct LMPVector<TSubClass, true> {
         return ret;
     }
 
-    int unpack(const char* buffer, int buffer_size) {
+    inline int unpack(const char* buffer, int buffer_size) {
         int sz = 0;
         int pos = sizeof(int)*2;
         int i;
@@ -203,19 +203,19 @@ struct LMPVector<TSubClass, true> {
         return 0;
     }
 
-    void clear() {
+    inline void clear() {
         m_vec.clear();
     }
 
-    void push_back(const TSubClass& o) {
+    inline void push_back(const TSubClass& o) {
         m_vec.push_back(o);
     }
 
-    const TSubClass& operator[](size_t pos) const {
+    inline const TSubClass& operator[](size_t pos) const {
         return m_vec[pos];
     }
 
-    TSubClass& operator[](size_t pos) {
+    inline TSubClass& operator[](size_t pos) {
         return m_vec[pos];
     }
 
@@ -224,7 +224,7 @@ struct LMPVector<TSubClass, true> {
 
 template<class TSubClass>
 struct LMPVector<TSubClass, false>{
-    int count() const {
+    inline int count() const {
         return m_vec.size();
     }
 
@@ -232,7 +232,7 @@ struct LMPVector<TSubClass, false>{
         return false;
     }
 
-    int size() const {
+    inline int size() const {
         int sz = sizeof(int)*2;
         for(size_t i=0; i< m_vec.size(); ++i) {
             const TSubClass* pobj = &m_vec[i];
@@ -241,7 +241,7 @@ struct LMPVector<TSubClass, false>{
         return sz;
     }
 
-    int pack(char* buffer, int buffer_size) const {
+    inline int pack(char* buffer, int buffer_size) const {
         int ret = -1;
         int pos = 0;
         int sz = size();
@@ -266,7 +266,7 @@ struct LMPVector<TSubClass, false>{
         return ret;
     }
 
-    int unpack(const char* buffer, int buffer_size) {
+    inline int unpack(const char* buffer, int buffer_size) {
         int sz = 0;
         int pos = sizeof(int)*2;
         int i;
@@ -298,19 +298,19 @@ struct LMPVector<TSubClass, false>{
         return 0;
     }
 
-    void clear() {
+    inline void clear() {
         m_vec.clear();
     }
 
-    void push_back(const TSubClass& o) {
+    inline void push_back(const TSubClass& o) {
         m_vec.push_back(o);
     }
 
-    const TSubClass& operator[](size_t pos) const {
+    inline const TSubClass& operator[](size_t pos) const {
         return m_vec[pos];
     }
 
-    TSubClass& operator[](size_t pos) {
+    inline TSubClass& operator[](size_t pos) {
         return m_vec[pos];
     }
 

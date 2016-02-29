@@ -50,6 +50,9 @@ class IniModelPerfBuilder(basebuilder.BaseBuilder):
             if name == "":
                 name = "%s-%d" % (props.md_cname, i+1)
 
+            #Refine file name (convert reserved chars to char(_) )
+            name = self.RefineFileName(name)
+
             for j in range( len(props.md_items[i]) ):
                 param =  baseitem.BaseItem(['it_name', 'it_ns', 'it_cname', 'it_type', 'it_grain', 'it_unit', 'it_default', 'it_min', 'it_max', 'it_desc'], props.md_desc[j][:10] )
                 param.it_val=props.md_items[i][j]

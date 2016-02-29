@@ -53,4 +53,11 @@
 //弧度到度的转换系数
 #define NT_FI			57.29577951308232
 
+//飞机极速飞行 基准时间
+#define NT_PLANE_SHTIME       600
+
+//飞机超低空飞行 基准时间
+#define NT_PLANE_ALTIME       600
+
+
 #endif //NTSIM_Data_Define_Include_H

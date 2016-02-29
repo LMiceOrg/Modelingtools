@@ -39,14 +39,42 @@ static bool getParameter( const CParameterSet* paramSet, const wchar_t* property
     return false;
 }
 
-inline bool operator ==( const AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
-    return wcscmp(w1.value, w2.value) == 0;
+inline bool operator == ( const AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
+    return wcsncmp(w1.value, w2.value, 255) == 0;
 }
 
-inline AppSim::Wstring255& operator<<(AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
+inline bool operator < ( const AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
+    return wcsncmp(w1.value, w2.value, 255) == -1;
+}
+
+inline AppSim::Wstring255& operator << (AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
     memcpy(w1.value, w2.value, sizeof(w1));
     return w1;
 }
+
+inline void RefineFileName(std::wstring& out) {
+//    The following reserved characters:
+//    < (less than)
+//    > (greater than)
+//    : (colon)
+//    " (double quote)
+//    / (forward slash)
+//    \ (backslash)
+//    | (vertical bar or pipe)
+//    ? (question mark)
+//    * (asterisk)
+    wchar_t reserved[]=L".>,<:;/?'\"\\|`~@#$$%^&*-+=(){}[]";
+
+    for(size_t i=0; i< wcslen(reserved); ++i) {
+        size_t pos = out.find(reserved[i], 0);
+        while(pos != out.npos) {
+            out = out.replace(pos, 1, 1, L'_');
+            pos = out.find(reserved[i], 0);
+        }
+    }
+
+}
+
 
 /**********************
  * 性能参数读取函数
@@ -235,9 +263,11 @@ $clsname::~$clsname$'('void)
 bool $clsname::init() {
 
     int enumValue = 0;
-    std::wstring file;
-
-    file = pobj->m_wstrCurrentPath + pobj->m_PerforFile.value;
+    //使用 设备名称 作为文件名
+    std::wstring file = pobj->m_EquipName.value;
+    RefineFileName(file);
+    file = pobj->m_wstrCurrentPath + file + L".ini";
+    //file = pobj->m_wstrCurrentPath + pobj->m_PerforFile.value;
     loginfo(pobj->m_Logger, _T("Read Performance")<< file );
 
 $for item in ctx['perf_def']:

@@ -28,12 +28,25 @@
 */
 
 /** NOTE: 单元测试框架的技术方案 Python Extention
- * 方案2: Luajit + ToLua++   */
+ * 方案2: Luajit + ToLua++
+*/
 
-/** TODO: what are xsi:types of user defined types
+/** FIXED: what are xsi:types of user defined types
  * builder/xmlmodeldescbuilder  CreateModelInitParamItem
  */
 
 
-/** NOTE: Excel G4 文件名有错误 */
+/** FIXED: Excel G4 文件名有错误 */
 
+/**
+ * https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+ * Naming Files, Paths, and Namespaces
+ *
+ *  FIXED: 设备型号 判断非法字符，生成ini文件 (ini builder )
+ *
+ *  FIXED: 性能参数文件名根据 设备名称 ＋.ini (无效字符替换) (impl cpp)
+ *
+ *  FIXED: 超低空飞行时间 600，超高速飞行时间 600 在datadefine中定义基准时间
+ *
+ *
+*/

@@ -22,6 +22,13 @@ class BaseBuilder(object):
         if os.path.isfile(autotools.simapp_dtfile):
             self.ImportXMLType(autotools.simapp_dtfile)
 
+    def RefineFileName(self, name):
+        " make sure file name is valid"
+        reserved=".>,<:;/?'\"\\|`~@#$%^&*-+=(){}[]"
+        for k in reserved:
+            name = name.replace(k, '_')
+        return name
+
     def SaveFile(self, ctx, name, refine=True):
         #Make sure path is valid, or makedir
         path, nm = os.path.split( os.path.abspath(name) )
@@ -42,7 +49,7 @@ class BaseBuilder(object):
 
 
         #Write to file with default encoding and bom
-        f=open(name, "wb")
+        f=open(name, "w")
         f.write( autotools.default_bom )
         f.write( ctx.encode(autotools.default_encoding) )
         f.close()
