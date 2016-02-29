@@ -39,19 +39,23 @@ static bool getParameter( const CParameterSet* paramSet, const wchar_t* property
     return false;
 }
 
+//相等操作符
 inline bool operator == ( const AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
     return wcsncmp(w1.value, w2.value, 255) == 0;
 }
 
+//小于操作符
 inline bool operator < ( const AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
     return wcsncmp(w1.value, w2.value, 255) == -1;
 }
 
+//向wstring255附值
 inline AppSim::Wstring255& operator << (AppSim::Wstring255& w1, const AppSim::Wstring255& w2) {
     memcpy(w1.value, w2.value, sizeof(w1));
     return w1;
 }
 
+//替换不能作为文件名单保留字符
 inline void RefineFileName(std::wstring& out) {
 //    The following reserved characters:
 //    < (less than)
@@ -109,14 +113,12 @@ static void GetPerfDouble(const wchar_t* file, const wchar_t* name, T& value) {
 
 template<class T>
 static void GetPerfInt(const wchar_t* file, const wchar_t* name, T& value) {
-    value = 0;
     value = GetPrivateProfileIntW(_T("perf"), name, 0, file );
 }
 
 
 static void GetPerfBool(const wchar_t* file, const wchar_t* name, bool& value) {
-    value = false;
-    value = GetPrivateProfileIntW(_T("perf"), name, 0, file );
+    value = GetPrivateProfileIntW(_T("perf"), name, 0, file ) != 0;
 }
 
 template< class T>
