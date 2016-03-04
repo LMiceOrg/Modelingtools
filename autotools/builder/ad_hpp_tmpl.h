@@ -189,7 +189,7 @@ struct LMPVector<TSubClass, true> {
         sz = *(const int*)buffer;
         cnt = *(const int*)(buffer+sizeof(int));
 
-        if(sz < buffer_size) {
+        if(sz > buffer_size) {
             return -1;
         }
 
@@ -280,7 +280,7 @@ struct LMPVector<TSubClass, false>{
         sz = *(const int*)buffer;
         cnt = *(const int*)(buffer+sizeof(int));
 
-        if(sz < buffer_size) {
+        if(sz > buffer_size) {
             return -1;
         }
         sz -= pos;

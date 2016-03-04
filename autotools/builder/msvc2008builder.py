@@ -58,7 +58,7 @@ class Msvc2008Builder(xmlmodeldescbuilder.XMLModelDescBuilder):
             props["root"] = self.folder
             props["model_folder"] = os.path.abspath( self.model_folder)
             props["so_name"] = pj_name + "Solution"
-            props["pj_name"] = props["so_folder"]
+            props["pj_name"] = pj_name
             props["tp_name"] = "Test" + pj_name
             props["PJ_NAME"] = pj_name.upper()
 
