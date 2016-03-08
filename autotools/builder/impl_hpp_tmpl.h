@@ -16,6 +16,30 @@ extern pMercator_BLtoxy Mercator_BLtoxy;
 #define Mercator_XYtoLB(pt, pos) Mercator_xytoBL(pt.Y, pt.X, pos.LAT, pos.LON)
 #define Mercator_LBtoXY(pos, pt) Mercator_BLtoxy(pos.LAT, pos.LON, pt.Y, pt.X)
 
+typedef void  (*pBLHtoXYZ) ( double B,double L,double H, double &X,double &Y,double &Z);
+typedef void (*pXYZtoBLH)( double X, double Y, double Z, double &B, double &L,double &H );
+
+extern pBLHtoXYZ BLHtoXYZ;
+extern pXYZtoBLH XYZtoBLH;
+
+
+#define SurfaceXYZtoCoreXYZ(pts, ptc) do {$'\\'
+    PosThreeDime_T pos; $'\\'
+    pos.clear();    $'\\'
+    Mercator_XYtoLB(pts, pos);  $'\\'
+    pos.Height = pts.Height;    $'\\'
+    BLHtoXYZ(pos.LAT, pos.LON, pos.Height, ptc.X, ptc.Y, ptc.Z);    $'\\'
+    } while(0)  $'\\'
+
+#define CoreXYZtoSurfaceXYZ(ptc, pts) do { $'\\'
+    PosThreeDime_T pos;  $'\\'
+    pos.clear();     $'\\'
+    XYZtoBLH(ptc.X, ptc.Y, ptc.Z, pos.LAT, pos.LON, pos.Height);     $'\\'
+    Mercator_LBtoXY(pos, pts);   $'\\'
+    pts.Height = pos.Height;     $'\\'
+    } while(0)   $'\\'
+
+
 //计算目标点相对于基点的真方位
 typedef void (*pCalc_TrueAzimuth3)(const PointThreeDime_T tar, const PointThreeDime_T base, double* ang);
 extern pCalc_TrueAzimuth3 Calc_TrueAzimuth3;

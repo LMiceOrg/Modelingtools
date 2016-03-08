@@ -26,6 +26,8 @@ ad_header_name ="%s_Typedef" % autotools.l_ns_name
 
 
 enumlist_template=u"""
+namespace {ed_ns}
+{{
 /**
 *@brief {ed_ns}::{ed_name} {ed_desc}
 * 枚举类型定义
@@ -35,6 +37,13 @@ enumlist_template=u"""
 enum {ed_name} {{
     {ed_items}
 }};
+}} /* end of namespace {ed_ns} */
+
+/**LMice::is_pod 模板特化 */
+namespace LMice{{
+//is_pod
+template<> struct is_pod<{ed_ns}::{ed_name}>:public LMice::cv<int,1>{{}};
+}}//namespace LMice
 
 """
 

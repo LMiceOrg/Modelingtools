@@ -45,13 +45,7 @@ $if ctx.has_key('arraylist'):
     $ctx['arraylist']
 $# endif arraylist
 
-/** 各命名空间的枚举类型定义 */
-$if ctx.has_key('enumlist'):
-    $for key in ctx['enumlist']:
-        #include "$key.lower()$'_enum.h'"
 
-    $# endfor enumlist
-$# endif enumlist
 
 /** 全局宏定义 */
 #define LMICE_STATIC_ASSERT(COND,MSG)       typedef char Error_##MSG[(!!(COND))*2-1]
@@ -419,5 +413,13 @@ protected:
 };
 
 } /* end namespace LMice */
+
+/** 各命名空间的枚举类型定义 */
+$if ctx.has_key('enumlist'):
+    $for key in ctx['enumlist']:
+        #include "$key.lower()$'_enum.h'"
+
+    $# endfor enumlist
+$# endif enumlist
 
 #endif // $ctx['H_NAME']_TYPEDEFS_H_

@@ -256,7 +256,11 @@ class XMLModelDescBuilder(basebuilder.BaseBuilder):
         #获得模型的描述信息
         md_item = self.GetModelDecl(pj_name)
 
-        com = xmllib.SubElement(root, "Component", {"type":pj_name, "category":"ModelComponent",
+        category = 'ModelComponent'
+        if md_item.item_val[7][2].strip() == u'界面组件':
+            category = 'GUIComponent'
+
+        com = xmllib.SubElement(root, "Component", {"type":pj_name, "category":category,
             "GUID": "{%s}" % self.GetTypeUuid(pj_name, "Constructive"),
                                                      "LVC_Feature":"Constructive"})
         xmllib.SubElement(com, "Inherit")

@@ -83,20 +83,72 @@ inline void RefineFileName(std::wstring& out) {
 /**********************
  * 性能参数读取函数
 *********************/
-static void GetPerfWString(const wchar_t* file, const wchar_t* name, AppSim::Wstring255& value) {
-    memset(value.value, 0, sizeof(value));
-    GetPrivateProfileStringW(_T("perf"), name, _T(""), value.value, 255, file );
+
+static inline void ConvertWcharToAnsi(const wchar_t* src, int size, std::string& value) {
+    int sz = WideCharToMultiByte(0,
+        0,
+        src,
+        size,
+        NULL,
+        0,
+        0,
+        FALSE);
+    char * buff = new char[sz+1];
+    memset(buff, 0, sz+1);
+    WideCharToMultiByte(0,
+        0,
+        src,
+        size,
+        buff,
+        sz,
+        0,
+        FALSE);
+    //printf("src = %s\n", buff);
+    value = buff;
+    delete[] buff;
+}
+static inline void ConvertUtf8ToWstring(const char* src, int size, wchar_t* value, int sz) {
+    int wsize = MultiByteToWideChar( CP_UTF8,
+        0,
+        src,
+        size,
+        NULL,
+        0
+        );
+    if(wsize > sz) return;
+
+    MultiByteToWideChar(CP_UTF8,
+        0,
+        src,
+        size,
+        value,
+        wsize);
+    //wprintf(L"size = %d\twsize=%d  %s\n%s\n", size, wsize, src, (const wchar_t*)value.value);
 }
 
 static void GetPerfWString(const wchar_t* file, const wchar_t* name, wchar_t* value, int size) {
     memset(value, 0, sizeof(wchar_t)*size);
-    GetPrivateProfileStringW(_T("perf"), name, _T(""), value, size, file );
+    char buff[512];
+    memset(buff, 0, 512);
+    std::string sfile;
+    ConvertWcharToAnsi(file, wcslen(file), sfile);
+    std::string sname;
+    ConvertWcharToAnsi(name, wcslen(name), sname);
+
+    GetPrivateProfileStringA("perf", sname.c_str(), "", buff, 512, sfile.c_str());
+    ConvertUtf8ToWstring(buff, strlen(buff), value, size);
 }
+
+static void GetPerfWString(const wchar_t* file, const wchar_t* name, AppSim::Wstring255& value) {
+    GetPerfWString(file, name, value.value, 255);
+}
+
+
 
 static void GetPerfWString(const wchar_t* file, const wchar_t* name, std::wstring& value) {
     wchar_t buff[512];
     memset(buff, 0, sizeof(buff));
-    GetPrivateProfileStringW(_T("perf"), name, _T(""), buff, 511, file );
+    GetPerfWString(file, name, buff, 512);
     value = buff;
 }
 
@@ -189,6 +241,8 @@ pCalc_WaveTransLoss Calc_WaveTransLoss = NULL;
 pMercator_SetB0L0 Mercator_SetB0L0 = NULL;
 pMercator_xytoBL Mercator_xytoBL = NULL;
 pMercator_BLtoxy Mercator_BLtoxy = NULL;
+pBLHtoXYZ BLHtoXYZ = NULL;
+pXYZtoBLH XYZtoBLH = NULL;
 
 
 //void Calculate::LBHtoXYZ( const PosThreeDime_T& pos, PointThreeDime_T& point) {
@@ -214,6 +268,8 @@ $clsname::$clsname$'('$ctx["so_folder"] * obj)
     Mercator_SetB0L0 = (pMercator_SetB0L0)GetProcAddress(hmod, "Mercator_SetB0L0");
     Mercator_xytoBL = (pMercator_xytoBL)GetProcAddress(hmod, "Mercator_xytoBL");
     Mercator_BLtoxy = (pMercator_BLtoxy)GetProcAddress(hmod, "Mercator_BLtoxy");
+    BLHtoXYZ = (pBLHtoXYZ)GetProcAddress(hmod, "BLHtoXYZ");
+    XYZtoBLH = (pXYZtoBLH)GetProcAddress(hmod, "XYZtoBLH");
 
     PathRemoveFileSpecW(buff);
     PathAppendW(buff, L"NTAlgorithm.dll");

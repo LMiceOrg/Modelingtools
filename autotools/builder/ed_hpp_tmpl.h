@@ -18,12 +18,8 @@ $else:
 #ifndef $ctx['H_NAME']_ENUMDATA_H_
 #define $ctx['H_NAME']_ENUMDATA_H_
 
-namespace $ctx['h_name']
-{
-
 /** 枚举类型 */
 $ctx['enumlist']
 
-} /* end of namespace $ctx['h_name'] */
 
 #endif //$ctx['H_NAME']_ENUMDATA_H_
